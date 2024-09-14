@@ -5,6 +5,13 @@ An Asteroids clone created in Java.
 
 Its UI is made with [JavaFX](https://openjfx.io/), a Java library meant for creating GUI apps.
 
+# Features
+- Score counter
+- Title screen
+- Game over screen
+- Pausing
+- Saving screenshots
+
 # Controls
 - **A / D or Left Arrow / Right Arrow:** Turn ship
 - **W or Up Arrow:** Accelerate ship
