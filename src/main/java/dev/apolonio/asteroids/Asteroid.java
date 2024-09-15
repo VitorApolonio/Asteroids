@@ -1,4 +1,4 @@
-package asteroids;
+package dev.apolonio.asteroids;
 
 import java.util.Random;
 

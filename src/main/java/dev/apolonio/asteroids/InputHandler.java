@@ -1,4 +1,4 @@
-package asteroids;
+package dev.apolonio.asteroids;
 
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;

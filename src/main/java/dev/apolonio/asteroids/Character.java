@@ -1,4 +1,4 @@
-package asteroids;
+package dev.apolonio.asteroids;
 
 import javafx.geometry.Point2D;
 import javafx.scene.shape.Polygon;
