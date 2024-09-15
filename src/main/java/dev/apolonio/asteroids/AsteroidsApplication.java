@@ -42,8 +42,8 @@ public class AsteroidsApplication extends Application {
     @Override
     public void start(Stage window) {
         // Shotgun activation sfx
-        AudioClip powerUpSfx = new AudioClip("file:src/main/resources/sounds/powerup.wav");
-        AudioClip powerDownSfx = new AudioClip("file:src/main/resources/sounds/powerdown.wav");
+        AudioClip powerUpSfx = new AudioClip(this.getClass().getResource("/sounds/powerup.wav").toExternalForm());
+        AudioClip powerDownSfx = new AudioClip(this.getClass().getResource("/sounds/powerdown.wav").toExternalForm());
         
         // Create layout
         Pane mainLayout = new Pane();
