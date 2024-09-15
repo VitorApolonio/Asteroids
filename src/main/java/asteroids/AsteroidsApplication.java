@@ -3,10 +3,8 @@ package asteroids;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -27,7 +25,6 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
-import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
@@ -37,7 +34,7 @@ public class AsteroidsApplication extends Application {
     
     public static final int WIDTH = 900;
     public static final int HEIGHT = 600;
-    public boolean isPaused = false;
+    private boolean isPaused = false;
 
     @Override
     public void start(Stage window) {
@@ -67,16 +64,6 @@ public class AsteroidsApplication extends Application {
         
         // Create scene with layout
         Scene mainView = new Scene(mainLayout);
-        
-        /* This is a system for handling key presses. When the user presses a key, it gets set to true in the map.
-           When the user releases a key, it gets set to false. This is done because the default way of handling input
-           has a slight delay between detecting the first press and subsequent ones, which would make for laggy controls.
-           The event listener for this is created after the animation timer. */
-        Map<KeyCode, Boolean> pressedKeys = new HashMap<>();
-
-        mainView.setOnKeyPressed(event -> pressedKeys.put(event.getCode(), Boolean.TRUE));
-
-        mainView.setOnKeyReleased(event -> pressedKeys.put(event.getCode(), Boolean.FALSE));
 
         // Create user score text
         Text scoreText = new Text(10, 50, "SCORE: 0");
@@ -132,35 +119,36 @@ public class AsteroidsApplication extends Application {
         endScreenPane.getChildren().add(finalScoreText);
         
         Scene endView = new Scene(endScreenPane);
+
+        /* This is a system for handling key presses. When the user presses a key, it gets set to true in the map.
+           When the user releases a key, it gets set to false. This is done because the default way of handling input
+           has a slight delay between detecting the first press and subsequent ones, which would create a slight delay
+           in ship controls. */
+        InputHandler inputHandler = new InputHandler(window);
         
-        
-        /* This timer handles all real time events, like movement of the asteroids and the ship. All code here
+        /* This timer handles all real time events on the main view, like movement of the asteroids and the ship. All code here
            gets executed about 60 times a second. */
         AnimationTimer mainTimer = new AnimationTimer() {
             
-            /* This variable handles the cooldown for shots, since otherwise the player could fire
-               multiple bullets at the same time. */
+            // This variable is a cooldown for the ship's bullets.
             private int cooldown = 0;
             
             @Override
             public void handle(long now) {
-                
+
                 // Ship movement
-                if (pressedKeys.getOrDefault(KeyCode.LEFT, false) ||
-                        pressedKeys.getOrDefault(KeyCode.A, false)) {
+                if (inputHandler.isHeld(KeyCode.LEFT, KeyCode.A)) {
                     ship.turnLeft();
                 }
-                if (pressedKeys.getOrDefault(KeyCode.RIGHT, false) ||
-                        pressedKeys.getOrDefault(KeyCode.D, false)) {
+                if (inputHandler.isHeld(KeyCode.RIGHT, KeyCode.D)) {
                     ship.turnRight();
                 }
-                if (pressedKeys.getOrDefault(KeyCode.UP, false) ||
-                        pressedKeys.getOrDefault(KeyCode.W, false)) {
+                if (inputHandler.isHeld(KeyCode.UP, KeyCode.W)) {
                     ship.accelerate();
                 }
                 
                 // Projectile
-                if (pressedKeys.getOrDefault(KeyCode.SPACE, false) && projectiles.size() < 3 && cooldown <= 0) {
+                if (inputHandler.isHeld(KeyCode.SPACE) && projectiles.size() < 3 && cooldown <= 0) {
                     Projectile proj = new Projectile(((int) ship.getCharacter().getTranslateX()), (int) ship.getCharacter().getTranslateY());
                     proj.getCharacter().setRotate(ship.getCharacter().getRotate());
                     proj.getCharacter().setFill(Color.WHITE);
@@ -169,7 +157,7 @@ public class AsteroidsApplication extends Application {
                     proj.accelerate();
                     proj.setMovement(proj.getMovement().normalize().multiply(4).add(ship.getMovement().multiply(0.5)));
                     
-                    mainLayout.getChildren().addFirst(proj.getCharacter());
+                    mainLayout.getChildren().addAll(proj.getCharacter());
                     
                     cooldown += 30;
                 }
@@ -236,16 +224,8 @@ public class AsteroidsApplication extends Application {
                 }
             }
         };
-        
-        // Start game with spacebar
-        startView.setOnKeyReleased(event -> {
-            if (event.getCode() == KeyCode.SPACE) {
-                window.setScene(mainView);
-                mainTimer.start();
-            }
-        });
 
-        // Pause label
+        // Pause text
         Text pauseText = new Text("PAUSED");
         pauseText.setFont(Font.font("Verdana", FontWeight.BOLD, 70));
         pauseText.setFill(Color.WHITE);
@@ -256,43 +236,45 @@ public class AsteroidsApplication extends Application {
         pauseText.setTranslateY(HEIGHT / 2 + pauseText.getBoundsInParent().getMaxY());
         mainLayout.getChildren().add(pauseText);
 
-        // Pause text animation
+        // Pause flashing text animation
         FadeTransition pauseTransition = new FadeTransition(Duration.seconds(0.66), pauseText);
         pauseTransition.setFromValue(0.0);
         pauseTransition.setToValue(1.0);
         pauseTransition.setAutoReverse(true);
         pauseTransition.setCycleCount(Animation.INDEFINITE);
 
+        // This is for inputs that aren't held down, so they don't use the custom input handler
         window.addEventHandler(KeyEvent.KEY_PRESSED, event -> {
-            switch (event.getCode()) {
-                // Pause or unpause game if player presses escape
-                case ESCAPE:
-                    // Pausing only works properly on the main view, so you can't pause outside of it
-                    if (window.getScene() != mainView) {
-                        break;
-                    }
+            // Start game with spacebar
+            if (event.getCode() == KeyCode.SPACE && window.getScene() == startView) {
+                window.setScene(mainView);
+                mainTimer.start();
+            }
 
-                    if (isPaused) {
-                        pauseTransition.stop();
-                        pauseText.setVisible(false);
-                        mainTimer.start();
-                    } else {
-                        pauseTransition.play();
-                        pauseText.setVisible(true);
-                        mainTimer.stop();
-                    }
-                    isPaused = !isPaused;
-                    break;
-                // Save a screenshot with "P" key
-                case P:
-                    saveScr(window.getScene());
-                    break;
+            // Save a screenshot of the current view with P key
+            if (event.getCode() == KeyCode.P) {
+                saveScr(window.getScene());
+            }
+
+            // Pause game with ESC key, only allowed on mainView since it doesn't work properly on other scenes
+            if ((event.getCode() == KeyCode.ESCAPE || event.getCode() == KeyCode.PAUSE) && window.getScene() == mainView) {
+                if (isPaused) {
+                    pauseTransition.stop();
+                    pauseText.setVisible(false);
+                    mainTimer.start();
+                    isPaused = false;
+                } else {
+                    pauseTransition.play();
+                    pauseText.setVisible(true);
+                    mainTimer.stop();
+                    isPaused = true;
+                }
             }
         });
 
         window.setScene(startView);
         window.setTitle("Asteroids!");
-        window.setResizable(false);
+        window.setResizable(false); // Resizing doesn't properly work yet
         window.show();
     }
 
