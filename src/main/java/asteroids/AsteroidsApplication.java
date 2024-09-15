@@ -129,7 +129,7 @@ public class AsteroidsApplication extends Application {
         /* This timer handles all real time events on the main view, like movement of the asteroids and the ship. All code here
            gets executed about 60 times a second. */
         AnimationTimer mainTimer = new AnimationTimer() {
-            
+
             // This variable is a cooldown for the ship's bullets.
             private int cooldown = 0;
             
@@ -222,9 +222,7 @@ public class AsteroidsApplication extends Application {
 
                             // Delay before "PRESS SPACE" text pops up
                             PauseTransition tryAgainPause = new PauseTransition(Duration.seconds(1));
-                            tryAgainPause.setOnFinished(event2 -> {
-                                tryAgainText.setVisible(true);
-                            });
+                            tryAgainPause.setOnFinished(event2 -> tryAgainText.setVisible(true));
 
                             tryAgainPause.play();
                         });
@@ -299,8 +297,8 @@ public class AsteroidsApplication extends Application {
                 finalScoreText.setText(("FINAL SCORE: 0"));
 
                 // Delete all asteroids and projectiles
-                mainLayout.getChildren().removeAll(asteroids.stream().map(a -> a.getCharacter()).toList());
-                mainLayout.getChildren().removeAll(projectiles.stream().map(p -> p.getCharacter()).toList());
+                mainLayout.getChildren().removeAll(asteroids.stream().map(Character::getCharacter).toList());
+                mainLayout.getChildren().removeAll(projectiles.stream().map(Character::getCharacter).toList());
                 asteroids.clear();
                 projectiles.clear();
 
@@ -327,7 +325,7 @@ public class AsteroidsApplication extends Application {
 
         int imageNum = 0;
 
-        File scrDir = new File("scr");
+        File scrDir = new File("screenshots");
         File imgFile;
 
         // Keep checking if "screenshot-n.png" exists, until some number doesn't.
