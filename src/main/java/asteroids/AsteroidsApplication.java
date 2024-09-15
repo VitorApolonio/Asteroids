@@ -14,6 +14,7 @@ import javafx.animation.FadeTransition;
 import javafx.animation.PauseTransition;
 import javafx.application.Application;
 import javafx.embed.swing.SwingFXUtils;
+import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.image.WritableImage;
@@ -53,15 +54,6 @@ public class AsteroidsApplication extends Application {
         List<Asteroid> asteroids = new ArrayList<>();
         List<Projectile> projectiles = new ArrayList<>();
         
-        // Create 5 asteroids at random positions
-        for (int i = 0; i < 5; i++) {
-            Random rand = new Random();
-            Asteroid asteroid = new Asteroid(rand.nextInt(WIDTH / 3), rand.nextInt(HEIGHT));
-            asteroid.getCharacter().setFill(Color.GRAY);
-            asteroids.add(asteroid);
-        }
-        asteroids.forEach(asteroid -> mainLayout.getChildren().addFirst(asteroid.getCharacter()));
-        
         // Create scene with layout
         Scene mainView = new Scene(mainLayout);
 
@@ -75,7 +67,7 @@ public class AsteroidsApplication extends Application {
         AtomicInteger points = new AtomicInteger();
         
         // Create title screen layout
-        VBox startPane = new VBox(HEIGHT / 6);
+        VBox startPane = new VBox(HEIGHT / 8);
         startPane.setPrefSize(WIDTH, HEIGHT);
         startPane.setStyle("-fx-background-color: black");
         startPane.setAlignment(Pos.CENTER);
@@ -88,7 +80,7 @@ public class AsteroidsApplication extends Application {
         titleText.setStrokeWidth(3);
         startPane.getChildren().add(titleText);
         
-        Text instruction = new Text("PRESS SPACEBAR TO START");
+        Text instruction = new Text("PRESS SPACE TO START");
         instruction.setFont(Font.font("Courier New", FontWeight.BOLD, 40));
         instruction.setFill(Color.WHITE);
         instruction.setStroke(Color.BLACK);
@@ -98,7 +90,7 @@ public class AsteroidsApplication extends Application {
         Scene startView = new Scene(startPane);
         
         // Create game over screen layout
-        VBox endScreenPane = new VBox(HEIGHT / 6);
+        VBox endScreenPane = new VBox(HEIGHT / 12);
         endScreenPane.setPrefSize(WIDTH, HEIGHT);
         endScreenPane.setStyle("-fx-background-color: black");
         endScreenPane.setAlignment(Pos.CENTER);
@@ -112,12 +104,20 @@ public class AsteroidsApplication extends Application {
         endScreenPane.getChildren().add(gameOverText);
         
         Text finalScoreText = new Text("FINAL SCORE: 0");
-        finalScoreText.setFont(Font.font("Courier New", FontWeight.BOLD, 60));
+        finalScoreText.setFont(Font.font("Courier New", FontWeight.BOLD, 50));
         finalScoreText.setFill(Color.WHITE);
         finalScoreText.setStroke(Color.BLACK);
         finalScoreText.setStrokeWidth(3);
         endScreenPane.getChildren().add(finalScoreText);
-        
+
+        Text tryAgainText = new Text("PRESS SPACE TO CONTINUE");
+        tryAgainText.setFont(Font.font("Courier New", FontWeight.BOLD, 40));
+        tryAgainText.setFill(Color.WHITE);
+        tryAgainText.setStroke(Color.BLACK);
+        tryAgainText.setStrokeWidth(1);
+        tryAgainText.setVisible(false);
+        endScreenPane.getChildren().add(tryAgainText);
+
         Scene endView = new Scene(endScreenPane);
 
         /* This is a system for handling key presses. When the user presses a key, it gets set to true in the map.
@@ -213,12 +213,22 @@ public class AsteroidsApplication extends Application {
                 for (Asteroid asteroid : asteroids) {
                     if (ship.collide(asteroid)) {
                         stop();
-                        PauseTransition pause = new PauseTransition(Duration.seconds(1));
-                        pause.setOnFinished(event -> {
+
+                        // Delay before game over screen appears
+                        PauseTransition deathPause = new PauseTransition(Duration.seconds(1));
+                        deathPause.setOnFinished(event -> {
                             finalScoreText.setText("FINAL SCORE: " + points.get());
                             window.setScene(endView);
+
+                            // Delay before "PRESS SPACE" text pops up
+                            PauseTransition tryAgainPause = new PauseTransition(Duration.seconds(1));
+                            tryAgainPause.setOnFinished(event2 -> {
+                                tryAgainText.setVisible(true);
+                            });
+
+                            tryAgainPause.play();
                         });
-                        pause.play();
+                        deathPause.play();
                         break;
                     }
                 }
@@ -247,6 +257,16 @@ public class AsteroidsApplication extends Application {
         window.addEventHandler(KeyEvent.KEY_PRESSED, event -> {
             // Start game with spacebar
             if (event.getCode() == KeyCode.SPACE && window.getScene() == startView) {
+
+                // Spawn 5 initial asteroids at random positions
+                for (int i = 0; i < 5; i++) {
+                    Random rand = new Random();
+                    Asteroid asteroid = new Asteroid(rand.nextInt(WIDTH / 3), rand.nextInt(HEIGHT));
+                    asteroid.getCharacter().setFill(Color.GRAY);
+                    asteroids.add(asteroid);
+                }
+                asteroids.forEach(asteroid -> mainLayout.getChildren().addFirst(asteroid.getCharacter()));
+
                 window.setScene(mainView);
                 mainTimer.start();
             }
@@ -269,6 +289,29 @@ public class AsteroidsApplication extends Application {
                     mainTimer.stop();
                     isPaused = true;
                 }
+            }
+
+            // Restart game
+            if (event.getCode() == KeyCode.SPACE && window.getScene() == endView) {
+                // Clear points
+                points.set(0);
+                scoreText.setText("SCORE: 0");
+                finalScoreText.setText(("FINAL SCORE: 0"));
+
+                // Delete all asteroids and projectiles
+                mainLayout.getChildren().removeAll(asteroids.stream().map(a -> a.getCharacter()).toList());
+                mainLayout.getChildren().removeAll(projectiles.stream().map(p -> p.getCharacter()).toList());
+                asteroids.clear();
+                projectiles.clear();
+
+                // Center ship
+                ship.getCharacter().setTranslateY(HEIGHT / 2);
+                ship.getCharacter().setTranslateX(WIDTH / 2);
+                ship.getCharacter().setRotate(0);
+                ship.setMovement(new Point2D(0, 0));
+
+                // Go back to title screen
+                window.setScene(startView);
             }
         });
 
