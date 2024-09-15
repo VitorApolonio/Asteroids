@@ -22,6 +22,7 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
+import javafx.scene.media.AudioClip;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
@@ -36,9 +37,13 @@ public class AsteroidsApplication extends Application {
     public static final int WIDTH = 900;
     public static final int HEIGHT = 600;
     private boolean isPaused = false;
+    private boolean shotgun = false;
 
     @Override
     public void start(Stage window) {
+        // Shotgun activation sfx
+        AudioClip powerUpSfx = new AudioClip("file:src/main/resources/sounds/powerup.wav");
+        AudioClip powerDownSfx = new AudioClip("file:src/main/resources/sounds/powerdown.wav");
         
         // Create layout
         Pane mainLayout = new Pane();
@@ -148,7 +153,8 @@ public class AsteroidsApplication extends Application {
                 }
                 
                 // Projectile
-                if (inputHandler.isHeld(KeyCode.SPACE) && projectiles.size() < 3 && cooldown <= 0) {
+                if (inputHandler.isHeld(KeyCode.SPACE) && cooldown <= 0 && projectiles.size() < (shotgun ? 6 : 3)) {
+
                     Projectile proj = new Projectile(((int) ship.getCharacter().getTranslateX()), (int) ship.getCharacter().getTranslateY());
                     proj.getCharacter().setRotate(ship.getCharacter().getRotate());
                     proj.getCharacter().setFill(Color.WHITE);
@@ -157,7 +163,27 @@ public class AsteroidsApplication extends Application {
                     proj.accelerate();
                     proj.setMovement(proj.getMovement().normalize().multiply(4).add(ship.getMovement().multiply(0.5)));
                     
-                    mainLayout.getChildren().addAll(proj.getCharacter());
+                    mainLayout.getChildren().add(proj.getCharacter());
+
+                    // Fires 2 additional projectiles if shotgun mode is active
+                    if (shotgun) {
+                        Projectile proj1 = new Projectile(((int) ship.getCharacter().getTranslateX()), (int) ship.getCharacter().getTranslateY());
+                        proj1.getCharacter().setRotate(ship.getCharacter().getRotate() + 10);
+                        proj1.getCharacter().setFill(Color.WHITE);
+                        projectiles.add(proj1);
+
+                        Projectile proj2 = new Projectile(((int) ship.getCharacter().getTranslateX()), (int) ship.getCharacter().getTranslateY());
+                        proj2.getCharacter().setRotate(ship.getCharacter().getRotate() - 10);
+                        proj2.getCharacter().setFill(Color.WHITE);
+                        projectiles.add(proj2);
+
+                        proj1.accelerate();
+                        proj1.setMovement(proj1.getMovement().normalize().multiply(4).add(ship.getMovement().multiply(0.5)));
+                        proj2.accelerate();
+                        proj2.setMovement(proj2.getMovement().normalize().multiply(4).add(ship.getMovement().multiply(0.5)));
+
+                        mainLayout.getChildren().addAll(proj1.getCharacter(), proj2.getCharacter());
+                    }
                     
                     cooldown += 30;
                 }
@@ -251,8 +277,38 @@ public class AsteroidsApplication extends Application {
         pauseTransition.setAutoReverse(true);
         pauseTransition.setCycleCount(Animation.INDEFINITE);
 
+        AtomicInteger correctPresses = new AtomicInteger();
+
         // This is for inputs that aren't held down, so they don't use the custom input handler
         window.addEventHandler(KeyEvent.KEY_PRESSED, event -> {
+
+            /* Detects the key sequence: UP, DOWN, LEFT, RIGHT, SPACE
+               Toggles shotgun mode. */
+            if (isPaused) {
+                if (correctPresses.get() == 0 && event.getCode() == KeyCode.UP) {
+                    correctPresses.getAndIncrement();
+                } else if (correctPresses.get() == 1 && event.getCode() == KeyCode.DOWN) {
+                    correctPresses.getAndIncrement();
+                } else if (correctPresses.get() == 2 && event.getCode() == KeyCode.LEFT) {
+                    correctPresses.getAndIncrement();
+                } else if (correctPresses.get() == 3 && event.getCode() == KeyCode.RIGHT) {
+                    correctPresses.getAndIncrement();
+                } else if (correctPresses.get() == 4 && event.getCode() == KeyCode.SPACE) {
+                    correctPresses.set(0);
+                    if (!shotgun) {
+                        System.out.println("Now we're talking!");
+                        shotgun = true;
+                        powerUpSfx.play();
+                    } else {
+                        System.out.println("Fair play!");
+                        shotgun = false;
+                        powerDownSfx.play();
+                    }
+                } else {
+                    correctPresses.set(0);
+                }
+            }
+
             // Start game with spacebar
             if (event.getCode() == KeyCode.SPACE && window.getScene() == startView) {
 
