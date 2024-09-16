@@ -17,6 +17,8 @@ import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
@@ -28,14 +30,18 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import javafx.util.Duration;
 
 import javax.imageio.ImageIO;
 
 public class AsteroidsApplication extends Application {
-    
+
+    private static final int SPLASH_SCR_TIME = 1500;
+
     public static final int WIDTH = 900;
     public static final int HEIGHT = 600;
+
     private boolean isPaused = false;
     private boolean shotgun = false;
 
@@ -44,7 +50,7 @@ public class AsteroidsApplication extends Application {
         // Shotgun activation sfx
         AudioClip powerUpSfx = new AudioClip(this.getClass().getResource("/sounds/powerup.wav").toExternalForm());
         AudioClip powerDownSfx = new AudioClip(this.getClass().getResource("/sounds/powerdown.wav").toExternalForm());
-        
+
         // Create layout
         Pane mainLayout = new Pane();
         mainLayout.setPrefSize(WIDTH, HEIGHT);
@@ -271,11 +277,11 @@ public class AsteroidsApplication extends Application {
         mainLayout.getChildren().add(pauseText);
 
         // Pause flashing text animation
-        FadeTransition pauseTransition = new FadeTransition(Duration.seconds(0.66), pauseText);
-        pauseTransition.setFromValue(0.0);
-        pauseTransition.setToValue(1.0);
-        pauseTransition.setAutoReverse(true);
-        pauseTransition.setCycleCount(Animation.INDEFINITE);
+        FadeTransition pauseFade = new FadeTransition(Duration.seconds(0.66), pauseText);
+        pauseFade.setFromValue(0.0);
+        pauseFade.setToValue(1.0);
+        pauseFade.setAutoReverse(true);
+        pauseFade.setCycleCount(Animation.INDEFINITE);
 
         AtomicInteger correctPresses = new AtomicInteger();
 
@@ -333,12 +339,12 @@ public class AsteroidsApplication extends Application {
             // Pause game with ESC key, only allowed on mainView since it doesn't work properly on other scenes
             if ((event.getCode() == KeyCode.ESCAPE || event.getCode() == KeyCode.PAUSE) && window.getScene() == mainView) {
                 if (isPaused) {
-                    pauseTransition.stop();
+                    pauseFade.stop();
                     pauseText.setVisible(false);
                     mainTimer.start();
                     isPaused = false;
                 } else {
-                    pauseTransition.play();
+                    pauseFade.play();
                     pauseText.setVisible(true);
                     mainTimer.stop();
                     isPaused = true;
@@ -369,10 +375,26 @@ public class AsteroidsApplication extends Application {
             }
         });
 
-        window.setScene(startView);
-        window.setTitle("Asteroids!");
-        window.setResizable(false); // Resizing doesn't properly work yet
-        window.show();
+        // Splash screen
+        ImageView splashImageView = new ImageView(new Image(getClass().getResourceAsStream("/images/splash.bmp")));
+        Pane splashRoot = new Pane(splashImageView);
+        Scene splashScene = new Scene(splashRoot, splashImageView.getImage().getWidth(), splashImageView.getImage().getHeight());
+
+        Stage splashStage = new Stage();
+        splashStage.initStyle(StageStyle.UNDECORATED);
+        splashStage.setScene(splashScene);
+        splashStage.show();
+
+        // Wait a while, then close the splash and show the main window
+        PauseTransition splashTransition = new PauseTransition(Duration.millis(SPLASH_SCR_TIME));
+        splashTransition.setOnFinished(event -> {
+            splashStage.close();
+            window.setScene(startView);
+            window.setTitle("Asteroids!");
+            window.setResizable(false); // Resizing doesn't properly work yet
+            window.show();
+        });
+        splashTransition.play();
     }
 
     private void saveScr(Scene scene) {
