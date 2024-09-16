@@ -6,7 +6,7 @@
 
     <groupId>dev.apolonio.asteroids</groupId>
     <artifactId>Asteroids</artifactId>
-    <version>1.1.0</version>
+    <version>1.1.1</version>
 
     <properties>
         <maven.compiler.source>21</maven.compiler.source>
@@ -18,32 +18,6 @@
         <finalName>asteroids-${project.version}</finalName>
         <plugins>
             <plugin>
-                <groupId>com.akathist.maven.plugins.launch4j</groupId>
-                <artifactId>launch4j-maven-plugin</artifactId>
-                <version>2.5.0</version>
-                <executions>
-                    <execution>
-                        <id>l4j-gui</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>launch4j</goal>
-                        </goals>
-                        <configuration>
-                            <headerType>gui</headerType>
-                            <outfile>target/${project.build.finalName}.exe</outfile>
-                            <icon>src/main/resources/icons/icon.ico</icon>
-                            <versionInfo>
-                                <fileVersion>1.1.0.0</fileVersion>
-                                <txtFileVersion>${project.version}</txtFileVersion>
-                                <fileDescription>An asteroids clone.</fileDescription>
-                                <copyright>Copyright (c) 2024 Vitor A. S. Melo</copyright>
-                                <productName>Asteroids</productName>
-                            </versionInfo>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
                 <version>3.4.2</version>
@@ -54,6 +28,65 @@
                         </manifest>
                     </archive>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.3.0</version>
+                <executions>
+                    <execution>
+                        <id>create-runtime</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>jlink</executable>
+                            <arguments>
+                                <argument>--module-path</argument>
+                                <argument>$JAVA_HOME/jmods</argument>
+                                <argument>--add-modules</argument>
+                                <argument>java.base,java.desktop,javafx.base,javafx.graphics,javafx.media,javafx.swing</argument>
+                                <argument>--output</argument>
+                                <argument>custom-runtime</argument>
+                                <argument>--compress=2</argument>
+                                <argument>--strip-native-commands</argument>
+                                <argument>--no-man-pages</argument>
+                                <argument>--no-header-files</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>package-app</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>jpackage</executable>
+                            <arguments>
+                                <argument>--type</argument>
+                                <argument>app-image</argument>
+                                <argument>--app-version</argument>
+                                <argument>${project.version}</argument>
+                                <argument>--copyright</argument>
+                                <argument>Copyright (c) 2024 Vitor A. S. Melo</argument>
+                                <argument>--description</argument>
+                                <argument>A simple Asteroids clone.</argument>
+                                <argument>--icon</argument>
+                                <argument>src/main/resources/icons/icon.ico</argument>
+                                <argument>--name</argument>
+                                <argument>asteroids</argument>
+                                <argument>--input</argument>
+                                <argument>${project.build.directory}</argument>
+                                <argument>--main-jar</argument>
+                                <argument>${project.build.finalName}.jar</argument>
+                                <argument>--runtime-image</argument>
+                                <argument>custom-runtime</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
