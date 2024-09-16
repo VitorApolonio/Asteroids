@@ -224,7 +224,13 @@ public class AsteroidsApplication extends Application {
                     collisions.forEach(collided -> {
                         asteroids.remove(collided);
                         mainLayout.getChildren().remove(collided.getCharacter());
-                        scoreText.setText("SCORE: " + points.addAndGet(100));
+
+                        // Fewer points for shotgun kills
+                        if (shotgun) {
+                            scoreText.setText("SCORE: " + points.addAndGet(30));
+                        } else {
+                            scoreText.setText("SCORE: " + points.addAndGet(100));
+                        }
                     });
                 });
                 
@@ -290,18 +296,26 @@ public class AsteroidsApplication extends Application {
         // This is for inputs that aren't held down, so they don't use the custom input handler
         window.addEventHandler(KeyEvent.KEY_PRESSED, event -> {
 
-            /* Detects the key sequence: UP, DOWN, LEFT, RIGHT, SPACE
+            /* Detects the key sequence: UP, UP, DOWN, DOWN, LEFT, RIGHT, LEFT, RIGHT, SPACE
                Toggles shotgun mode. */
             if (isPaused) {
                 if (correctPresses.get() == 0 && event.getCode() == KeyCode.UP) {
                     correctPresses.getAndIncrement();
-                } else if (correctPresses.get() == 1 && event.getCode() == KeyCode.DOWN) {
+                } else if (correctPresses.get() == 1 && event.getCode() == KeyCode.UP) {
                     correctPresses.getAndIncrement();
-                } else if (correctPresses.get() == 2 && event.getCode() == KeyCode.LEFT) {
+                } else if (correctPresses.get() == 2 && event.getCode() == KeyCode.DOWN) {
                     correctPresses.getAndIncrement();
-                } else if (correctPresses.get() == 3 && event.getCode() == KeyCode.RIGHT) {
+                } else if (correctPresses.get() == 3 && event.getCode() == KeyCode.DOWN) {
                     correctPresses.getAndIncrement();
-                } else if (correctPresses.get() == 4 && event.getCode() == KeyCode.SPACE) {
+                } else if (correctPresses.get() == 4 && event.getCode() == KeyCode.LEFT) {
+                    correctPresses.getAndIncrement();
+                } else if (correctPresses.get() == 5 && event.getCode() == KeyCode.RIGHT) {
+                    correctPresses.getAndIncrement();
+                } else if (correctPresses.get() == 6 && event.getCode() == KeyCode.LEFT) {
+                    correctPresses.getAndIncrement();
+                } else if (correctPresses.get() == 7 && event.getCode() == KeyCode.RIGHT) {
+                    correctPresses.getAndIncrement();
+                } else if (correctPresses.get() == 8 && event.getCode() == KeyCode.SPACE) {
                     correctPresses.set(0);
                     if (!shotgun) {
                         System.out.println("Now we're talking!");
