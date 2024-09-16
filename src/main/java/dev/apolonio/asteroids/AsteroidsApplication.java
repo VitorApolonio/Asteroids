@@ -246,6 +246,7 @@ public class AsteroidsApplication extends Application {
                 for (Asteroid asteroid : asteroids) {
                     if (ship.collide(asteroid)) {
                         stop();
+                        shotgun = false; // Disable cheat on death
 
                         // Delay before game over screen appears
                         PauseTransition deathPause = new PauseTransition(Duration.seconds(1));
