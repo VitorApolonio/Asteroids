@@ -15,6 +15,7 @@
     </properties>
 
     <build>
+        <finalName>asteroids-${project.version}</finalName>
         <plugins>
             <plugin>
                 <groupId>com.akathist.maven.plugins.launch4j</groupId>
@@ -22,19 +23,15 @@
                 <version>2.5.0</version>
                 <executions>
                     <execution>
-                        <id>l4j-clui</id>
+                        <id>l4j-gui</id>
                         <phase>package</phase>
                         <goals>
                             <goal>launch4j</goal>
                         </goals>
                         <configuration>
                             <headerType>gui</headerType>
-                            <outfile>target/asteroids-${project.version}.exe</outfile>
-                            <jar>target/asteroids-${project.version}.jar</jar>
+                            <outfile>target/${project.build.finalName}.exe</outfile>
                             <icon>src/main/resources/icons/icon.ico</icon>
-                            <classPath>
-                                <mainClass>dev.apolonio.asteroids.AsteroidsApplication</mainClass>
-                            </classPath>
                             <splash>
                                 <file>src/main/resources/images/splash.bmp</file>
                                 <waitForWindow>true</waitForWindow>
@@ -50,6 +47,18 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.4.2</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <mainClass>dev.apolonio.asteroids.AsteroidsApplication</mainClass>
+                        </manifest>
+                    </archive>
+                </configuration>
             </plugin>
         </plugins>
     </build>
