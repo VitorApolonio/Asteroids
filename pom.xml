@@ -49,6 +49,7 @@
                                 <argument>java.base,java.desktop,javafx.base,javafx.graphics,javafx.media,javafx.swing</argument>
                                 <argument>--output</argument>
                                 <argument>custom-runtime</argument>
+                                <argument>--strip-debug</argument>
                                 <argument>--compress=2</argument>
                                 <argument>--strip-native-commands</argument>
                                 <argument>--no-man-pages</argument>
