@@ -63,15 +63,13 @@ public class AsteroidsApplication extends Application {
         Text titleText = new Text("ASTEROIDS");
         titleText.setFont(Font.font("Verdana", FontWeight.BOLD, 90));
         titleText.setFill(Color.WHITE);
-        titleText.setStroke(Color.BLACK);
+        titleText.setStroke(Color.DARKBLUE);
         titleText.setStrokeWidth(3);
         startPane.getChildren().add(titleText);
 
         Text instruction = new Text("PRESS SPACE TO START");
-        instruction.setFont(Font.font("Courier New", FontWeight.BOLD, 40));
+        instruction.setFont(Font.font("Trebuchet MS", 40));
         instruction.setFill(Color.WHITE);
-        instruction.setStroke(Color.BLACK);
-        instruction.setStrokeWidth(1);
         startPane.getChildren().add(instruction);
 
         // Create scene with layout
@@ -114,21 +112,21 @@ public class AsteroidsApplication extends Application {
         Pane mainLayout = new Pane();
         mainLayout.setPrefSize(WIDTH, HEIGHT);
         mainLayout.setStyle("-fx-background-color: black");
-        
+
         // Create player ship
         Ship ship = new Ship(WIDTH / 2, HEIGHT / 2);
         mainLayout.getChildren().add(ship.getCharacter());
-        
+
         // Create list of asteroids and projectiles (empty for now)
         List<Asteroid> asteroids = new ArrayList<>();
         List<Projectile> projectiles = new ArrayList<>();
 
         // Create user score text
         Text scoreText = new Text(10, 50, "SCORE: 0");
-        scoreText.setFont(Font.font("Courier New", FontWeight.BOLD, 50));
+        scoreText.setFont(Font.font("Trebuchet MS", 50));
         scoreText.setFill(Color.WHITE);
-        scoreText.setStroke(Color.BLACK);
-        scoreText.setStrokeWidth(3);
+        scoreText.setStroke(Color.DARKBLUE);
+        scoreText.setStrokeWidth(2);
         mainLayout.getChildren().add(scoreText);
         AtomicInteger points = new AtomicInteger();
 
@@ -137,43 +135,57 @@ public class AsteroidsApplication extends Application {
         endScreenPane.setPrefSize(WIDTH, HEIGHT);
         endScreenPane.setStyle("-fx-background-color: black");
         endScreenPane.setAlignment(Pos.CENTER);
-        
+
         // Create game over text
         Text gameOverText = new Text("GAME OVER!");
         gameOverText.setFont(Font.font("Verdana", FontWeight.BOLD, 90));
         gameOverText.setFill(Color.WHITE);
-        gameOverText.setStroke(Color.BLACK);
+        gameOverText.setStroke(Color.DARKBLUE);
         gameOverText.setStrokeWidth(3);
         endScreenPane.getChildren().add(gameOverText);
-        
+
         Text finalScoreText = new Text("FINAL SCORE: 0");
-        finalScoreText.setFont(Font.font("Courier New", FontWeight.BOLD, 50));
+        finalScoreText.setFont(Font.font("Trebuchet MS", FontWeight.SEMI_BOLD, 60));
         finalScoreText.setFill(Color.WHITE);
-        finalScoreText.setStroke(Color.BLACK);
-        finalScoreText.setStrokeWidth(3);
         endScreenPane.getChildren().add(finalScoreText);
 
         Text tryAgainText = new Text("PRESS SPACE TO CONTINUE");
-        tryAgainText.setFont(Font.font("Courier New", FontWeight.BOLD, 40));
+        tryAgainText.setFont(Font.font("Trebuchet MS", 40));
         tryAgainText.setFill(Color.WHITE);
-        tryAgainText.setStroke(Color.BLACK);
-        tryAgainText.setStrokeWidth(1);
         tryAgainText.setVisible(false);
         endScreenPane.getChildren().add(tryAgainText);
+
+        // Pause text
+        Text pauseText = new Text("PAUSED");
+        pauseText.setFont(Font.font("Trebuchet MS", FontWeight.BOLD, 80));
+        pauseText.setFill(Color.WHITE);
+        pauseText.setStroke(Color.DARKBLUE);
+        pauseText.setStrokeWidth(2.5);
+        pauseText.setVisible(false);
+        pauseText.setTranslateX(WIDTH / 2 - pauseText.getBoundsInParent().getMaxX() / 2);
+        pauseText.setTranslateY(HEIGHT / 2 + pauseText.getBoundsInParent().getMaxY());
+        mainLayout.getChildren().add(pauseText);
+
+        // Pause flashing text animation
+        FadeTransition pauseFade = new FadeTransition(Duration.seconds(0.66), pauseText);
+        pauseFade.setFromValue(0.0);
+        pauseFade.setToValue(1.0);
+        pauseFade.setAutoReverse(true);
+        pauseFade.setCycleCount(Animation.INDEFINITE);
 
         /* This is a system for handling key presses. When the user presses a key, it gets set to true in the map.
            When the user releases a key, it gets set to false. This is done because the default way of handling input
            has a slight delay between detecting the first press and subsequent ones, which would create a slight delay
            in ship controls. */
         InputHandler inputHandler = new InputHandler(window);
-        
+
         /* This timer handles all real time events on the main view, like movement of the asteroids and the ship. All code here
            gets executed about 60 times a second. */
         AnimationTimer mainTimer = new AnimationTimer() {
 
             // This variable is a cooldown for the ship's bullets.
             private int cooldown = 0;
-            
+
             @Override
             public void handle(long now) {
 
@@ -187,17 +199,17 @@ public class AsteroidsApplication extends Application {
                 if (inputHandler.isHeld(KeyCode.UP, KeyCode.W)) {
                     ship.accelerate();
                 }
-                
+
                 // Projectile
                 if (inputHandler.isHeld(KeyCode.SPACE) && cooldown <= 0 && projectiles.size() < (shotgun ? 6 : 3)) {
 
                     Projectile proj = new Projectile(((int) ship.getCharacter().getTranslateX()), (int) ship.getCharacter().getTranslateY());
                     proj.getCharacter().setRotate(ship.getCharacter().getRotate());
                     projectiles.add(proj);
-                    
+
                     proj.accelerate();
                     proj.setMovement(proj.getMovement().normalize().multiply(4).add(ship.getMovement().multiply(0.5)));
-                    
+
                     mainLayout.getChildren().addFirst(proj.getCharacter());
 
                     // Fires 2 additional projectiles if shotgun mode is active
@@ -218,14 +230,14 @@ public class AsteroidsApplication extends Application {
                         mainLayout.getChildren().addFirst(proj1.getCharacter());
                         mainLayout.getChildren().addFirst(proj2.getCharacter());
                     }
-                    
+
                     cooldown += 30;
                 }
-                
+
                 if (cooldown > 0) {
                     cooldown -= 1;
                 }
-                
+
                 // Continuously spawn asteroids starting with a 0.5% chance, raising by 0.5% more every 2000 points
                 if (Math.random() < 0.005 * (1 + points.get() / 2000)) {
                     Asteroid asteroid = new Asteroid(WIDTH, HEIGHT);
@@ -234,7 +246,7 @@ public class AsteroidsApplication extends Application {
                         mainLayout.getChildren().addFirst(asteroid.getCharacter());
                     }
                 }
-                
+
                 // Ship and asteroid movement
                 ship.move();
                 asteroids.forEach(Asteroid::move);
@@ -245,7 +257,7 @@ public class AsteroidsApplication extends Application {
                     List<Asteroid> collisions = asteroids.stream()
                             .filter(asteroid -> asteroid.collide(proj))
                             .toList();
-                    
+
                     // Increase score with hits
                     collisions.forEach(collided -> {
                         FadeTransition asteroidFade = new FadeTransition(Duration.seconds(1), collided.getCharacter());
@@ -265,12 +277,12 @@ public class AsteroidsApplication extends Application {
                         }
                     });
                 });
-                
+
                 // Remove off-screen projectiles
                 Iterator<Projectile> projIt = projectiles.iterator();
                 while (projIt.hasNext()) {
                     Projectile proj = projIt.next();
-                    
+
                     if (proj.getCharacter().getTranslateX() < 0
                             || proj.getCharacter().getTranslateX() > WIDTH
                             || proj.getCharacter().getTranslateY() < 0
@@ -279,7 +291,7 @@ public class AsteroidsApplication extends Application {
                         mainLayout.getChildren().remove(proj.getCharacter());
                     }
                 }
-                
+
                 // End game if ship hits an asteroid
                 for (Asteroid asteroid : asteroids) {
                     if (ship.collide(asteroid)) {
@@ -297,7 +309,6 @@ public class AsteroidsApplication extends Application {
                             // Delay before "PRESS SPACE" text pops up
                             PauseTransition tryAgainPause = new PauseTransition(Duration.seconds(1));
                             tryAgainPause.setOnFinished(event2 -> tryAgainText.setVisible(true));
-
                             tryAgainPause.play();
                         });
                         deathFade.play();
@@ -307,24 +318,7 @@ public class AsteroidsApplication extends Application {
             }
         };
 
-        // Pause text
-        Text pauseText = new Text("PAUSED");
-        pauseText.setFont(Font.font("Verdana", FontWeight.BOLD, 70));
-        pauseText.setFill(Color.WHITE);
-        pauseText.setStroke(Color.BLACK);
-        pauseText.setStrokeWidth(3);
-        pauseText.setVisible(false);
-        pauseText.setTranslateX(WIDTH / 2 - pauseText.getBoundsInParent().getMaxX() / 2);
-        pauseText.setTranslateY(HEIGHT / 2 + pauseText.getBoundsInParent().getMaxY());
-        mainLayout.getChildren().add(pauseText);
-
-        // Pause flashing text animation
-        FadeTransition pauseFade = new FadeTransition(Duration.seconds(0.66), pauseText);
-        pauseFade.setFromValue(0.0);
-        pauseFade.setToValue(1.0);
-        pauseFade.setAutoReverse(true);
-        pauseFade.setCycleCount(Animation.INDEFINITE);
-
+        // Keeps track of how many keys were pressed in the correct sequence for the cheat code
         AtomicInteger correctPresses = new AtomicInteger();
 
         // This is for inputs that aren't held down, so they don't use the custom input handler
@@ -401,12 +395,11 @@ public class AsteroidsApplication extends Application {
             }
 
             // Restart game
-            if (event.getCode() == KeyCode.SPACE && window.getScene().getRoot() == endScreenPane) {
+            if (event.getCode() == KeyCode.SPACE && window.getScene().getRoot() == endScreenPane && tryAgainText.isVisible()) {
                 // Clear points
                 points.set(0);
                 scoreText.setText("SCORE: 0");
                 finalScoreText.setText(("FINAL SCORE: 0"));
-                ship.getCharacter().setOpacity(1.0);
 
                 // Delete all asteroids and projectiles
                 mainLayout.getChildren().removeAll(asteroids.stream().map(Character::getCharacter).toList());
@@ -419,6 +412,7 @@ public class AsteroidsApplication extends Application {
                 ship.getCharacter().setTranslateX(WIDTH / 2);
                 ship.getCharacter().setRotate(0);
                 ship.setMovement(new Point2D(0, 0));
+                ship.getCharacter().setOpacity(1.0);
 
                 // Go back to title screen
                 window.getScene().setRoot(startPane);
