@@ -13,6 +13,7 @@ import javafx.animation.AnimationTimer;
 import javafx.animation.FadeTransition;
 import javafx.animation.PauseTransition;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
@@ -38,7 +39,7 @@ import javax.imageio.ImageIO;
 public class AsteroidsApplication extends Application {
 
     // Time before closing splash screen in ms
-    private static final int SPLASH_SCR_TIME = 1500;
+    private static final int SPLASH_SCR_TIME = 2000;
 
     public static final int WIDTH = 900;
     public static final int HEIGHT = 600;
@@ -46,13 +47,70 @@ public class AsteroidsApplication extends Application {
     private boolean isPaused = false;
     private boolean shotgun = false;
 
+    private AudioClip powerUpSfx;
+    private AudioClip powerDownSfx;
+
     @Override
     public void start(Stage window) {
-        // Shotgun activation sfx
-        AudioClip powerUpSfx = new AudioClip(getClass().getResource("/sounds/powerup.wav").toExternalForm());
-        AudioClip powerDownSfx = new AudioClip(getClass().getResource("/sounds/powerdown.wav").toExternalForm());
 
-        // Create layout
+        // Create title screen layout
+        VBox startPane = new VBox(HEIGHT / 8);
+        startPane.setPrefSize(WIDTH, HEIGHT);
+        startPane.setStyle("-fx-background-color: black");
+        startPane.setAlignment(Pos.CENTER);
+
+        // Create title text
+        Text titleText = new Text("ASTEROIDS");
+        titleText.setFont(Font.font("Verdana", FontWeight.BOLD, 90));
+        titleText.setFill(Color.WHITE);
+        titleText.setStroke(Color.BLACK);
+        titleText.setStrokeWidth(3);
+        startPane.getChildren().add(titleText);
+
+        Text instruction = new Text("PRESS SPACE TO START");
+        instruction.setFont(Font.font("Courier New", FontWeight.BOLD, 40));
+        instruction.setFill(Color.WHITE);
+        instruction.setStroke(Color.BLACK);
+        instruction.setStrokeWidth(1);
+        startPane.getChildren().add(instruction);
+
+        // Create scene with layout
+        Scene view = new Scene(startPane);
+        window.setScene(view);
+
+        // Splash screen (image that shows up before game starts)
+        ImageView splashImageView = new ImageView(new Image(getClass().getResourceAsStream("/images/splash.bmp")));
+        Pane splashRoot = new Pane(splashImageView);
+        Scene splashScene = new Scene(splashRoot, splashImageView.getImage().getWidth(), splashImageView.getImage().getHeight());
+
+        Stage splashStage = new Stage();
+        splashStage.initStyle(StageStyle.UNDECORATED);
+        splashStage.setScene(splashScene);
+        splashStage.show();
+
+        new Thread(() -> {
+            try {
+                // Wait some time before closing splash
+                Thread.sleep(SPLASH_SCR_TIME);
+
+                // Shotgun activation sfx
+                powerUpSfx = new AudioClip(getClass().getResource("/sounds/powerup.wav").toExternalForm());
+                powerDownSfx = new AudioClip(getClass().getResource("/sounds/powerdown.wav").toExternalForm());
+
+                Platform.runLater(() -> {
+                    splashStage.close();
+                    window.setTitle("Asteroids!");
+                    window.setResizable(false); // Resizing doesn't properly work yet
+                    window.show();
+                });
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+
+        }).start();
+
+        // Create main game layout
         Pane mainLayout = new Pane();
         mainLayout.setPrefSize(WIDTH, HEIGHT);
         mainLayout.setStyle("-fx-background-color: black");
@@ -65,9 +123,6 @@ public class AsteroidsApplication extends Application {
         // Create list of asteroids and projectiles (empty for now)
         List<Asteroid> asteroids = new ArrayList<>();
         List<Projectile> projectiles = new ArrayList<>();
-        
-        // Create scene with layout
-        Scene mainView = new Scene(mainLayout);
 
         // Create user score text
         Text scoreText = new Text(10, 50, "SCORE: 0");
@@ -77,30 +132,7 @@ public class AsteroidsApplication extends Application {
         scoreText.setStrokeWidth(3);
         mainLayout.getChildren().add(scoreText);
         AtomicInteger points = new AtomicInteger();
-        
-        // Create title screen layout
-        VBox startPane = new VBox(HEIGHT / 8);
-        startPane.setPrefSize(WIDTH, HEIGHT);
-        startPane.setStyle("-fx-background-color: black");
-        startPane.setAlignment(Pos.CENTER);
-        
-        // Create title text
-        Text titleText = new Text("ASTEROIDS");
-        titleText.setFont(Font.font("Verdana", FontWeight.BOLD, 90));
-        titleText.setFill(Color.WHITE);
-        titleText.setStroke(Color.BLACK);
-        titleText.setStrokeWidth(3);
-        startPane.getChildren().add(titleText);
-        
-        Text instruction = new Text("PRESS SPACE TO START");
-        instruction.setFont(Font.font("Courier New", FontWeight.BOLD, 40));
-        instruction.setFill(Color.WHITE);
-        instruction.setStroke(Color.BLACK);
-        instruction.setStrokeWidth(1);
-        startPane.getChildren().add(instruction);
-        
-        Scene startView = new Scene(startPane);
-        
+
         // Create game over screen layout
         VBox endScreenPane = new VBox(HEIGHT / 12);
         endScreenPane.setPrefSize(WIDTH, HEIGHT);
@@ -129,8 +161,6 @@ public class AsteroidsApplication extends Application {
         tryAgainText.setStrokeWidth(1);
         tryAgainText.setVisible(false);
         endScreenPane.getChildren().add(tryAgainText);
-
-        Scene endView = new Scene(endScreenPane);
 
         /* This is a system for handling key presses. When the user presses a key, it gets set to true in the map.
            When the user releases a key, it gets set to false. This is done because the default way of handling input
@@ -258,7 +288,7 @@ public class AsteroidsApplication extends Application {
                         PauseTransition deathPause = new PauseTransition(Duration.seconds(1));
                         deathPause.setOnFinished(event -> {
                             finalScoreText.setText("FINAL SCORE: " + points.get());
-                            window.setScene(endView);
+                            window.getScene().setRoot(endScreenPane);
 
                             // Delay before "PRESS SPACE" text pops up
                             PauseTransition tryAgainPause = new PauseTransition(Duration.seconds(1));
@@ -332,7 +362,7 @@ public class AsteroidsApplication extends Application {
             }
 
             // Start game with spacebar
-            if (event.getCode() == KeyCode.SPACE && window.getScene() == startView) {
+            if (event.getCode() == KeyCode.SPACE && window.getScene().getRoot() == startPane) {
 
                 // Spawn 5 initial asteroids at random positions
                 for (int i = 0; i < 5; i++) {
@@ -343,7 +373,7 @@ public class AsteroidsApplication extends Application {
                 }
                 asteroids.forEach(asteroid -> mainLayout.getChildren().addFirst(asteroid.getCharacter()));
 
-                window.setScene(mainView);
+                window.getScene().setRoot(mainLayout);
                 mainTimer.start();
             }
 
@@ -352,8 +382,8 @@ public class AsteroidsApplication extends Application {
                 saveScr(window.getScene());
             }
 
-            // Pause game with ESC key, only allowed on mainView since it doesn't work properly on other scenes
-            if ((event.getCode() == KeyCode.ESCAPE || event.getCode() == KeyCode.PAUSE) && window.getScene() == mainView) {
+            // Pause game with ESC key, only allowed on main view since it doesn't work properly on other scenes
+            if ((event.getCode() == KeyCode.ESCAPE || event.getCode() == KeyCode.PAUSE) && window.getScene().getRoot() == mainLayout) {
                 if (isPaused) {
                     pauseFade.stop();
                     pauseText.setVisible(false);
@@ -368,7 +398,7 @@ public class AsteroidsApplication extends Application {
             }
 
             // Restart game
-            if (event.getCode() == KeyCode.SPACE && window.getScene() == endView) {
+            if (event.getCode() == KeyCode.SPACE && window.getScene().getRoot() == endScreenPane) {
                 // Clear points
                 points.set(0);
                 scoreText.setText("SCORE: 0");
@@ -387,30 +417,9 @@ public class AsteroidsApplication extends Application {
                 ship.setMovement(new Point2D(0, 0));
 
                 // Go back to title screen
-                window.setScene(startView);
+                window.getScene().setRoot(startPane);
             }
         });
-
-        // Splash screen (image that shows up before game starts)
-        ImageView splashImageView = new ImageView(new Image(getClass().getResourceAsStream("/images/splash.bmp")));
-        Pane splashRoot = new Pane(splashImageView);
-        Scene splashScene = new Scene(splashRoot, splashImageView.getImage().getWidth(), splashImageView.getImage().getHeight());
-
-        Stage splashStage = new Stage();
-        splashStage.initStyle(StageStyle.UNDECORATED);
-        splashStage.setScene(splashScene);
-        splashStage.show();
-
-        // Wait a while, then close the splash and show the main window
-        PauseTransition splashTransition = new PauseTransition(Duration.millis(SPLASH_SCR_TIME));
-        splashTransition.setOnFinished(event -> {
-            splashStage.close();
-            window.setScene(startView);
-            window.setTitle("Asteroids!");
-            window.setResizable(false); // Resizing doesn't properly work yet
-            window.show();
-        });
-        splashTransition.play();
     }
 
     private void saveScr(Scene scene) {

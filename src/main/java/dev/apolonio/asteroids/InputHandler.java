@@ -21,7 +21,7 @@ public class InputHandler {
         /* Set all keys to not pressed on scene change.
            This is done to avoid stuff like the ship firing immediately when starting the game because both
            events are triggered with the same key. */
-        window.sceneProperty().addListener((observable, oldValue, newValue) -> {
+        window.getScene().rootProperty().addListener((observable, oldValue, newValue) -> {
             heldKeys.clear();
         });
     }
