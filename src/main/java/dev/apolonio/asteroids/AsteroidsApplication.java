@@ -198,7 +198,7 @@ public class AsteroidsApplication extends Application {
                     proj.accelerate();
                     proj.setMovement(proj.getMovement().normalize().multiply(4).add(ship.getMovement().multiply(0.5)));
                     
-                    mainLayout.getChildren().add(proj.getCharacter());
+                    mainLayout.getChildren().addFirst(proj.getCharacter());
 
                     // Fires 2 additional projectiles if shotgun mode is active
                     if (shotgun) {
@@ -215,7 +215,8 @@ public class AsteroidsApplication extends Application {
                         proj2.accelerate();
                         proj2.setMovement(proj2.getMovement().normalize().multiply(4).add(ship.getMovement().multiply(0.5)));
 
-                        mainLayout.getChildren().addAll(proj1.getCharacter(), proj2.getCharacter());
+                        mainLayout.getChildren().addFirst(proj1.getCharacter());
+                        mainLayout.getChildren().addFirst(proj2.getCharacter());
                     }
                     
                     cooldown += 30;

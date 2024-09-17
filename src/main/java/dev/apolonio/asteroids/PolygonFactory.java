@@ -14,6 +14,8 @@ public class PolygonFactory {
         
         Polygon polygon = new Polygon();
         polygon.setFill(Color.GRAY);
+        polygon.setStroke(Color.DARKGRAY);
+        polygon.setStrokeWidth(3);
 
         double c1 = Math.cos(Math.PI * 2 / 5);
         double c2 = Math.cos(Math.PI / 5);

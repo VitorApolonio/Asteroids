@@ -7,7 +7,7 @@ public class Projectile extends Character {
     
     public Projectile(int x, int y) {
         super(new Polygon(12, -4, 12, 4, -12, 4, -12, -4), x, y);
-        getCharacter().setFill(Color.WHITE);
+        getCharacter().setFill(Color.GHOSTWHITE);
     }
     
     @Override
