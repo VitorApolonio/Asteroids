@@ -117,7 +117,6 @@ public class AsteroidsApplication extends Application {
         
         // Create player ship
         Ship ship = new Ship(WIDTH / 2, HEIGHT / 2);
-        ship.getCharacter().setFill(Color.WHITE);
         mainLayout.getChildren().add(ship.getCharacter());
         
         // Create list of asteroids and projectiles (empty for now)
@@ -194,7 +193,6 @@ public class AsteroidsApplication extends Application {
 
                     Projectile proj = new Projectile(((int) ship.getCharacter().getTranslateX()), (int) ship.getCharacter().getTranslateY());
                     proj.getCharacter().setRotate(ship.getCharacter().getRotate());
-                    proj.getCharacter().setFill(Color.WHITE);
                     projectiles.add(proj);
                     
                     proj.accelerate();
@@ -206,12 +204,10 @@ public class AsteroidsApplication extends Application {
                     if (shotgun) {
                         Projectile proj1 = new Projectile(((int) ship.getCharacter().getTranslateX()), (int) ship.getCharacter().getTranslateY());
                         proj1.getCharacter().setRotate(ship.getCharacter().getRotate() + 10);
-                        proj1.getCharacter().setFill(Color.WHITE);
                         projectiles.add(proj1);
 
                         Projectile proj2 = new Projectile(((int) ship.getCharacter().getTranslateX()), (int) ship.getCharacter().getTranslateY());
                         proj2.getCharacter().setRotate(ship.getCharacter().getRotate() - 10);
-                        proj2.getCharacter().setFill(Color.WHITE);
                         projectiles.add(proj2);
 
                         proj1.accelerate();
@@ -232,7 +228,6 @@ public class AsteroidsApplication extends Application {
                 // Continuously spawn asteroids starting with a 0.5% chance, raising by 0.5% more every 2000 points
                 if (Math.random() < 0.005 * (1 + points.get() / 2000)) {
                     Asteroid asteroid = new Asteroid(WIDTH, HEIGHT);
-                    asteroid.getCharacter().setFill(Color.GRAY);
                     if (!asteroid.collide(ship)) {
                         asteroids.add(asteroid);
                         mainLayout.getChildren().addFirst(asteroid.getCharacter());
@@ -368,7 +363,6 @@ public class AsteroidsApplication extends Application {
                 for (int i = 0; i < 5; i++) {
                     Random rand = new Random();
                     Asteroid asteroid = new Asteroid(rand.nextInt(WIDTH / 3), rand.nextInt(HEIGHT));
-                    asteroid.getCharacter().setFill(Color.GRAY);
                     asteroids.add(asteroid);
                 }
                 asteroids.forEach(asteroid -> mainLayout.getChildren().addFirst(asteroid.getCharacter()));

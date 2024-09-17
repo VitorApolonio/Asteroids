@@ -1,6 +1,8 @@
 package dev.apolonio.asteroids;
 
 import java.util.Random;
+
+import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
 
 public class PolygonFactory {
@@ -11,6 +13,8 @@ public class PolygonFactory {
         double size = 30 + rand.nextInt(15);
         
         Polygon polygon = new Polygon();
+        polygon.setFill(Color.GRAY);
+
         double c1 = Math.cos(Math.PI * 2 / 5);
         double c2 = Math.cos(Math.PI / 5);
         double s1 = Math.sin(Math.PI * 2 / 5);
