@@ -248,10 +248,16 @@ public class AsteroidsApplication extends Application {
                     
                     // Increase score with hits
                     collisions.forEach(collided -> {
-                        asteroids.remove(collided);
-                        mainLayout.getChildren().remove(collided.getCharacter());
+                        FadeTransition asteroidFade = new FadeTransition(Duration.seconds(1), collided.getCharacter());
+                        asteroidFade.setFromValue(1.0);
+                        asteroidFade.setToValue(0.0);
+                        asteroidFade.setOnFinished(event -> mainLayout.getChildren().remove(collided.getCharacter()));
+                        asteroidFade.play();
 
-                        // Fewer points for shotgun kills
+                        // This isn't on the animation, since otherwise you could still hit the asteroid until it finishes
+                        asteroids.remove(collided);
+
+                        // Fewer points are awarded for shotgun kills
                         if (shotgun) {
                             scoreText.setText("SCORE: " + points.addAndGet(30));
                         } else {
@@ -280,9 +286,11 @@ public class AsteroidsApplication extends Application {
                         stop();
                         shotgun = false; // Disable cheat on death
 
-                        // Delay before game over screen appears
-                        PauseTransition deathPause = new PauseTransition(Duration.seconds(1));
-                        deathPause.setOnFinished(event -> {
+                        // Fade away animation for ship
+                        FadeTransition deathFade = new FadeTransition(Duration.seconds(1.5), ship.getCharacter());
+                        deathFade.setFromValue(1.0);
+                        deathFade.setToValue(0.0);
+                        deathFade.setOnFinished(event -> {
                             finalScoreText.setText("FINAL SCORE: " + points.get());
                             window.getScene().setRoot(endScreenPane);
 
@@ -292,7 +300,7 @@ public class AsteroidsApplication extends Application {
 
                             tryAgainPause.play();
                         });
-                        deathPause.play();
+                        deathFade.play();
                         break;
                     }
                 }
@@ -398,6 +406,7 @@ public class AsteroidsApplication extends Application {
                 points.set(0);
                 scoreText.setText("SCORE: 0");
                 finalScoreText.setText(("FINAL SCORE: 0"));
+                ship.getCharacter().setOpacity(1.0);
 
                 // Delete all asteroids and projectiles
                 mainLayout.getChildren().removeAll(asteroids.stream().map(Character::getCharacter).toList());
