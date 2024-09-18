@@ -48,7 +48,7 @@
                                 <argument>--add-modules</argument>
                                 <argument>java.base,java.desktop,javafx.base,javafx.graphics,javafx.media,javafx.swing</argument>
                                 <argument>--output</argument>
-                                <argument>custom-runtime</argument>
+                                <argument>asteroids-custom-runtime</argument>
                                 <argument>--strip-debug</argument>
                                 <argument>--compress=2</argument>
                                 <argument>--strip-native-commands</argument>
@@ -58,7 +58,7 @@
                         </configuration>
                     </execution>
                     <execution>
-                        <id>package-app</id>
+                        <id>package-installer</id>
                         <phase>package</phase>
                         <goals>
                             <goal>exec</goal>
@@ -67,7 +67,7 @@
                             <executable>jpackage</executable>
                             <arguments>
                                 <argument>--type</argument>
-                                <argument>app-image</argument>
+                                <argument>exe</argument>
                                 <argument>--app-version</argument>
                                 <argument>${project.version}</argument>
                                 <argument>--copyright</argument>
@@ -77,13 +77,26 @@
                                 <argument>--icon</argument>
                                 <argument>src/main/resources/icons/icon.ico</argument>
                                 <argument>--name</argument>
-                                <argument>asteroids</argument>
+                                <argument>Asteroids!</argument>
                                 <argument>--input</argument>
                                 <argument>${project.build.directory}</argument>
                                 <argument>--main-jar</argument>
                                 <argument>${project.build.finalName}.jar</argument>
+                                <argument>--vendor</argument>
+                                <argument>Vitor Apolonio</argument>
                                 <argument>--runtime-image</argument>
-                                <argument>custom-runtime</argument>
+                                <argument>asteroids-custom-runtime</argument>
+                                <argument>--license-file</argument>
+                                <argument>LICENSE</argument>
+                                <argument>--add-launcher</argument>
+                                <argument>asteroids-win-install</argument>
+                                <!-- Windows platform options -->
+                                <argument>--win-dir-chooser</argument>
+                                <argument>--win-menu</argument>
+                                <argument>--win-per-user-install</argument>
+                                <argument>--win-shortcut</argument>
+                                <argument>--win-upgrade-uuid</argument>
+                                <argument>7abb2a3e-ca96-40b7-b3d2-8e5668d551f0</argument>
                             </arguments>
                         </configuration>
                     </execution>
