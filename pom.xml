@@ -77,7 +77,7 @@
                                 <argument>--icon</argument>
                                 <argument>src/main/resources/icons/icon.ico</argument>
                                 <argument>--name</argument>
-                                <argument>Asteroids!</argument>
+                                <argument>Asteroids</argument>
                                 <argument>--input</argument>
                                 <argument>${project.build.directory}</argument>
                                 <argument>--main-jar</argument>
@@ -88,13 +88,12 @@
                                 <argument>asteroids-custom-runtime</argument>
                                 <argument>--license-file</argument>
                                 <argument>LICENSE</argument>
-                                <argument>--add-launcher</argument>
-                                <argument>asteroids-win-install</argument>
                                 <!-- Windows platform options -->
                                 <argument>--win-dir-chooser</argument>
                                 <argument>--win-menu</argument>
                                 <argument>--win-per-user-install</argument>
                                 <argument>--win-shortcut</argument>
+                                <argument>--win-shortcut-prompt</argument>
                                 <argument>--win-upgrade-uuid</argument>
                                 <argument>7abb2a3e-ca96-40b7-b3d2-8e5668d551f0</argument>
                             </arguments>
