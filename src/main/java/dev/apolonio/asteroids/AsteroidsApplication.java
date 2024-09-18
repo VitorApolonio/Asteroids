@@ -260,7 +260,7 @@ public class AsteroidsApplication extends Application {
 
                     // Increase score with hits
                     collisions.forEach(collided -> {
-                        FadeTransition asteroidFade = new FadeTransition(Duration.seconds(1), collided.getCharacter());
+                        FadeTransition asteroidFade = new FadeTransition(Duration.seconds(0.5), collided.getCharacter());
                         asteroidFade.setFromValue(1.0);
                         asteroidFade.setToValue(0.0);
                         asteroidFade.setOnFinished(event -> mainLayout.getChildren().remove(collided.getCharacter()));
@@ -299,7 +299,7 @@ public class AsteroidsApplication extends Application {
                         shotgun = false; // Disable cheat on death
 
                         // Fade away animation for ship
-                        FadeTransition deathFade = new FadeTransition(Duration.seconds(1.5), ship.getCharacter());
+                        FadeTransition deathFade = new FadeTransition(Duration.seconds(1), ship.getCharacter());
                         deathFade.setFromValue(1.0);
                         deathFade.setToValue(0.0);
                         deathFade.setOnFinished(event -> {
