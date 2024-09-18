@@ -1,7 +1,8 @@
 # Asteroids
 An Asteroids clone created in Java.
 
-![screenshot-1](https://github.com/user-attachments/assets/956e53dd-eebd-4595-8f2c-79d55061fcf0)
+![screenshot-1](https://github.com/user-attachments/assets/b5d51888-b105-4b45-88b3-6d7e1dcd2312)
+
 
 The UI is made with [JavaFX](https://openjfx.io/), a Java library meant for creating GUI apps.
 
