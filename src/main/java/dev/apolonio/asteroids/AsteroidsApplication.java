@@ -54,7 +54,7 @@ public class AsteroidsApplication extends Application {
     public void start(Stage window) {
 
         // Create title screen layout
-        VBox startPane = new VBox(HEIGHT / 8);
+        VBox startPane = new VBox(HEIGHT / 8.0);
         startPane.setPrefSize(WIDTH, HEIGHT);
         startPane.setStyle("-fx-background-color: black");
         startPane.setAlignment(Pos.CENTER);
@@ -131,7 +131,7 @@ public class AsteroidsApplication extends Application {
         AtomicInteger points = new AtomicInteger();
 
         // Create game over screen layout
-        VBox endScreenPane = new VBox(HEIGHT / 12);
+        VBox endScreenPane = new VBox(HEIGHT / 12.0);
         endScreenPane.setPrefSize(WIDTH, HEIGHT);
         endScreenPane.setStyle("-fx-background-color: black");
         endScreenPane.setAlignment(Pos.CENTER);
@@ -162,8 +162,8 @@ public class AsteroidsApplication extends Application {
         pauseText.setStroke(Color.DARKBLUE);
         pauseText.setStrokeWidth(2.5);
         pauseText.setVisible(false);
-        pauseText.setTranslateX(WIDTH / 2 - pauseText.getBoundsInParent().getMaxX() / 2);
-        pauseText.setTranslateY(HEIGHT / 2 + pauseText.getBoundsInParent().getMaxY());
+        pauseText.setTranslateX(WIDTH / 2.0 - pauseText.getBoundsInParent().getMaxX() / 2);
+        pauseText.setTranslateY(HEIGHT / 2.0 + pauseText.getBoundsInParent().getMaxY());
         mainLayout.getChildren().add(pauseText);
 
         // Pause flashing text animation
@@ -210,7 +210,7 @@ public class AsteroidsApplication extends Application {
                     proj.accelerate();
                     proj.setMovement(proj.getMovement().normalize().multiply(4).add(ship.getMovement().multiply(0.5)));
 
-                    mainLayout.getChildren().addFirst(proj.getCharacter());
+                    mainLayout.getChildren().add(0, proj.getCharacter());
 
                     // Fires 2 additional projectiles if shotgun mode is active
                     if (shotgun) {
@@ -227,8 +227,8 @@ public class AsteroidsApplication extends Application {
                         proj2.accelerate();
                         proj2.setMovement(proj2.getMovement().normalize().multiply(4).add(ship.getMovement().multiply(0.5)));
 
-                        mainLayout.getChildren().addFirst(proj1.getCharacter());
-                        mainLayout.getChildren().addFirst(proj2.getCharacter());
+                        mainLayout.getChildren().add(0, proj1.getCharacter());
+                        mainLayout.getChildren().add(0, proj2.getCharacter());
                     }
 
                     cooldown += 30;
@@ -239,11 +239,11 @@ public class AsteroidsApplication extends Application {
                 }
 
                 // Continuously spawn asteroids starting with a 0.5% chance, raising by 0.5% more every 2000 points
-                if (Math.random() < 0.005 * (1 + points.get() / 2000)) {
+                if (Math.random() < 0.005 * (1 + points.get() / 2000.0)) {
                     Asteroid asteroid = new Asteroid(WIDTH, HEIGHT);
                     if (!asteroid.collide(ship)) {
                         asteroids.add(asteroid);
-                        mainLayout.getChildren().addFirst(asteroid.getCharacter());
+                        mainLayout.getChildren().add(0, asteroid.getCharacter());
                     }
                 }
 
@@ -368,7 +368,7 @@ public class AsteroidsApplication extends Application {
                     Asteroid asteroid = new Asteroid(rand.nextInt(WIDTH / 3), rand.nextInt(HEIGHT));
                     asteroids.add(asteroid);
                 }
-                asteroids.forEach(asteroid -> mainLayout.getChildren().addFirst(asteroid.getCharacter()));
+                asteroids.forEach(asteroid -> mainLayout.getChildren().add(0, asteroid.getCharacter()));
 
                 window.getScene().setRoot(mainLayout);
                 mainTimer.start();
@@ -408,8 +408,8 @@ public class AsteroidsApplication extends Application {
                 projectiles.clear();
 
                 // Center ship
-                ship.getCharacter().setTranslateY(HEIGHT / 2);
-                ship.getCharacter().setTranslateX(WIDTH / 2);
+                ship.getCharacter().setTranslateY(HEIGHT / 2.0);
+                ship.getCharacter().setTranslateX(WIDTH / 2.0);
                 ship.getCharacter().setRotate(0);
                 ship.setMovement(new Point2D(0, 0));
                 ship.getCharacter().setOpacity(1.0);
