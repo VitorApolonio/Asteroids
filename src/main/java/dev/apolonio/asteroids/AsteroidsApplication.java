@@ -35,6 +35,7 @@ import javafx.stage.StageStyle;
 import javafx.util.Duration;
 
 import javax.imageio.ImageIO;
+import javax.swing.*;
 
 public class AsteroidsApplication extends Application {
 
@@ -426,7 +427,8 @@ public class AsteroidsApplication extends Application {
 
         int imageNum = 0;
 
-        File scrDir = new File("screenshots");
+        String documentsFolderPath = new JFileChooser().getFileSystemView().getDefaultDirectory().toString();
+        File scrDir = new File(documentsFolderPath + "/asteroids-screenshots");
         File imgFile;
 
         // Keep checking if "screenshot-n.png" exists, until some number doesn't.
