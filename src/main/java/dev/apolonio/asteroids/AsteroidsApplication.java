@@ -240,8 +240,9 @@ public class AsteroidsApplication extends Application {
                 }
 
                 // Continuously spawn asteroids starting with a 0.5% chance, raising by 0.5% more every 2000 points
-                if (Math.random() < 0.005 * (1 + points.get() / 2000.0)) {
+                if (Math.random() < 0.005 * (1 + points.get() / 3000.0)) {
                     Asteroid asteroid = new Asteroid(WIDTH, HEIGHT);
+                    asteroid.setMovement(asteroid.getMovement().multiply(Math.min(10, 1 + points.get() / 5000.0))); // Increase velocity with player score up to a max of 10x speed
                     if (!asteroid.collide(ship)) {
                         asteroids.add(asteroid);
                         mainLayout.getChildren().add(0, asteroid.getCharacter());

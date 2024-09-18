@@ -13,7 +13,7 @@ public class Asteroid extends Character {
         
         super.getCharacter().setRotate(rand.nextInt(360));
         
-        int acceleration = 4 + rand.nextInt(15);
+        int acceleration = 4 + rand.nextInt(10);
         
         for (int i = 0; i < acceleration; i++) {
             accelerate();
