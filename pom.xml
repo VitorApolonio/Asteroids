@@ -46,7 +46,7 @@
                                 <argument>--module-path</argument>
                                 <argument>$JAVA_HOME/jmods</argument>
                                 <argument>--add-modules</argument>
-                                <argument>java.base,java.desktop,javafx.base,javafx.graphics,javafx.media,javafx.swing</argument>
+                                <argument>java.base,javafx.media,javafx.swing</argument>
                                 <argument>--output</argument>
                                 <argument>asteroids-custom-runtime</argument>
                                 <argument>--strip-debug</argument>
