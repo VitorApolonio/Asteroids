@@ -226,34 +226,20 @@ public class AsteroidsApplication extends Application {
                 }
 
                 // Projectile
-                if (inputHandler.isHeld(KeyCode.SPACE) && cooldown <= 0 && projectiles.size() < (shotgun ? 6 : 3)) {
+                if (inputHandler.isHeld(KeyCode.SPACE) && cooldown <= 0 && projectiles.size() < 3) {
 
-                    Projectile proj = new Projectile(((int) ship.getCharacter().getTranslateX()), (int) ship.getCharacter().getTranslateY());
-                    proj.getCharacter().setRotate(ship.getCharacter().getRotate());
-                    projectiles.add(proj);
+                    // Fires 1 projectile, or 3 if spread shot is active
+                    for (int i = -15; i <= 15; i+=15) {
+                        if (shotgun || i == 0) {
+                            Projectile proj = new Projectile(((int) ship.getCharacter().getTranslateX()), (int) ship.getCharacter().getTranslateY());
+                            proj.getCharacter().setRotate(ship.getCharacter().getRotate() + i);
+                            projectiles.add(proj);
 
-                    proj.accelerate();
-                    proj.setMovement(proj.getMovement().normalize().multiply(4).add(ship.getMovement().multiply(0.5)));
+                            proj.accelerate();
+                            proj.setMovement(proj.getMovement().normalize().multiply(4).add(ship.getMovement().multiply(0.5)));
 
-                    mainLayout.getChildren().add(0, proj.getCharacter());
-
-                    // Fires 2 additional projectiles if shotgun mode is active
-                    if (shotgun) {
-                        Projectile proj1 = new Projectile(((int) ship.getCharacter().getTranslateX()), (int) ship.getCharacter().getTranslateY());
-                        proj1.getCharacter().setRotate(ship.getCharacter().getRotate() + 10);
-                        projectiles.add(proj1);
-
-                        Projectile proj2 = new Projectile(((int) ship.getCharacter().getTranslateX()), (int) ship.getCharacter().getTranslateY());
-                        proj2.getCharacter().setRotate(ship.getCharacter().getRotate() - 10);
-                        projectiles.add(proj2);
-
-                        proj1.accelerate();
-                        proj1.setMovement(proj1.getMovement().normalize().multiply(4).add(ship.getMovement().multiply(0.5)));
-                        proj2.accelerate();
-                        proj2.setMovement(proj2.getMovement().normalize().multiply(4).add(ship.getMovement().multiply(0.5)));
-
-                        mainLayout.getChildren().add(0, proj1.getCharacter());
-                        mainLayout.getChildren().add(0, proj2.getCharacter());
+                            mainLayout.getChildren().add(0, proj.getCharacter());
+                        }
                     }
 
                     cooldown += 30;
