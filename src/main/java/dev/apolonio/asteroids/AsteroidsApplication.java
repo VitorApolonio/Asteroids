@@ -70,7 +70,7 @@ public class AsteroidsApplication extends Application {
         Text titleText = new Text("ASTEROIDS");
         titleText.setFont(Font.font("Verdana", FontWeight.BOLD, 90));
         titleText.setFill(Color.WHITE);
-        titleText.setStroke(Color.DARKBLUE);
+        titleText.setStroke(Color.BLUE);
         titleText.setStrokeWidth(3);
         startLayout.getChildren().add(titleText);
 
@@ -87,10 +87,13 @@ public class AsteroidsApplication extends Application {
 
         // Create menu options
         List<MenuOption> menuOptionsList = new ArrayList<>();
-        MenuOption startOption = new MenuOption("START");
-        MenuOption settingsOption = new MenuOption("OPTIONS");
+        MenuOption startOption = new MenuOption("START GAME");
+        MenuOption settingsOption = new MenuOption("SETTINGS");
+        MenuOption quitOption = new MenuOption("QUIT");
+
         menuOptionsList.add(startOption);
         menuOptionsList.add(settingsOption);
+        menuOptionsList.add(quitOption);
 
         VBox menuOptionsVbox = new VBox(5);
         menuOptionsVbox.getChildren().addAll(menuOptionsList.stream().map(MenuOption::getTextElement).toList());
@@ -150,7 +153,7 @@ public class AsteroidsApplication extends Application {
         Text scoreText = new Text(10, 50, "SCORE: 0");
         scoreText.setFont(Font.font("Trebuchet MS", 50));
         scoreText.setFill(Color.WHITE);
-        scoreText.setStroke(Color.DARKBLUE);
+        scoreText.setStroke(Color.BLUE);
         scoreText.setStrokeWidth(2);
         mainLayout.getChildren().add(scoreText);
         AtomicInteger points = new AtomicInteger();
@@ -165,7 +168,7 @@ public class AsteroidsApplication extends Application {
         Text gameOverText = new Text("GAME OVER!");
         gameOverText.setFont(Font.font("Verdana", FontWeight.BOLD, 90));
         gameOverText.setFill(Color.WHITE);
-        gameOverText.setStroke(Color.DARKBLUE);
+        gameOverText.setStroke(Color.BLUE);
         gameOverText.setStrokeWidth(3);
         endScreenPane.getChildren().add(gameOverText);
 
@@ -184,7 +187,7 @@ public class AsteroidsApplication extends Application {
         Text pauseText = new Text("PAUSED");
         pauseText.setFont(Font.font("Trebuchet MS", FontWeight.BOLD, 80));
         pauseText.setFill(Color.WHITE);
-        pauseText.setStroke(Color.DARKBLUE);
+        pauseText.setStroke(Color.BLUE);
         pauseText.setStrokeWidth(2.5);
         pauseText.setVisible(false);
         pauseText.setTranslateX(WIDTH / 2.0 - pauseText.getBoundsInParent().getMaxX() / 2);
@@ -397,7 +400,7 @@ public class AsteroidsApplication extends Application {
                 menuOptionsList.get(selectedMenuOption).deselect();
                 selectedMenuOption++;
 
-                if (selectedMenuOption > 1) {
+                if (selectedMenuOption > menuOptionsList.size() - 1) {
                     selectedMenuOption = 0;
                 }
 
@@ -428,6 +431,9 @@ public class AsteroidsApplication extends Application {
                         break;
                     case 1:
                         System.out.println("Coming soon!");
+                        break;
+                    case 2:
+                        window.close();
                         break;
                 }
             }
