@@ -11,4 +11,14 @@ public class Ship extends Character {
         getCharacter().setStroke(Color.LIGHTGRAY);
         getCharacter().setStrokeWidth(2);
     }
+
+    @Override
+    public void turnLeft() {
+        getCharacter().setRotate(getCharacter().getRotate() - 3.75);
+    }
+
+    @Override
+    public void turnRight() {
+        getCharacter().setRotate(getCharacter().getRotate() + 3.75);
+    }
 }
