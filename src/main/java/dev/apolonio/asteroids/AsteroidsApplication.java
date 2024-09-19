@@ -52,9 +52,7 @@ public class AsteroidsApplication extends Application {
     private boolean shotgun = false;
 
     private AudioClip powerUpSfx;
-    private AudioClip powerDownSfx;
 
-    // Index for option menu. Set to -1 by default so pressing space won't trigger the "START" option.
     private int selectedMenuOption = 0;
 
     @Override
@@ -121,7 +119,6 @@ public class AsteroidsApplication extends Application {
 
                 // Shotgun activation sfx
                 powerUpSfx = new AudioClip(getClass().getResource("/sounds/powerup.wav").toExternalForm());
-                powerDownSfx = new AudioClip(getClass().getResource("/sounds/powerdown.wav").toExternalForm());
 
                 Platform.runLater(() -> {
                     splashStage.close();
@@ -353,7 +350,9 @@ public class AsteroidsApplication extends Application {
         // This is for inputs that aren't held down, so they don't use the custom input handler
         window.addEventHandler(KeyEvent.KEY_PRESSED, event -> {
 
+            // This is used to figure out which screen the player is at when he presses a key
             Parent windowRoot = window.getScene().getRoot();
+
             /* Detects the key sequence: UP, UP, DOWN, DOWN, LEFT, RIGHT, LEFT, RIGHT, SPACE
                Toggles shotgun mode. */
             if (isPaused) {
@@ -374,15 +373,10 @@ public class AsteroidsApplication extends Application {
                 } else if (correctPresses.get() == 7 && event.getCode() == KeyCode.RIGHT) {
                     correctPresses.getAndIncrement();
                 } else if (correctPresses.get() == 8 && event.getCode() == KeyCode.SPACE) {
-                    correctPresses.set(0);
                     if (!shotgun) {
-                        System.out.println("Now we're talking!");
-                        shotgun = true;
                         powerUpSfx.play();
-                    } else {
-                        System.out.println("Fair play!");
-                        shotgun = false;
-                        powerDownSfx.play();
+                        correctPresses.set(0);
+                        shotgun = true;
                     }
                 } else {
                     correctPresses.set(0);
