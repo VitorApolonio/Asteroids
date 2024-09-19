@@ -15,7 +15,7 @@ public class MenuOption {
         name = optionName;
 
         Text element = new Text(optionName);
-        element.setFont(Font.font("Trebuchet MS", 40));
+        element.setFont(Font.font("Trebuchet MS", 60));
         element.setFill(Color.WHITE);
         this.element = element;
     }
@@ -27,15 +27,13 @@ public class MenuOption {
     public void select() {
         selected = true;
 
-        element.setFill(Color.BLACK);
-        element.setStroke(Color.WHITE);
-        element.setStrokeWidth(1);
+        element.setStroke(Color.BLUE);
+        element.setStrokeWidth(2);
     }
 
     public void deselect() {
         selected = false;
 
-        element.setFill(Color.WHITE);
         element.setStrokeWidth(0);
     }
 }
