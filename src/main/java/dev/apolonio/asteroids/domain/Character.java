@@ -1,5 +1,6 @@
-package dev.apolonio.asteroids;
+package dev.apolonio.asteroids.domain;
 
+import dev.apolonio.asteroids.AsteroidsApplication;
 import javafx.geometry.Point2D;
 import javafx.scene.shape.Polygon;
 import javafx.scene.shape.Shape;

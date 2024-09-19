@@ -8,6 +8,10 @@ import java.util.List;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import dev.apolonio.asteroids.domain.Asteroid;
+import dev.apolonio.asteroids.domain.Character;
+import dev.apolonio.asteroids.domain.Projectile;
+import dev.apolonio.asteroids.domain.Ship;
 import javafx.animation.Animation;
 import javafx.animation.AnimationTimer;
 import javafx.animation.FadeTransition;

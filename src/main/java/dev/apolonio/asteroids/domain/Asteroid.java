@@ -1,4 +1,6 @@
-package dev.apolonio.asteroids;
+package dev.apolonio.asteroids.domain;
+
+import dev.apolonio.asteroids.PolygonFactory;
 
 import java.util.Random;
 
