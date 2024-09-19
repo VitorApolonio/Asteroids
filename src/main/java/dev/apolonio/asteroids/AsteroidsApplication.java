@@ -484,12 +484,12 @@ public class AsteroidsApplication extends Application {
         int imageNum = 0;
 
         String documentsFolderPath = System.getProperty("user.home") + "/Documents";
-        File scrDir = new File(documentsFolderPath + "/asteroids-screenshots");
+        File scrDir = new File(documentsFolderPath + "/Asteroids/Screenshots");
         File imgFile;
 
         // Keep checking if "screenshot-n.png" exists, until some number doesn't.
         while (true) {
-            File f = new File(scrDir, "screenshot-" + imageNum + ".png");
+            File f = new File(scrDir, "screenshot_" + imageNum + ".png");
             if (f.isFile()) {
                 imageNum++;
                 continue;
