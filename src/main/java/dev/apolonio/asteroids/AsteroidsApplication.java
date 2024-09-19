@@ -273,7 +273,7 @@ public class AsteroidsApplication extends Application {
 
                         // Fewer points are awarded for shotgun kills
                         if (shotgun) {
-                            scoreText.setText("SCORE: " + points.addAndGet(30));
+                            scoreText.setText("SCORE: " + points.addAndGet(50));
                         } else {
                             scoreText.setText("SCORE: " + points.addAndGet(100));
                         }
