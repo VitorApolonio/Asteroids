@@ -8,10 +8,8 @@ import java.util.List;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import dev.apolonio.asteroids.domain.Asteroid;
+import dev.apolonio.asteroids.domain.*;
 import dev.apolonio.asteroids.domain.Character;
-import dev.apolonio.asteroids.domain.Projectile;
-import dev.apolonio.asteroids.domain.Ship;
 import javafx.animation.Animation;
 import javafx.animation.AnimationTimer;
 import javafx.animation.FadeTransition;
@@ -21,6 +19,7 @@ import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -28,6 +27,7 @@ import javafx.scene.image.WritableImage;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.media.AudioClip;
 import javafx.scene.paint.Color;
@@ -54,14 +54,17 @@ public class AsteroidsApplication extends Application {
     private AudioClip powerUpSfx;
     private AudioClip powerDownSfx;
 
+    // Index for option menu. Set to -1 by default so pressing space won't trigger the "START" option.
+    private int selectedMenuOption = 0;
+
     @Override
     public void start(Stage window) {
 
         // Create title screen layout
-        VBox startPane = new VBox(HEIGHT / 8.0);
-        startPane.setPrefSize(WIDTH, HEIGHT);
-        startPane.setStyle("-fx-background-color: black");
-        startPane.setAlignment(Pos.CENTER);
+        VBox startLayout = new VBox(HEIGHT / 8.0);
+        startLayout.setPrefSize(WIDTH, HEIGHT);
+        startLayout.setStyle("-fx-background-color: black");
+        startLayout.setAlignment(Pos.CENTER);
 
         // Create title text
         Text titleText = new Text("ASTEROIDS");
@@ -69,15 +72,33 @@ public class AsteroidsApplication extends Application {
         titleText.setFill(Color.WHITE);
         titleText.setStroke(Color.DARKBLUE);
         titleText.setStrokeWidth(3);
-        startPane.getChildren().add(titleText);
+        startLayout.getChildren().add(titleText);
 
         Text instruction = new Text("PRESS SPACE TO START");
         instruction.setFont(Font.font("Trebuchet MS", 40));
         instruction.setFill(Color.WHITE);
-        startPane.getChildren().add(instruction);
+        startLayout.getChildren().add(instruction);
+
+        // Create main menu layout
+        StackPane mainMenuLayout = new StackPane();
+        mainMenuLayout.setPrefSize(WIDTH, HEIGHT);
+        mainMenuLayout.setStyle("-fx-background-color: black");
+        mainMenuLayout.setAlignment(Pos.CENTER);
+
+        // Create menu options
+        List<MenuOption> menuOptionsList = new ArrayList<>();
+        MenuOption startOption = new MenuOption("START");
+        MenuOption settingsOption = new MenuOption("OPTIONS");
+        menuOptionsList.add(startOption);
+        menuOptionsList.add(settingsOption);
+
+        VBox menuOptionsVbox = new VBox(5);
+        menuOptionsVbox.getChildren().addAll(menuOptionsList.stream().map(MenuOption::getTextElement).toList());
+        menuOptionsVbox.setAlignment(Pos.CENTER);
+        mainMenuLayout.getChildren().add(menuOptionsVbox);
 
         // Create scene with layout
-        Scene view = new Scene(startPane);
+        Scene view = new Scene(startLayout);
         window.setScene(view);
 
         // Splash screen (image that shows up before game starts)
@@ -329,6 +350,7 @@ public class AsteroidsApplication extends Application {
         // This is for inputs that aren't held down, so they don't use the custom input handler
         window.addEventHandler(KeyEvent.KEY_PRESSED, event -> {
 
+            Parent windowRoot = window.getScene().getRoot();
             /* Detects the key sequence: UP, UP, DOWN, DOWN, LEFT, RIGHT, LEFT, RIGHT, SPACE
                Toggles shotgun mode. */
             if (isPaused) {
@@ -364,19 +386,50 @@ public class AsteroidsApplication extends Application {
                 }
             }
 
-            // Start game with spacebar
-            if (event.getCode() == KeyCode.SPACE && window.getScene().getRoot() == startPane) {
+            // Open main menu with space bar
+            if (event.getCode() == KeyCode.SPACE && windowRoot == startLayout) {
+                window.getScene().setRoot(mainMenuLayout);
+                menuOptionsList.get(selectedMenuOption).select();
+            }
 
-                // Spawn 5 initial asteroids at random positions
-                for (int i = 0; i < 5; i++) {
-                    Random rand = new Random();
-                    Asteroid asteroid = new Asteroid(rand.nextInt(WIDTH / 3), rand.nextInt(HEIGHT));
-                    asteroids.add(asteroid);
+            // Select menu options
+            if (event.getCode() == KeyCode.DOWN && windowRoot == mainMenuLayout) {
+                menuOptionsList.get(selectedMenuOption).deselect();
+                selectedMenuOption++;
+
+                if (selectedMenuOption > 1) {
+                    selectedMenuOption = 0;
                 }
-                asteroids.forEach(asteroid -> mainLayout.getChildren().add(0, asteroid.getCharacter()));
 
-                window.getScene().setRoot(mainLayout);
-                mainTimer.start();
+                menuOptionsList.get(selectedMenuOption).select();
+            }
+            if (event.getCode() == KeyCode.UP && windowRoot == mainMenuLayout) {
+                menuOptionsList.get(selectedMenuOption).deselect();
+                selectedMenuOption--;
+
+                if (selectedMenuOption < 0) {
+                    selectedMenuOption = menuOptionsList.size() - 1;
+                }
+
+                menuOptionsList.get(selectedMenuOption).select();
+            }
+            if (event.getCode() == KeyCode.SPACE && windowRoot == mainMenuLayout) {
+                switch (selectedMenuOption) {
+                    case 0:
+                        window.getScene().setRoot(mainLayout);
+                        mainTimer.start();
+                        // Spawn 5 initial asteroids at random positions
+                        for (int i = 0; i < 5; i++) {
+                            Random rand = new Random();
+                            Asteroid asteroid = new Asteroid(rand.nextInt(WIDTH / 3), rand.nextInt(HEIGHT));
+                            asteroids.add(asteroid);
+                        }
+                        asteroids.forEach(asteroid -> mainLayout.getChildren().add(0, asteroid.getCharacter()));
+                        break;
+                    case 1:
+                        System.out.println("Coming soon!");
+                        break;
+                }
             }
 
             // Save a screenshot of the current view with P key
@@ -385,7 +438,7 @@ public class AsteroidsApplication extends Application {
             }
 
             // Pause game with ESC key, only allowed on main view since it doesn't work properly on other scenes
-            if ((event.getCode() == KeyCode.ESCAPE || event.getCode() == KeyCode.PAUSE) && window.getScene().getRoot() == mainLayout) {
+            if ((event.getCode() == KeyCode.ESCAPE || event.getCode() == KeyCode.PAUSE) && windowRoot == mainLayout) {
                 if (isPaused) {
                     pauseFade.stop();
                     pauseText.setVisible(false);
@@ -400,7 +453,10 @@ public class AsteroidsApplication extends Application {
             }
 
             // Restart game
-            if (event.getCode() == KeyCode.SPACE && window.getScene().getRoot() == endScreenPane && tryAgainText.isVisible()) {
+            if (event.getCode() == KeyCode.SPACE && windowRoot == endScreenPane && tryAgainText.isVisible()) {
+                // Reset selected menu option
+                selectedMenuOption = 0;
+
                 // Clear points
                 points.set(0);
                 scoreText.setText("SCORE: 0");
@@ -420,7 +476,7 @@ public class AsteroidsApplication extends Application {
                 ship.getCharacter().setOpacity(1.0);
 
                 // Go back to title screen
-                window.getScene().setRoot(startPane);
+                window.getScene().setRoot(startLayout);
             }
         });
     }
