@@ -295,7 +295,7 @@ public class AsteroidsApplication extends Application {
                         // This isn't on the animation, since otherwise you could still hit the asteroid until it finishes
                         asteroids.remove(collided);
 
-                        // Fewer points are awarded for shotgun kills
+                        // Fewer points are awarded for spread shot kills
                         if (shotgun) {
                             scoreText.setText("SCORE: " + points.addAndGet(50));
                         } else {
@@ -344,8 +344,19 @@ public class AsteroidsApplication extends Application {
             }
         };
 
-        // Keeps track of how many keys were pressed in the correct sequence for the cheat code
+        // Keeps track of how many keys were pressed in the correct sequence for the spread shot cheat code
         AtomicInteger correctPresses = new AtomicInteger();
+        KeyCode[] correctSequence = {
+                KeyCode.UP,
+                KeyCode.UP,
+                KeyCode.DOWN,
+                KeyCode.DOWN,
+                KeyCode.LEFT,
+                KeyCode.RIGHT,
+                KeyCode.LEFT,
+                KeyCode.RIGHT,
+                KeyCode.SPACE
+        };
 
         // This is for inputs that aren't held down, so they don't use the custom input handler
         window.addEventHandler(KeyEvent.KEY_PRESSED, event -> {
@@ -353,33 +364,18 @@ public class AsteroidsApplication extends Application {
             // This is used to figure out which screen the player is at when he presses a key
             Parent windowRoot = window.getScene().getRoot();
 
-            /* Detects the key sequence: UP, UP, DOWN, DOWN, LEFT, RIGHT, LEFT, RIGHT, SPACE
-               Toggles shotgun mode. */
-            if (isPaused) {
-                if (correctPresses.get() == 0 && event.getCode() == KeyCode.UP) {
+            // Detects the sequence that toggles spread shot mode.
+            if (isPaused && !shotgun) {
+                if (event.getCode() == correctSequence[correctPresses.get()]) {
                     correctPresses.getAndIncrement();
-                } else if (correctPresses.get() == 1 && event.getCode() == KeyCode.UP) {
-                    correctPresses.getAndIncrement();
-                } else if (correctPresses.get() == 2 && event.getCode() == KeyCode.DOWN) {
-                    correctPresses.getAndIncrement();
-                } else if (correctPresses.get() == 3 && event.getCode() == KeyCode.DOWN) {
-                    correctPresses.getAndIncrement();
-                } else if (correctPresses.get() == 4 && event.getCode() == KeyCode.LEFT) {
-                    correctPresses.getAndIncrement();
-                } else if (correctPresses.get() == 5 && event.getCode() == KeyCode.RIGHT) {
-                    correctPresses.getAndIncrement();
-                } else if (correctPresses.get() == 6 && event.getCode() == KeyCode.LEFT) {
-                    correctPresses.getAndIncrement();
-                } else if (correctPresses.get() == 7 && event.getCode() == KeyCode.RIGHT) {
-                    correctPresses.getAndIncrement();
-                } else if (correctPresses.get() == 8 && event.getCode() == KeyCode.SPACE) {
-                    if (!shotgun) {
-                        powerUpSfx.play();
-                        correctPresses.set(0);
-                        shotgun = true;
-                    }
                 } else {
                     correctPresses.set(0);
+                }
+
+                if (correctPresses.get() == correctSequence.length) {
+                    powerUpSfx.play();
+                    correctPresses.set(0);
+                    shotgun = true;
                 }
             }
 
