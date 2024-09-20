@@ -2,10 +2,7 @@ package dev.apolonio.asteroids;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import dev.apolonio.asteroids.domain.*;
@@ -22,6 +19,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
@@ -51,6 +49,8 @@ public class AsteroidsApplication extends Application {
 
     private int selectedMenuOption = 0;
 
+    private Map<String, Integer> scores = new HashMap<>();
+
     @Override
     public void start(Stage window) {
 
@@ -61,16 +61,10 @@ public class AsteroidsApplication extends Application {
         startLayout.setAlignment(Pos.CENTER);
 
         // Create title text
-        Text titleText = new Text("ASTEROIDS");
-        titleText.setFont(Font.font("Verdana", FontWeight.BOLD, 90));
-        titleText.setFill(Color.WHITE);
-        titleText.setStroke(Color.BLUE);
-        titleText.setStrokeWidth(3);
+        Text titleText = getTextLarge("ASTEROIDS");
         startLayout.getChildren().add(titleText);
 
-        Text instruction = new Text("PRESS SPACE TO START");
-        instruction.setFont(Font.font("Trebuchet MS", 40));
-        instruction.setFill(Color.WHITE);
+        Text instruction = getTextSmall("PRESS SPACE TO START");
         startLayout.getChildren().add(instruction);
 
         // Create main menu layout
@@ -143,11 +137,9 @@ public class AsteroidsApplication extends Application {
         List<Projectile> projectiles = new ArrayList<>();
 
         // Create user score text
-        Text scoreText = new Text(10, 50, "SCORE: 0");
-        scoreText.setFont(Font.font("Trebuchet MS", 50));
-        scoreText.setFill(Color.WHITE);
-        scoreText.setStroke(Color.BLUE);
-        scoreText.setStrokeWidth(2);
+        Text scoreText = getTextMedium("SCORE: 0");
+        scoreText.setTranslateX(10);
+        scoreText.setTranslateY(50);
         mainLayout.getChildren().add(scoreText);
         AtomicInteger points = new AtomicInteger();
 
@@ -158,30 +150,18 @@ public class AsteroidsApplication extends Application {
         endScreenPane.setAlignment(Pos.CENTER);
 
         // Create game over text
-        Text gameOverText = new Text("GAME OVER!");
-        gameOverText.setFont(Font.font("Verdana", FontWeight.BOLD, 90));
-        gameOverText.setFill(Color.WHITE);
-        gameOverText.setStroke(Color.BLUE);
-        gameOverText.setStrokeWidth(3);
+        Text gameOverText = getTextLarge("GAME OVER!");
         endScreenPane.getChildren().add(gameOverText);
 
-        Text finalScoreText = new Text("FINAL SCORE: 0");
-        finalScoreText.setFont(Font.font("Trebuchet MS", FontWeight.SEMI_BOLD, 60));
-        finalScoreText.setFill(Color.WHITE);
+        Text finalScoreText = getTextMedium("FINAL SCORE: 0");
         endScreenPane.getChildren().add(finalScoreText);
 
-        Text tryAgainText = new Text("PRESS SPACE TO CONTINUE");
-        tryAgainText.setFont(Font.font("Trebuchet MS", 40));
-        tryAgainText.setFill(Color.WHITE);
+        Text tryAgainText = getTextSmall("PRESS SPACE TO CONTINUE");
         tryAgainText.setVisible(false);
         endScreenPane.getChildren().add(tryAgainText);
 
         // Pause text
-        Text pauseText = new Text("PAUSED");
-        pauseText.setFont(Font.font("Trebuchet MS", FontWeight.BOLD, 80));
-        pauseText.setFill(Color.WHITE);
-        pauseText.setStroke(Color.BLUE);
-        pauseText.setStrokeWidth(2.5);
+        Text pauseText = getTextLarge("PAUSED");
         pauseText.setVisible(false);
         pauseText.setTranslateX(WIDTH / 2.0 - pauseText.getBoundsInParent().getMaxX() / 2);
         pauseText.setTranslateY(HEIGHT / 2.0 + pauseText.getBoundsInParent().getMaxY());
@@ -190,7 +170,7 @@ public class AsteroidsApplication extends Application {
         // Pause flashing text animation
         FadeTransition pauseFade = new FadeTransition(Duration.millis(666), pauseText);
         pauseFade.setFromValue(0.0);
-        pauseFade.setToValue(1.0);
+        pauseFade.setToValue(0.8);
         pauseFade.setAutoReverse(true);
         pauseFade.setCycleCount(Animation.INDEFINITE);
 
@@ -461,6 +441,34 @@ public class AsteroidsApplication extends Application {
                 window.getScene().setRoot(startLayout);
             }
         });
+    }
+
+    private Text getTextLarge(String textContent) {
+        Text text = new Text(textContent);
+        text.setFont(Font.font("Verdana", FontWeight.BOLD, 90));
+        text.setFill(Color.WHITE);
+        text.setStroke(Color.BLUE);
+        text.setStrokeWidth(3);
+
+        return text;
+    }
+
+    private Text getTextMedium(String textContent) {
+        Text text = new Text(textContent);
+        text.setFont(Font.font("Trebuchet MS", FontWeight.SEMI_BOLD, 55));
+        text.setFill(Color.WHITE);
+        text.setStroke(Color.BLUE);
+        text.setStrokeWidth(1.25);
+
+        return text;
+    }
+
+    private Text getTextSmall(String textContent) {
+        Text text = new Text(textContent);
+        text.setFont(Font.font("Trebuchet MS", 40));
+        text.setFill(Color.WHITE);
+
+        return text;
     }
 
     private void saveScr(Scene scene) {
