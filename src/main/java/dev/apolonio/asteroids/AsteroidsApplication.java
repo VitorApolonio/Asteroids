@@ -9,11 +9,7 @@ import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import dev.apolonio.asteroids.domain.*;
-import dev.apolonio.asteroids.domain.Character;
-import javafx.animation.Animation;
-import javafx.animation.AnimationTimer;
-import javafx.animation.FadeTransition;
-import javafx.animation.PauseTransition;
+import javafx.animation.*;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;
@@ -192,7 +188,7 @@ public class AsteroidsApplication extends Application {
         mainLayout.getChildren().add(pauseText);
 
         // Pause flashing text animation
-        FadeTransition pauseFade = new FadeTransition(Duration.seconds(0.66), pauseText);
+        FadeTransition pauseFade = new FadeTransition(Duration.millis(666), pauseText);
         pauseFade.setFromValue(0.0);
         pauseFade.setToValue(1.0);
         pauseFade.setAutoReverse(true);
@@ -272,11 +268,15 @@ public class AsteroidsApplication extends Application {
 
                     // Increase score with hits
                     collisions.forEach(collided -> {
-                        FadeTransition asteroidFade = new FadeTransition(Duration.seconds(0.5), collided.getCharacter());
-                        asteroidFade.setFromValue(1.0);
-                        asteroidFade.setToValue(0.0);
-                        asteroidFade.setOnFinished(event -> mainLayout.getChildren().remove(collided.getCharacter()));
-                        asteroidFade.play();
+                        KeyValue scaleX = new KeyValue(collided.getCharacter().scaleXProperty(), 1.5);
+                        KeyValue scaleY = new KeyValue(collided.getCharacter().scaleYProperty(), 1.5);
+                        KeyValue opacity = new KeyValue(collided.getCharacter().opacityProperty(), 0);
+
+                        KeyFrame frame = new KeyFrame(Duration.millis(500), scaleX, scaleY, opacity);
+
+                        Timeline timeline = new Timeline(frame);
+                        timeline.setOnFinished(event -> mainLayout.getChildren().remove(collided.getCharacter()));
+                        timeline.play();
 
                         // This isn't on the animation, since otherwise you could still hit the asteroid until it finishes
                         asteroids.remove(collided);
@@ -311,7 +311,7 @@ public class AsteroidsApplication extends Application {
                         shotgun = false; // Disable cheat on death
 
                         // Fade away animation for ship
-                        FadeTransition deathFade = new FadeTransition(Duration.seconds(1), ship.getCharacter());
+                        FadeTransition deathFade = new FadeTransition(Duration.millis(1000), ship.getCharacter());
                         deathFade.setFromValue(1.0);
                         deathFade.setToValue(0.0);
                         deathFade.setOnFinished(event -> {
@@ -319,7 +319,7 @@ public class AsteroidsApplication extends Application {
                             window.getScene().setRoot(endScreenPane);
 
                             // Delay before "PRESS SPACE" text pops up
-                            PauseTransition tryAgainPause = new PauseTransition(Duration.seconds(1));
+                            PauseTransition tryAgainPause = new PauseTransition(Duration.millis(1000));
                             tryAgainPause.setOnFinished(event2 -> tryAgainText.setVisible(true));
                             tryAgainPause.play();
                         });
@@ -445,8 +445,8 @@ public class AsteroidsApplication extends Application {
                 finalScoreText.setText(("FINAL SCORE: 0"));
 
                 // Delete all asteroids and projectiles
-                mainLayout.getChildren().removeAll(asteroids.stream().map(Character::getCharacter).toList());
-                mainLayout.getChildren().removeAll(projectiles.stream().map(Character::getCharacter).toList());
+                mainLayout.getChildren().removeAll(asteroids.stream().map(c -> c.getCharacter()).toList());
+                mainLayout.getChildren().removeAll(projectiles.stream().map(c -> c.getCharacter()).toList());
                 asteroids.clear();
                 projectiles.clear();
 
