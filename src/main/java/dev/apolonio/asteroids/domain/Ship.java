@@ -14,11 +14,23 @@ public class Ship extends Character {
 
     @Override
     public void turnLeft() {
-        getCharacter().setRotate(getCharacter().getRotate() - 4);
+        getCharacter().setRotate(getCharacter().getRotate() - 4.25);
     }
 
     @Override
     public void turnRight() {
-        getCharacter().setRotate(getCharacter().getRotate() + 4);
+        getCharacter().setRotate(getCharacter().getRotate() + 4.25);
+    }
+
+    @Override
+    public void accelerate() {
+
+        double changeX = Math.cos(Math.toRadians(getCharacter().getRotate()));
+        double changeY = Math.sin(Math.toRadians(getCharacter().getRotate()));
+
+        changeX *= 0.08;
+        changeY *= 0.08;
+
+        setMovement(getMovement().add(changeX, changeY));
     }
 }

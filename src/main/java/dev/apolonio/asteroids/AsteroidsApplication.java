@@ -97,12 +97,12 @@ public class AsteroidsApplication extends Application {
         VBox leaderboardLeftVbox = new VBox(25);
         leaderboardLeftVbox.setAlignment(Pos.CENTER);
         leaderboardLeftVbox.setPrefSize(WIDTH / 2.0, HEIGHT);
-        leaderboardLeftVbox.setPadding(new Insets(10));
+        leaderboardLeftVbox.setPadding(new Insets(5));
 
         VBox leaderboardRightVbox = new VBox(25);
         leaderboardRightVbox.setAlignment(Pos.CENTER);
         leaderboardRightVbox.setPrefSize(WIDTH / 2.0, HEIGHT);
-        leaderboardRightVbox.setPadding(new Insets(10));
+        leaderboardRightVbox.setPadding(new Insets(5));
 
         // Fill leaderboards
         List<Text> scoreTexts = getHiScoreTexts();
@@ -122,7 +122,7 @@ public class AsteroidsApplication extends Application {
         leaderboardLayout.setLeft(leaderboardLeftVbox);
         leaderboardLayout.setRight(leaderboardRightVbox);
         leaderboardLayout.setBottom(backOption.getTextElement());
-        leaderboardLayout.setPadding(new Insets(15));
+        leaderboardLayout.setPadding(new Insets(10));
 
         BorderPane.setAlignment(backOption.getTextElement(), Pos.CENTER);
 
@@ -250,7 +250,7 @@ public class AsteroidsApplication extends Application {
                             projectiles.add(proj);
 
                             proj.accelerate();
-                            proj.setMovement(proj.getMovement().normalize().multiply(4).add(ship.getMovement().multiply(0.5)));
+                            proj.setMovement(proj.getMovement().normalize().multiply(4).add(ship.getMovement()));
 
                             mainLayout.getChildren().add(0, proj.getCharacter());
                         }
@@ -552,7 +552,7 @@ public class AsteroidsApplication extends Application {
 
     private Text getTextScore(String textContent) {
         Text text = new Text(textContent);
-        text.setFont(Font.font("Courier New", FontWeight.SEMI_BOLD, 45));
+        text.setFont(Font.font("Courier New", FontWeight.BOLD, 50));
         text.setFill(Color.WHITE);
 
         return text;
