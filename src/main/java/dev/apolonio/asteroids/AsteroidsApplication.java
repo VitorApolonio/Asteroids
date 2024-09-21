@@ -54,7 +54,11 @@ public class AsteroidsApplication extends Application {
     private MediaPlayer menuConfirmSfx;
     private MediaPlayer pauseSfx;
     private MediaPlayer unpauseSfx;
+
+    private MediaPlayer fireSfx;
+    private MediaPlayer spreadFireSfx;
     private MediaPlayer powerUpSfx;
+    private MediaPlayer deathSfx;
 
     private int selectedMenuOption = 0;
 
@@ -161,8 +165,19 @@ public class AsteroidsApplication extends Application {
                 pauseSfx = new MediaPlayer(new Media(getClass().getResource("/sounds/pause.mp3").toExternalForm()));
                 unpauseSfx = new MediaPlayer(new Media(getClass().getResource("/sounds/unpause.mp3").toExternalForm()));
 
-                // Shotgun activation sfx
+                // Main game sfx
+                fireSfx = new MediaPlayer(new Media(getClass().getResource("/sounds/fire.mp3").toExternalForm()));
+                spreadFireSfx = new MediaPlayer(new Media(getClass().getResource("/sounds/fire_spread.mp3").toExternalForm()));
                 powerUpSfx = new MediaPlayer(new Media(getClass().getResource("/sounds/power_up.mp3").toExternalForm()));
+                deathSfx = new MediaPlayer(new Media(getClass().getResource("/sounds/death.mp3").toExternalForm()));
+
+                // Lower volume of loud sounds
+                fireSfx.setVolume(0.15);
+                spreadFireSfx.setVolume(0.15);
+
+                // Preload menu confirm sound. This is done so there isn't a delay when you first open the main menu.
+                menuConfirmSfx.play();
+                menuConfirmSfx.stop();
 
                 // Wait some time
                 Thread.sleep(SPLASH_SCR_TIME);
@@ -278,6 +293,14 @@ public class AsteroidsApplication extends Application {
 
                     // Fires 1 projectile, or 3 if spread shot is active
                     for (int i = -15; i <= 15; i+=15) {
+                        if (shotgun) {
+                            spreadFireSfx.seek(Duration.ZERO);
+                            spreadFireSfx.play();
+                        } else {
+                            fireSfx.seek(Duration.ZERO);
+                            fireSfx.play();
+                        }
+
                         if (shotgun || i == 0) {
                             Projectile proj = new Projectile(((int) ship.getCharacter().getTranslateX()), (int) ship.getCharacter().getTranslateY());
                             proj.getCharacter().setRotate(ship.getCharacter().getRotate() + i);
@@ -361,6 +384,10 @@ public class AsteroidsApplication extends Application {
                     if (ship.collide(asteroid)) {
                         stop();
                         shotgun = false; // Disable cheat on death
+
+                        // Play sound
+                        deathSfx.seek(Duration.ZERO);
+                        deathSfx.play();
 
                         // Fade away animation for ship
                         FadeTransition deathFade = new FadeTransition(Duration.millis(1000), ship.getCharacter());
@@ -462,7 +489,6 @@ public class AsteroidsApplication extends Application {
                 switch (selectedMenuOption) {
                     case 0:
                         window.getScene().setRoot(mainLayout);
-                        mainTimer.start();
                         // Spawn 5 initial asteroids at random positions
                         for (int i = 0; i < 5; i++) {
                             Random rand = new Random();
@@ -470,6 +496,7 @@ public class AsteroidsApplication extends Application {
                             asteroids.add(asteroid);
                         }
                         asteroids.forEach(asteroid -> mainLayout.getChildren().add(0, asteroid.getCharacter()));
+                        mainTimer.start();
                         break;
                     case 1:
                         window.getScene().setRoot(leaderboardLayout);
