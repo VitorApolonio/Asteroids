@@ -111,15 +111,15 @@ public class AsteroidsApplication extends Application {
         leaderboardLayout.setStyle("-fx-background-color: black");
         leaderboardLayout.setPrefSize(WIDTH, HEIGHT);
 
-        VBox leaderboardLeftVbox = new VBox(25);
+        Text hiScoresText = getTextMedium("HIGHEST SCORES");
+
+        VBox leaderboardLeftVbox = new VBox(HEIGHT / 20.0);
         leaderboardLeftVbox.setAlignment(Pos.CENTER);
         leaderboardLeftVbox.setPrefSize(WIDTH / 2.0, HEIGHT);
-        leaderboardLeftVbox.setPadding(new Insets(5));
 
-        VBox leaderboardRightVbox = new VBox(25);
+        VBox leaderboardRightVbox = new VBox(HEIGHT / 20.0);
         leaderboardRightVbox.setAlignment(Pos.CENTER);
         leaderboardRightVbox.setPrefSize(WIDTH / 2.0, HEIGHT);
-        leaderboardRightVbox.setPadding(new Insets(5));
 
         // Fill leaderboards
         List<Text> scoreTexts = getHiScoreTexts();
@@ -136,11 +136,13 @@ public class AsteroidsApplication extends Application {
 
         MenuOption backOption = new MenuOption("BACK");
 
+        leaderboardLayout.setTop(hiScoresText);
         leaderboardLayout.setLeft(leaderboardLeftVbox);
         leaderboardLayout.setRight(leaderboardRightVbox);
         leaderboardLayout.setBottom(backOption.getTextElement());
-        leaderboardLayout.setPadding(new Insets(10));
+        leaderboardLayout.setPadding(new Insets(20));
 
+        BorderPane.setAlignment(hiScoresText, Pos.CENTER);
         BorderPane.setAlignment(backOption.getTextElement(), Pos.CENTER);
 
         // Create scene with layout
@@ -210,8 +212,8 @@ public class AsteroidsApplication extends Application {
 
         // Create user score text
         Text scoreText = getTextMedium("SCORE: 0");
-        scoreText.setTranslateX(10);
-        scoreText.setTranslateY(50);
+        scoreText.setTranslateX(30);
+        scoreText.setTranslateY(60);
         mainLayout.getChildren().add(scoreText);
         AtomicInteger points = new AtomicInteger();
 
@@ -239,7 +241,7 @@ public class AsteroidsApplication extends Application {
         insertNameLayout.setAlignment(Pos.CENTER);
 
         // Create insert name text
-        Text instructionText = getTextMedium("ENTER YOUR INITIALS");
+        Text instructionText = getTextMedium("ENTER YOUR NAME");
         insertNameLayout.getChildren().add(instructionText);
 
         StringBuilder initialsSB = new StringBuilder("___");
@@ -682,7 +684,7 @@ public class AsteroidsApplication extends Application {
 
     private Text getTextMedium(String textContent) {
         Text text = new Text(textContent);
-        text.setFont(Font.font("Trebuchet MS", FontWeight.SEMI_BOLD, 55));
+        text.setFont(Font.font("Trebuchet MS", FontWeight.SEMI_BOLD, 60));
         text.setFill(Color.WHITE);
         text.setStroke(Color.BLUE);
         text.setStrokeWidth(1.25);
@@ -692,7 +694,7 @@ public class AsteroidsApplication extends Application {
 
     private Text getTextScore(String textContent) {
         Text text = new Text(textContent);
-        text.setFont(Font.font("Courier New", FontWeight.BOLD, 50));
+        text.setFont(Font.font("Courier New", FontWeight.BOLD, 45));
         text.setFill(Color.WHITE);
 
         return text;
