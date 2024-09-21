@@ -22,7 +22,8 @@ import javafx.scene.image.WritableImage;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
-import javafx.scene.media.AudioClip;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
@@ -47,9 +48,9 @@ public class AsteroidsApplication extends Application {
     private boolean isPaused = false;
     private boolean shotgun = false;
 
-    private AudioClip menuSelectSfx;
-    private AudioClip menuConfirmSfx;
-    private AudioClip powerUpSfx;
+    private MediaPlayer menuSelectSfx;
+    private MediaPlayer menuConfirmSfx;
+    private MediaPlayer powerUpSfx;
 
     private int selectedMenuOption = 0;
 
@@ -142,29 +143,29 @@ public class AsteroidsApplication extends Application {
         splashStage.setScene(splashScene);
         splashStage.show();
 
-        // Menu sounds
-        menuSelectSfx = new AudioClip(getClass().getResource("/sounds/menu_select.wav").toExternalForm());
-        menuConfirmSfx = new AudioClip(getClass().getResource("/sounds/menu_confirm.wav").toExternalForm());
-
-        // Shotgun activation sfx
-        powerUpSfx = new AudioClip(getClass().getResource("/sounds/power_up.wav").toExternalForm());
-
         new Thread(() -> {
             try {
-                // Wait some time before closing splash
+                // Menu sounds
+                menuSelectSfx = new MediaPlayer(new Media(getClass().getResource("/sounds/menu_select.wav").toExternalForm()));
+                menuConfirmSfx = new MediaPlayer(new Media(getClass().getResource("/sounds/menu_confirm.wav").toExternalForm()));
+
+                // Shotgun activation sfx
+                powerUpSfx = new MediaPlayer(new Media(getClass().getResource("/sounds/power_up.wav").toExternalForm()));
+
+                // Wait some time
                 Thread.sleep(SPLASH_SCR_TIME);
 
+                // Close splash and show window when done
                 Platform.runLater(() -> {
                     splashStage.close();
                     window.setTitle("Asteroids!");
                     window.setResizable(false); // Resizing doesn't properly work yet
                     window.show();
                 });
+
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-
-
         }).start();
 
         // Create main game layout
@@ -403,7 +404,9 @@ public class AsteroidsApplication extends Application {
                 }
 
                 if (correctPresses.get() == correctSequence.length) {
+                    powerUpSfx.seek(Duration.ZERO);
                     powerUpSfx.play();
+
                     correctPresses.set(0);
                     shotgun = true;
                 }
@@ -411,13 +414,18 @@ public class AsteroidsApplication extends Application {
 
             // Open main menu with space bar
             if (event.getCode() == KeyCode.SPACE && windowRoot == startLayout) {
+                menuConfirmSfx.seek(Duration.ZERO);
                 menuConfirmSfx.play();
+
                 window.getScene().setRoot(mainMenuLayout);
                 menuOptionsList.get(selectedMenuOption).select();
             }
 
             // Select menu options
             if (event.getCode() == KeyCode.DOWN && windowRoot == mainMenuLayout) {
+                menuSelectSfx.seek(Duration.ZERO);
+                menuSelectSfx.play();
+
                 menuOptionsList.get(selectedMenuOption).deselect();
                 selectedMenuOption++;
 
@@ -426,9 +434,11 @@ public class AsteroidsApplication extends Application {
                 }
 
                 menuOptionsList.get(selectedMenuOption).select();
-                menuSelectSfx.play();
             }
             if (event.getCode() == KeyCode.UP && windowRoot == mainMenuLayout) {
+                menuSelectSfx.seek(Duration.ZERO);
+                menuSelectSfx.play();
+
                 menuOptionsList.get(selectedMenuOption).deselect();
                 selectedMenuOption--;
 
@@ -437,10 +447,11 @@ public class AsteroidsApplication extends Application {
                 }
 
                 menuOptionsList.get(selectedMenuOption).select();
-                menuSelectSfx.play();
             }
             if (event.getCode() == KeyCode.SPACE && windowRoot == mainMenuLayout) {
+                menuConfirmSfx.seek(Duration.ZERO);
                 menuConfirmSfx.play();
+
                 switch (selectedMenuOption) {
                     case 0:
                         window.getScene().setRoot(mainLayout);
@@ -465,9 +476,11 @@ public class AsteroidsApplication extends Application {
 
             // Leave leaderboard
             if (event.getCode() == KeyCode.SPACE && windowRoot == leaderboardLayout) {
+                menuConfirmSfx.seek(Duration.ZERO);
+                menuConfirmSfx.play();
+
                 window.getScene().setRoot(mainMenuLayout);
                 menuOptionsList.get(selectedMenuOption).select();
-                menuConfirmSfx.play();
             }
 
             // Save a screenshot of the current view with P key
@@ -492,6 +505,9 @@ public class AsteroidsApplication extends Application {
 
             // Restart game
             if (event.getCode() == KeyCode.SPACE && windowRoot == endScreenPane && tryAgainText.isVisible()) {
+                menuConfirmSfx.seek(Duration.ZERO);
+                menuConfirmSfx.play();
+
                 // Reset selected menu option
                 selectedMenuOption = 0;
 
