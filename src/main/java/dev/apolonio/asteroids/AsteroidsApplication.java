@@ -52,6 +52,8 @@ public class AsteroidsApplication extends Application {
 
     private MediaPlayer menuSelectSfx;
     private MediaPlayer menuConfirmSfx;
+    private MediaPlayer pauseSfx;
+    private MediaPlayer unpauseSfx;
     private MediaPlayer powerUpSfx;
 
     private int selectedMenuOption = 0;
@@ -154,11 +156,13 @@ public class AsteroidsApplication extends Application {
         new Thread(() -> {
             try {
                 // Menu sounds
-                menuSelectSfx = new MediaPlayer(new Media(getClass().getResource("/sounds/menu_select.wav").toExternalForm()));
-                menuConfirmSfx = new MediaPlayer(new Media(getClass().getResource("/sounds/menu_confirm.wav").toExternalForm()));
+                menuSelectSfx = new MediaPlayer(new Media(getClass().getResource("/sounds/menu_select.mp3").toExternalForm()));
+                menuConfirmSfx = new MediaPlayer(new Media(getClass().getResource("/sounds/menu_confirm.mp3").toExternalForm()));
+                pauseSfx = new MediaPlayer(new Media(getClass().getResource("/sounds/pause.mp3").toExternalForm()));
+                unpauseSfx = new MediaPlayer(new Media(getClass().getResource("/sounds/unpause.mp3").toExternalForm()));
 
                 // Shotgun activation sfx
-                powerUpSfx = new MediaPlayer(new Media(getClass().getResource("/sounds/power_up.wav").toExternalForm()));
+                powerUpSfx = new MediaPlayer(new Media(getClass().getResource("/sounds/power_up.mp3").toExternalForm()));
 
                 // Wait some time
                 Thread.sleep(SPLASH_SCR_TIME);
@@ -559,11 +563,17 @@ public class AsteroidsApplication extends Application {
             // Pause game with ESC key, only allowed on main view since it doesn't work properly on other scenes
             if ((event.getCode() == KeyCode.ESCAPE || event.getCode() == KeyCode.PAUSE) && windowRoot == mainLayout) {
                 if (isPaused) {
+                    unpauseSfx.seek(Duration.ZERO);
+                    unpauseSfx.play();
+
                     pauseFade.stop();
                     pauseText.setVisible(false);
                     mainTimer.start();
                     isPaused = false;
                 } else {
+                    pauseSfx.seek(Duration.ZERO);
+                    pauseSfx.play();
+
                     pauseFade.play();
                     pauseText.setVisible(true);
                     mainTimer.stop();
