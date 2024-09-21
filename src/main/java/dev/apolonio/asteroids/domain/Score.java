@@ -20,6 +20,11 @@ public class Score implements Comparable<Score>, Serializable {
     }
 
     @Override
+    public String toString() {
+        return playerName + ": " + score;
+    }
+
+    @Override
     public int compareTo(Score o) {
         return Integer.compare(o.score, score);
     }
