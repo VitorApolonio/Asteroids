@@ -1,7 +1,7 @@
 package dev.apolonio.asteroids;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -43,7 +43,10 @@ public class AsteroidsApplication extends Application {
     public static final int WIDTH = 900;
     public static final int HEIGHT = 600;
 
-    private final List<Score> scoreList = new ArrayList<>();
+    // Folder for storing screenshots and score data
+    private static final String gameDataFolderPath = System.getProperty("user.home") + "/Documents/Asteroids/";
+
+    private List<Score> scoreList;
 
     private boolean isPaused = false;
     private boolean shotgun = false;
@@ -54,9 +57,21 @@ public class AsteroidsApplication extends Application {
 
     private int selectedMenuOption = 0;
 
-
     @Override
     public void start(Stage window) {
+
+        // Load scores if score file exists, else create empty list
+        File scoreFile = new File(gameDataFolderPath + "scores.ser");
+
+        if (scoreFile.isFile()) {
+            try {
+                scoreList = loadScores();
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            }
+        } else {
+            scoreList = new ArrayList<>();
+        }
 
         // Create title screen layout
         VBox startLayout = new VBox(HEIGHT / 8.0);
@@ -355,6 +370,9 @@ public class AsteroidsApplication extends Application {
                             }
                         }
 
+                        // Save scores to file
+                        saveScores();
+
                         // Fade away animation for ship
                         FadeTransition deathFade = new FadeTransition(Duration.millis(1000), ship.getCharacter());
                         deathFade.setFromValue(1.0);
@@ -503,7 +521,7 @@ public class AsteroidsApplication extends Application {
                 }
             }
 
-            // Restart game
+            // Leave game over screen and restart game
             if (event.getCode() == KeyCode.SPACE && windowRoot == endScreenPane && tryAgainText.isVisible()) {
                 menuConfirmSfx.seek(Duration.ZERO);
                 menuConfirmSfx.play();
@@ -536,6 +554,8 @@ public class AsteroidsApplication extends Application {
     }
 
     private List<Text> getHiScoreTexts() {
+        scoreList.sort(Score::compareTo);
+
         List<Text> texts = new ArrayList<>();
 
         for (int i = 0; i < 10; i++) {
@@ -599,8 +619,7 @@ public class AsteroidsApplication extends Application {
 
         int imageNum = 0;
 
-        String documentsFolderPath = System.getProperty("user.home") + "/Documents";
-        File scrDir = new File(documentsFolderPath + "/Asteroids/Screenshots");
+        File scrDir = new File(gameDataFolderPath + "Screenshots");
         File imgFile;
 
         // Keep checking if "screenshot-n.png" exists, until some number doesn't.
@@ -624,6 +643,41 @@ public class AsteroidsApplication extends Application {
             System.out.println("Screenshot saved: " + imgFile.getAbsolutePath());
         } catch (IOException e) {
             System.err.println("Failed to save screenshot: " + e.getMessage());
+        }
+    }
+
+    public void saveScores() {
+        // Create file to store score values
+        String filePath = gameDataFolderPath + "scores.ser";
+        File scoreFile = new File(filePath);
+
+        // Create if doesn't exist
+        try {
+            if (!scoreFile.isFile()) {
+                scoreFile.createNewFile();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        // Write list to file
+        try (ObjectOutputStream objStream = new ObjectOutputStream(new FileOutputStream(filePath))) {
+            objStream.writeObject(scoreList);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public List<Score> loadScores() throws ClassNotFoundException {
+
+        String filePath = gameDataFolderPath + "scores.ser";
+
+        try (ObjectInputStream objStream = new ObjectInputStream(new FileInputStream(filePath))) {
+            List<Score> list = (List<Score>) objStream.readObject();
+            return list;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
         }
     }
     

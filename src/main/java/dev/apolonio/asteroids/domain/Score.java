@@ -1,6 +1,8 @@
 package dev.apolonio.asteroids.domain;
 
-public class Score implements Comparable<Score> {
+import java.io.Serializable;
+
+public class Score implements Comparable<Score>, Serializable {
     private final String playerName;
     private final int score;
 
