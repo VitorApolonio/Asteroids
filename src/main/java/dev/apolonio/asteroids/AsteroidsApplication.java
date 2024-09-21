@@ -619,7 +619,7 @@ public class AsteroidsApplication extends Application {
 
             if (i < scoreList.size()) {
                 Score s = scoreList.get(i);
-                scoreText.setText(scoreText.getText() + s.getPlayerName() + ": " + String.format("%05d", s.getScore()));
+                scoreText.setText(scoreText.getText() + s.playerName() + ": " + String.format("%05d", s.playerScore()));
             } else {
                 scoreText.setText(scoreText.getText() + "---: -----");
             }
