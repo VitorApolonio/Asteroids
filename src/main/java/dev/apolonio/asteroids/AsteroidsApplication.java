@@ -47,6 +47,8 @@ public class AsteroidsApplication extends Application {
     private boolean isPaused = false;
     private boolean shotgun = false;
 
+    private AudioClip menuSelectSfx;
+    private AudioClip menuConfirmSfx;
     private AudioClip powerUpSfx;
 
     private int selectedMenuOption = 0;
@@ -140,13 +142,17 @@ public class AsteroidsApplication extends Application {
         splashStage.setScene(splashScene);
         splashStage.show();
 
+        // Menu sounds
+        menuSelectSfx = new AudioClip(getClass().getResource("/sounds/menu_select.wav").toExternalForm());
+        menuConfirmSfx = new AudioClip(getClass().getResource("/sounds/menu_confirm.wav").toExternalForm());
+
+        // Shotgun activation sfx
+        powerUpSfx = new AudioClip(getClass().getResource("/sounds/power_up.wav").toExternalForm());
+
         new Thread(() -> {
             try {
                 // Wait some time before closing splash
                 Thread.sleep(SPLASH_SCR_TIME);
-
-                // Shotgun activation sfx
-                powerUpSfx = new AudioClip(getClass().getResource("/sounds/powerup.wav").toExternalForm());
 
                 Platform.runLater(() -> {
                     splashStage.close();
@@ -405,6 +411,7 @@ public class AsteroidsApplication extends Application {
 
             // Open main menu with space bar
             if (event.getCode() == KeyCode.SPACE && windowRoot == startLayout) {
+                menuConfirmSfx.play();
                 window.getScene().setRoot(mainMenuLayout);
                 menuOptionsList.get(selectedMenuOption).select();
             }
@@ -419,6 +426,7 @@ public class AsteroidsApplication extends Application {
                 }
 
                 menuOptionsList.get(selectedMenuOption).select();
+                menuSelectSfx.play();
             }
             if (event.getCode() == KeyCode.UP && windowRoot == mainMenuLayout) {
                 menuOptionsList.get(selectedMenuOption).deselect();
@@ -429,8 +437,10 @@ public class AsteroidsApplication extends Application {
                 }
 
                 menuOptionsList.get(selectedMenuOption).select();
+                menuSelectSfx.play();
             }
             if (event.getCode() == KeyCode.SPACE && windowRoot == mainMenuLayout) {
+                menuConfirmSfx.play();
                 switch (selectedMenuOption) {
                     case 0:
                         window.getScene().setRoot(mainLayout);
@@ -457,6 +467,7 @@ public class AsteroidsApplication extends Application {
             if (event.getCode() == KeyCode.SPACE && windowRoot == leaderboardLayout) {
                 window.getScene().setRoot(mainMenuLayout);
                 menuOptionsList.get(selectedMenuOption).select();
+                menuConfirmSfx.play();
             }
 
             // Save a screenshot of the current view with P key
