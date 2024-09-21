@@ -1,7 +1,6 @@
 package dev.apolonio.asteroids;
 
 import java.io.*;
-import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -60,17 +59,11 @@ public class AsteroidsApplication extends Application {
     @Override
     public void start(Stage window) {
 
-        // Load scores if score file exists, else create empty list
-        File scoreFile = new File(gameDataFolderPath + "scores.ser");
-
-        if (scoreFile.isFile()) {
-            try {
-                scoreList = loadScores();
-            } catch (ClassNotFoundException e) {
-                e.printStackTrace();
-            }
-        } else {
-            scoreList = new ArrayList<>();
+        // Load scores from file
+        try {
+            loadScores();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
         }
 
         // Create title screen layout
@@ -640,9 +633,9 @@ public class AsteroidsApplication extends Application {
             }
 
             ImageIO.write(SwingFXUtils.fromFXImage(image, null), "png", imgFile);
-            System.out.println("Screenshot saved: " + imgFile.getAbsolutePath());
+            System.out.println("[DEBUG] Screenshot saved: " + imgFile.getAbsolutePath());
         } catch (IOException e) {
-            System.err.println("Failed to save screenshot: " + e.getMessage());
+            System.err.println("[DEBUG] Failed to save screenshot: " + e.getMessage());
         }
     }
 
@@ -654,30 +647,38 @@ public class AsteroidsApplication extends Application {
         // Create if doesn't exist
         try {
             if (!scoreFile.isFile()) {
+                System.out.println("[DEBUG] File doesn't exist, creating");
                 scoreFile.createNewFile();
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            System.err.println("[DEBUG] Failed to create file: " + e.getMessage());
         }
 
         // Write list to file
         try (ObjectOutputStream objStream = new ObjectOutputStream(new FileOutputStream(filePath))) {
             objStream.writeObject(scoreList);
+            System.out.println("[DEBUG] Saved scores: " + scoreFile.getAbsolutePath());
         } catch (IOException e) {
-            e.printStackTrace();
+            System.err.println("[DEBUG] Failed to save scores: " + e.getMessage());;
         }
     }
 
-    public List<Score> loadScores() throws ClassNotFoundException {
+    public void loadScores() throws ClassNotFoundException {
 
         String filePath = gameDataFolderPath + "scores.ser";
+        File scoreFile = new File(filePath);
 
-        try (ObjectInputStream objStream = new ObjectInputStream(new FileInputStream(filePath))) {
-            List<Score> list = (List<Score>) objStream.readObject();
-            return list;
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
+        if (scoreFile.isFile()) {
+            try (ObjectInputStream objStream = new ObjectInputStream(new FileInputStream(filePath))) {
+                scoreList = (List<Score>) objStream.readObject();
+                System.out.println("[DEBUG] Loaded scores: " + scoreFile.getAbsolutePath());
+            } catch (IOException e) {
+                System.err.println("[DEBUG] Failed to load scores: " + e.getMessage());
+            }
+        } else {
+            System.out.println("[DEBUG] Score file doesn't exist: " + scoreFile.getAbsolutePath());
+            System.out.println("[DEBUG] Creating empty list");
+            scoreList = new ArrayList<>();
         }
     }
     
