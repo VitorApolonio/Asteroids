@@ -6,10 +6,12 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import dev.apolonio.asteroids.domain.*;
+import dev.apolonio.asteroids.domain.Character;
 import javafx.animation.*;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;
+import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
@@ -19,15 +21,13 @@ import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.media.AudioClip;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
+import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.util.Duration;
@@ -42,6 +42,8 @@ public class AsteroidsApplication extends Application {
     public static final int WIDTH = 900;
     public static final int HEIGHT = 600;
 
+    private final List<Score> scoreList = new ArrayList<>();
+
     private boolean isPaused = false;
     private boolean shotgun = false;
 
@@ -49,7 +51,6 @@ public class AsteroidsApplication extends Application {
 
     private int selectedMenuOption = 0;
 
-    private Map<String, Integer> scores = new HashMap<>();
 
     @Override
     public void start(Stage window) {
@@ -76,17 +77,54 @@ public class AsteroidsApplication extends Application {
         // Create menu options
         List<MenuOption> menuOptionsList = new ArrayList<>();
         MenuOption startOption = new MenuOption("START GAME");
-        MenuOption settingsOption = new MenuOption("SETTINGS");
+        MenuOption leaderboardOption = new MenuOption("HI-SCORES");
         MenuOption quitOption = new MenuOption("QUIT");
 
         menuOptionsList.add(startOption);
-        menuOptionsList.add(settingsOption);
+        menuOptionsList.add(leaderboardOption);
         menuOptionsList.add(quitOption);
 
         VBox menuOptionsVbox = new VBox(5);
         menuOptionsVbox.getChildren().addAll(menuOptionsList.stream().map(MenuOption::getTextElement).toList());
         menuOptionsVbox.setAlignment(Pos.CENTER);
         mainMenuLayout.getChildren().add(menuOptionsVbox);
+
+        // Create leaderboard layout
+        BorderPane leaderboardLayout = new BorderPane();
+        leaderboardLayout.setStyle("-fx-background-color: black");
+        leaderboardLayout.setPrefSize(WIDTH, HEIGHT);
+
+        VBox leaderboardLeftVbox = new VBox(25);
+        leaderboardLeftVbox.setAlignment(Pos.CENTER);
+        leaderboardLeftVbox.setPrefSize(WIDTH / 2.0, HEIGHT);
+        leaderboardLeftVbox.setPadding(new Insets(10));
+
+        VBox leaderboardRightVbox = new VBox(25);
+        leaderboardRightVbox.setAlignment(Pos.CENTER);
+        leaderboardRightVbox.setPrefSize(WIDTH / 2.0, HEIGHT);
+        leaderboardRightVbox.setPadding(new Insets(10));
+
+        // Fill leaderboards
+        List<Text> scoreTexts = getHiScoreTexts();
+
+        for (int i = 0; i < 10; i++) {
+            Text scoreText = scoreTexts.get(i);
+
+            if (i < 5) {
+                leaderboardLeftVbox.getChildren().add(scoreText);
+            } else {
+                leaderboardRightVbox.getChildren().add(scoreText);
+            }
+        }
+
+        MenuOption backOption = new MenuOption("BACK");
+
+        leaderboardLayout.setLeft(leaderboardLeftVbox);
+        leaderboardLayout.setRight(leaderboardRightVbox);
+        leaderboardLayout.setBottom(backOption.getTextElement());
+        leaderboardLayout.setPadding(new Insets(15));
+
+        BorderPane.setAlignment(backOption.getTextElement(), Pos.CENTER);
 
         // Create scene with layout
         Scene view = new Scene(startLayout);
@@ -290,6 +328,26 @@ public class AsteroidsApplication extends Application {
                         stop();
                         shotgun = false; // Disable cheat on death
 
+                        // Add text to high scores
+                        Score score = new Score("TST", points.get());
+                        scoreList.add(score);
+                        scoreList.sort(Score::compareTo);
+
+                        leaderboardLeftVbox.getChildren().clear();
+                        leaderboardRightVbox.getChildren().clear();
+
+                        List<Text> scoreTexts = getHiScoreTexts();
+
+                        for (int i = 0; i < 10; i++) {
+                            Text scoreText = scoreTexts.get(i);
+
+                            if (i < 5) {
+                                leaderboardLeftVbox.getChildren().add(scoreText);
+                            } else {
+                                leaderboardRightVbox.getChildren().add(scoreText);
+                            }
+                        }
+
                         // Fade away animation for ship
                         FadeTransition deathFade = new FadeTransition(Duration.millis(1000), ship.getCharacter());
                         deathFade.setFromValue(1.0);
@@ -386,12 +444,19 @@ public class AsteroidsApplication extends Application {
                         asteroids.forEach(asteroid -> mainLayout.getChildren().add(0, asteroid.getCharacter()));
                         break;
                     case 1:
-                        System.out.println("Coming soon!");
+                        window.getScene().setRoot(leaderboardLayout);
+                        backOption.select();
                         break;
                     case 2:
                         window.close();
                         break;
                 }
+            }
+
+            // Leave leaderboard
+            if (event.getCode() == KeyCode.SPACE && windowRoot == leaderboardLayout) {
+                window.getScene().setRoot(mainMenuLayout);
+                menuOptionsList.get(selectedMenuOption).select();
             }
 
             // Save a screenshot of the current view with P key
@@ -425,8 +490,8 @@ public class AsteroidsApplication extends Application {
                 finalScoreText.setText(("FINAL SCORE: 0"));
 
                 // Delete all asteroids and projectiles
-                mainLayout.getChildren().removeAll(asteroids.stream().map(c -> c.getCharacter()).toList());
-                mainLayout.getChildren().removeAll(projectiles.stream().map(c -> c.getCharacter()).toList());
+                mainLayout.getChildren().removeAll(asteroids.stream().map(Character::getCharacter).toList());
+                mainLayout.getChildren().removeAll(projectiles.stream().map(Character::getCharacter).toList());
                 asteroids.clear();
                 projectiles.clear();
 
@@ -441,6 +506,28 @@ public class AsteroidsApplication extends Application {
                 window.getScene().setRoot(startLayout);
             }
         });
+    }
+
+    private List<Text> getHiScoreTexts() {
+        List<Text> texts = new ArrayList<>();
+
+        for (int i = 0; i < 10; i++) {
+
+            Text scoreText = getTextScore(String.format("%02d", i + 1) + ". ");
+
+            if (i < scoreList.size()) {
+                Score s = scoreList.get(i);
+                scoreText.setText(scoreText.getText() + s.getPlayerName() + ": " + String.format("%05d", s.getScore()));
+            } else {
+                scoreText.setText(scoreText.getText() + "---: -----");
+            }
+
+            scoreText.setTextAlignment(TextAlignment.CENTER);
+
+            texts.add(scoreText);
+        }
+
+        return texts;
     }
 
     private Text getTextLarge(String textContent) {
@@ -463,9 +550,17 @@ public class AsteroidsApplication extends Application {
         return text;
     }
 
+    private Text getTextScore(String textContent) {
+        Text text = new Text(textContent);
+        text.setFont(Font.font("Courier New", FontWeight.SEMI_BOLD, 45));
+        text.setFill(Color.WHITE);
+
+        return text;
+    }
+
     private Text getTextSmall(String textContent) {
         Text text = new Text(textContent);
-        text.setFont(Font.font("Trebuchet MS", 40));
+        text.setFont(Font.font("Trebuchet MS", 45));
         text.setFill(Color.WHITE);
 
         return text;
