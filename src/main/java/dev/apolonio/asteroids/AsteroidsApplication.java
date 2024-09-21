@@ -76,8 +76,8 @@ public class AsteroidsApplication extends Application {
         Text titleText = getTextLarge("ASTEROIDS");
         startLayout.getChildren().add(titleText);
 
-        Text instruction = getTextSmall("PRESS SPACE TO START");
-        startLayout.getChildren().add(instruction);
+        Text pressToStart = getTextSmall("PRESS SPACE TO START");
+        startLayout.getChildren().add(pressToStart);
 
         // Create main menu layout
         StackPane mainMenuLayout = new StackPane();
@@ -197,21 +197,36 @@ public class AsteroidsApplication extends Application {
         AtomicInteger points = new AtomicInteger();
 
         // Create game over screen layout
-        VBox endScreenPane = new VBox(HEIGHT / 12.0);
-        endScreenPane.setPrefSize(WIDTH, HEIGHT);
-        endScreenPane.setStyle("-fx-background-color: black");
-        endScreenPane.setAlignment(Pos.CENTER);
+        VBox endScreenLayout = new VBox(HEIGHT / 12.0);
+        endScreenLayout.setPrefSize(WIDTH, HEIGHT);
+        endScreenLayout.setStyle("-fx-background-color: black");
+        endScreenLayout.setAlignment(Pos.CENTER);
 
         // Create game over text
         Text gameOverText = getTextLarge("GAME OVER!");
-        endScreenPane.getChildren().add(gameOverText);
+        endScreenLayout.getChildren().add(gameOverText);
 
         Text finalScoreText = getTextMedium("FINAL SCORE: 0");
-        endScreenPane.getChildren().add(finalScoreText);
+        endScreenLayout.getChildren().add(finalScoreText);
 
         Text tryAgainText = getTextSmall("PRESS SPACE TO CONTINUE");
         tryAgainText.setVisible(false);
-        endScreenPane.getChildren().add(tryAgainText);
+        endScreenLayout.getChildren().add(tryAgainText);
+
+        // Create insert name screen
+        VBox insertNameLayout = new VBox(HEIGHT / 12.0);
+        insertNameLayout.setPrefSize(WIDTH, HEIGHT);
+        insertNameLayout.setStyle("-fx-background-color: black");
+        insertNameLayout.setAlignment(Pos.CENTER);
+
+        // Create insert name text
+        Text instructionText = getTextSmall("ENTER YOUR INITIALS");
+        insertNameLayout.getChildren().add(instructionText);
+
+        StringBuilder initialsSB = new StringBuilder("___");
+
+        Text initialsText = getTextScore(initialsSB.toString().replace("", " ").strip());
+        insertNameLayout.getChildren().add(initialsText);
 
         // Pause text
         Text pauseText = getTextLarge("PAUSED");
@@ -343,36 +358,13 @@ public class AsteroidsApplication extends Application {
                         stop();
                         shotgun = false; // Disable cheat on death
 
-                        // Add text to high scores
-                        Score score = new Score("TST", points.get());
-                        scoreList.add(score);
-                        scoreList.sort(Score::compareTo);
-
-                        leaderboardLeftVbox.getChildren().clear();
-                        leaderboardRightVbox.getChildren().clear();
-
-                        List<Text> scoreTexts = getHiScoreTexts();
-
-                        for (int i = 0; i < 10; i++) {
-                            Text scoreText = scoreTexts.get(i);
-
-                            if (i < 5) {
-                                leaderboardLeftVbox.getChildren().add(scoreText);
-                            } else {
-                                leaderboardRightVbox.getChildren().add(scoreText);
-                            }
-                        }
-
-                        // Save scores to file
-                        saveScores();
-
                         // Fade away animation for ship
                         FadeTransition deathFade = new FadeTransition(Duration.millis(1000), ship.getCharacter());
                         deathFade.setFromValue(1.0);
                         deathFade.setToValue(0.0);
                         deathFade.setOnFinished(event -> {
                             finalScoreText.setText("FINAL SCORE: " + points.get());
-                            window.getScene().setRoot(endScreenPane);
+                            window.getScene().setRoot(insertNameLayout);
 
                             // Delay before "PRESS SPACE" text pops up
                             PauseTransition tryAgainPause = new PauseTransition(Duration.millis(1000));
@@ -485,6 +477,71 @@ public class AsteroidsApplication extends Application {
                 }
             }
 
+            // Detect typed initials on insert name screen, up to 3 letters
+            if (event.getCode().isLetterKey() && windowRoot == insertNameLayout && initialsSB.toString().contains("_")) {
+                menuSelectSfx.seek(Duration.ZERO);
+                menuSelectSfx.play();
+
+                for (int i = 0; i < initialsSB.length(); i++) {
+                    if (initialsSB.charAt(i) == '_') {
+                        initialsSB.replace(i, i + 1, event.getText().toUpperCase());
+                        break;
+                    }
+                }
+
+                initialsText.setText(initialsSB.toString().replace("", " ").strip());
+            }
+
+            // Remove characters with backspace
+            if ((event.getCode() == KeyCode.BACK_SPACE || event.getCode() == KeyCode.DELETE) && windowRoot == insertNameLayout && !"___".contentEquals(initialsSB)) {
+                menuSelectSfx.seek(Duration.ZERO);
+                menuSelectSfx.play();
+
+                for (int i = initialsSB.length() - 1; i >= 0; i--) {
+                    if (initialsSB.charAt(i) != '_') {
+                        initialsSB.replace(i, i + 1, "_"); // Replace last char with underscore
+                        break;
+                    }
+                }
+                initialsText.setText(initialsSB.toString().replace("", " ").strip());
+            }
+
+            // Confirm initials
+            if (event.getCode() == KeyCode.SPACE && windowRoot == insertNameLayout && !"___".contentEquals(initialsSB)) {
+                menuSelectSfx.seek(Duration.ZERO);
+                menuSelectSfx.play();
+
+                // Add text to high scores
+                Score score = new Score(initialsSB.toString().replaceAll("_", " "), points.get()); // Replace underscores with spaces
+                scoreList.add(score);
+                scoreList.sort(Score::compareTo);
+
+                // Remove the lowest score if there are more than 10
+                if (scoreList.size() > 10) {
+                    scoreList.remove(scoreList.size() - 1);
+                }
+
+                // Update leaderboards
+                leaderboardLeftVbox.getChildren().clear();
+                leaderboardRightVbox.getChildren().clear();
+
+                List<Text> scoreTextsList = getHiScoreTexts();
+
+                for (int i = 0; i < 10; i++) {
+                    if (i < 5) {
+                        leaderboardLeftVbox.getChildren().add(scoreTextsList.get(i));
+                    } else {
+                        leaderboardRightVbox.getChildren().add(scoreTextsList.get(i));
+                    }
+                }
+
+                // Save scores to file
+                saveScores();
+
+                // Change to game over screen
+                window.getScene().setRoot(endScreenLayout);
+            }
+
             // Leave leaderboard
             if (event.getCode() == KeyCode.SPACE && windowRoot == leaderboardLayout) {
                 menuConfirmSfx.seek(Duration.ZERO);
@@ -494,8 +551,8 @@ public class AsteroidsApplication extends Application {
                 menuOptionsList.get(selectedMenuOption).select();
             }
 
-            // Save a screenshot of the current view with P key
-            if (event.getCode() == KeyCode.P) {
+            // Save a screenshot of the current view with P key. Doesn't work on the insert initials screen since the P key is used to type a letter there.
+            if (event.getCode() == KeyCode.P && windowRoot != insertNameLayout) {
                 saveScr(window.getScene());
             }
 
@@ -515,9 +572,14 @@ public class AsteroidsApplication extends Application {
             }
 
             // Leave game over screen and restart game
-            if (event.getCode() == KeyCode.SPACE && windowRoot == endScreenPane && tryAgainText.isVisible()) {
+            if (event.getCode() == KeyCode.SPACE && windowRoot == endScreenLayout && tryAgainText.isVisible()) {
                 menuConfirmSfx.seek(Duration.ZERO);
                 menuConfirmSfx.play();
+
+                // Reset initials
+                initialsSB.setLength(0);
+                initialsSB.append("___");
+                initialsText.setText(initialsSB.toString().replace("", " ").strip());
 
                 // Reset selected menu option
                 selectedMenuOption = 0;
@@ -659,7 +721,7 @@ public class AsteroidsApplication extends Application {
             objStream.writeObject(scoreList);
             System.out.println("[DEBUG] Saved scores: " + scoreFile.getAbsolutePath());
         } catch (IOException e) {
-            System.err.println("[DEBUG] Failed to save scores: " + e.getMessage());;
+            System.err.println("[DEBUG] Failed to save scores: " + e.getMessage());
         }
     }
 

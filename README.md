@@ -10,6 +10,8 @@ Splash screen and icon were made in Photoshop by me.
 
 # Features
 - Score counter
+- Hi-scores menu
+- Saving and loading scores from a file
 - Title screen
 - Game over screen
 - Pausing
