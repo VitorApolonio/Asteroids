@@ -239,12 +239,13 @@ public class AsteroidsApplication extends Application {
         insertNameLayout.setAlignment(Pos.CENTER);
 
         // Create insert name text
-        Text instructionText = getTextSmall("ENTER YOUR INITIALS");
+        Text instructionText = getTextMedium("ENTER YOUR INITIALS");
         insertNameLayout.getChildren().add(instructionText);
 
         StringBuilder initialsSB = new StringBuilder("___");
 
         Text initialsText = getTextScore(initialsSB.toString().replace("", " ").strip());
+        initialsText.setStyle("-fx-font-size: 70;");
         insertNameLayout.getChildren().add(initialsText);
 
         // Pause text
