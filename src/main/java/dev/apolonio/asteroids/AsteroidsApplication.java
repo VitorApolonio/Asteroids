@@ -172,8 +172,8 @@ public class AsteroidsApplication extends Application {
                 deathSfx = new MediaPlayer(new Media(getClass().getResource("/sounds/death.mp3").toExternalForm()));
 
                 // Lower volume of loud sounds
-                fireSfx.setVolume(0.15);
-                spreadFireSfx.setVolume(0.15);
+                fireSfx.setVolume(0.20);
+                spreadFireSfx.setVolume(0.20);
 
                 // Preload menu confirm sound. This is done so there isn't a delay when you first open the main menu.
                 menuConfirmSfx.play();
