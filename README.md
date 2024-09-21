@@ -1,8 +1,8 @@
 # Asteroids
 An Asteroids clone created in Java.
 
-![screenshot-1](https://github.com/user-attachments/assets/b5d51888-b105-4b45-88b3-6d7e1dcd2312)
-
+![screenshot_3](https://github.com/user-attachments/assets/9f6465a0-751c-4bb6-9fb2-811b38cdebe4)
+![screenshot_9](https://github.com/user-attachments/assets/809e33d1-5b07-4dc3-acb3-37652981581f)
 
 The UI is made with [JavaFX](https://openjfx.io/), a Java library meant for creating GUI apps.
 
@@ -10,7 +10,7 @@ Splash screen and icon were made in Photoshop by me.
 
 # Features
 - Score counter
-- Hi-scores menu
+- Hi-score menu
 - Saving and loading scores from a file
 - Title screen
 - Game over screen
@@ -18,6 +18,7 @@ Splash screen and icon were made in Photoshop by me.
 - Saving screenshots
 - Splash screen
 - Replay functionality
+- Sound effects
 
 # Controls
 - **A / D or Left Arrow / Right Arrow:** Turn ship
