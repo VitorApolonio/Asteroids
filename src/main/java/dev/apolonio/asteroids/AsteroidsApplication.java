@@ -212,7 +212,7 @@ public class AsteroidsApplication extends Application {
                 Platform.runLater(() -> {
                     splashStage.close();
                     window.setTitle("Asteroids!");
-                    window.setResizable(false); // Resizing doesn't properly work yet
+                    window.setResizable(false); // Resizing doesn't properly work yet, fixing it would require making all menus responsive
                     window.show();
                 });
 
@@ -725,7 +725,7 @@ public class AsteroidsApplication extends Application {
 
     private Text getTextScore(String textContent) {
         Text text = new Text(textContent);
-        text.setFont(Font.font("Courier New", FontWeight.BOLD, 50));
+        text.setFont(Font.font("Courier New", FontWeight.BOLD, 45));
         text.setFill(Color.WHITE);
 
         return text;
