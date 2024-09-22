@@ -22,17 +22,13 @@ public class PolygonFactory {
         double s1 = Math.sin(Math.PI * 2 / 5);
         double s2 = Math.sin(Math.PI * 4 / 5);
         
-        polygon.getPoints().addAll(
-            size, 0.0,
-            size * c1, -1 * size * s1,
-            -1 * size * c2, -1 * size * s2,
-            -1 * size * c2, size * s2,
-            size * c1, size * s1);
-        
-        for (int i = 0; i < polygon.getPoints().size(); i++) {
-            int change = rand.nextInt(10) - 4;
-            polygon.getPoints().set(i, polygon.getPoints().get(i) + change);
-        }
+        polygon.getPoints().addAll(0.0, size,
+                s1 * size, c1 * size,
+                s2 * size, -c2 * size,
+                -s2 * size, -c2 * size,
+                -s1 * size, c1 * size);
+
+        polygon.getPoints().replaceAll(aDouble -> aDouble + rand.nextDouble(15) - 7.5);
         
         return polygon;
     }

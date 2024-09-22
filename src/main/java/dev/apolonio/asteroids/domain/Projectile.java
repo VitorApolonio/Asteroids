@@ -6,7 +6,10 @@ import javafx.scene.shape.Polygon;
 public class Projectile extends Character {
     
     public Projectile(int x, int y) {
-        super(new Polygon(12, -4, 12, 4, -12, 4, -12, -4), x, y);
+        super(new Polygon(10, -4,
+                10, 4,
+                -10, 4,
+                -10, -4), x, y);
         getCharacter().setFill(Color.GHOSTWHITE);
     }
     
