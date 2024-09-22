@@ -225,6 +225,7 @@ public class AsteroidsApplication extends Application {
 
         // Create player ship
         Ship ship = new Ship(WIDTH / 2, HEIGHT / 2);
+        mainLayout.getChildren().add(ship.getSafeZone());
         mainLayout.getChildren().add(ship.getCharacter());
 
         // Create list of asteroids and projectiles (empty for now)
@@ -346,9 +347,9 @@ public class AsteroidsApplication extends Application {
 
                 // Continuously spawn asteroids starting with a 0.5% chance, raising by 0.5% more every 2500 points
                 if (Math.random() < 0.005 * (1 + points.get() / 2500.0)) {
-                    Asteroid asteroid = new Asteroid(0, 0);
+                    Asteroid asteroid = new Asteroid((int) (Math.random() * WIDTH / 3), (int) (Math.random() * HEIGHT / 2));
                     asteroid.setMovement(asteroid.getMovement().multiply(Math.min(3, 1 + points.get() / 8000.0))); // Increase velocity with player score up to a max of 3x speed
-                    if (!asteroid.collide(ship)) {
+                    if (!ship.inSafeZone(asteroid)) {
                         asteroids.add(asteroid);
                         mainLayout.getChildren().add(0, asteroid.getCharacter());
                     }
@@ -657,9 +658,12 @@ public class AsteroidsApplication extends Application {
                 projectiles.clear();
 
                 // Center ship
-                ship.getCharacter().setTranslateY(HEIGHT / 2.0);
                 ship.getCharacter().setTranslateX(WIDTH / 2.0);
+                ship.getCharacter().setTranslateY(HEIGHT / 2.0);
+                ship.getSafeZone().setTranslateX(WIDTH / 2.0);
+                ship.getSafeZone().setTranslateY(HEIGHT / 2.0);
                 ship.getCharacter().setRotate(0);
+                ship.getSafeZone().setRotate(0);
                 ship.setMovement(new Point2D(0, 0));
                 ship.getCharacter().setOpacity(1.0);
 
