@@ -9,6 +9,7 @@ import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -90,7 +91,7 @@ public class AsteroidsApplication extends Application {
         try {
             loadScores();
         } catch (ClassNotFoundException e) {
-            e.printStackTrace();
+            System.err.println("[DEBUG] Failed to load scores: " + e.getMessage());
         }
 
         // Create title screen layout
@@ -171,7 +172,7 @@ public class AsteroidsApplication extends Application {
         window.setScene(view);
 
         // Splash screen (image that shows up before game starts)
-        ImageView splashImageView = new ImageView(new Image(getClass().getResourceAsStream("/images/splash.bmp")));
+        ImageView splashImageView = new ImageView(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/images/splash.bmp"))));
         Pane splashRoot = new Pane(splashImageView);
         Scene splashScene = new Scene(splashRoot, splashImageView.getImage().getWidth(), splashImageView.getImage().getHeight());
 
@@ -183,16 +184,16 @@ public class AsteroidsApplication extends Application {
         new Thread(() -> {
             try {
                 // Menu sounds
-                menuSelectSfx = new MediaPlayer(new Media(getClass().getResource("/sounds/menu_select.mp3").toExternalForm()));
-                menuConfirmSfx = new MediaPlayer(new Media(getClass().getResource("/sounds/menu_confirm.mp3").toExternalForm()));
-                pauseSfx = new MediaPlayer(new Media(getClass().getResource("/sounds/pause.mp3").toExternalForm()));
-                unpauseSfx = new MediaPlayer(new Media(getClass().getResource("/sounds/unpause.mp3").toExternalForm()));
+                menuSelectSfx = new MediaPlayer(new Media(Objects.requireNonNull(getClass().getResource("/sounds/menu_select.mp3")).toExternalForm()));
+                menuConfirmSfx = new MediaPlayer(new Media(Objects.requireNonNull(getClass().getResource("/sounds/menu_confirm.mp3")).toExternalForm()));
+                pauseSfx = new MediaPlayer(new Media(Objects.requireNonNull(getClass().getResource("/sounds/pause.mp3")).toExternalForm()));
+                unpauseSfx = new MediaPlayer(new Media(Objects.requireNonNull(getClass().getResource("/sounds/unpause.mp3")).toExternalForm()));
 
                 // Main game sfx
-                fireSfx = new MediaPlayer(new Media(getClass().getResource("/sounds/fire.mp3").toExternalForm()));
-                spreadFireSfx = new MediaPlayer(new Media(getClass().getResource("/sounds/fire_spread.mp3").toExternalForm()));
-                powerUpSfx = new MediaPlayer(new Media(getClass().getResource("/sounds/power_up.mp3").toExternalForm()));
-                deathSfx = new MediaPlayer(new Media(getClass().getResource("/sounds/death.mp3").toExternalForm()));
+                fireSfx = new MediaPlayer(new Media(Objects.requireNonNull(getClass().getResource("/sounds/fire.mp3")).toExternalForm()));
+                spreadFireSfx = new MediaPlayer(new Media(Objects.requireNonNull(getClass().getResource("/sounds/fire_spread.mp3")).toExternalForm()));
+                powerUpSfx = new MediaPlayer(new Media(Objects.requireNonNull(getClass().getResource("/sounds/power_up.mp3")).toExternalForm()));
+                deathSfx = new MediaPlayer(new Media(Objects.requireNonNull(getClass().getResource("/sounds/death.mp3")).toExternalForm()));
 
                 // Lower volume of loud sounds
                 fireSfx.setVolume(0.20);
@@ -214,7 +215,7 @@ public class AsteroidsApplication extends Application {
                 });
 
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                System.err.println("[DEBUG] Splash thread interrupted: " + e.getMessage());
             }
         }).start();
 
