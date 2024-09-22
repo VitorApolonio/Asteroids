@@ -20,7 +20,7 @@ public class Ship extends Character {
         safeZone.setCenterX(getCharacter().getTranslateX());
         safeZone.setCenterY(getCharacter().getTranslateY());
         safeZone.setFill(Color.MAGENTA);
-        //safeZone.setVisible(false); // Safe zone is invisible during normal gameplay
+        safeZone.setVisible(false); // Safe zone is invisible during normal gameplay
 
         getCharacter().setFill(Color.WHITE);
         getCharacter().setStroke(Color.LIGHTGRAY);
