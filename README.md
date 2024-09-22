@@ -8,6 +8,8 @@ The UI is made with [JavaFX](https://openjfx.io/), a Java library meant for crea
 
 Splash screen and icon were made in Photoshop by me.
 
+All sound effects were obtained from [Freesound](https://freesound.org/) and are CC0 licensed.
+
 # Features
 - Score counter
 - Hi-score menu
