@@ -20,7 +20,7 @@ public class Ship extends Character {
         safeZone.setCenterX(getCharacter().getTranslateX());
         safeZone.setCenterY(getCharacter().getTranslateY());
         safeZone.setFill(Color.MAGENTA);
-        safeZone.setVisible(false); // Safe zone is invisible during normal game
+        //safeZone.setVisible(false); // Safe zone is invisible during normal gameplay
 
         getCharacter().setFill(Color.WHITE);
         getCharacter().setStroke(Color.LIGHTGRAY);
@@ -29,14 +29,12 @@ public class Ship extends Character {
 
     @Override
     public void turnLeft() {
-        getCharacter().setRotate(getCharacter().getRotate() - 4.25);
-        safeZone.setRotate(getCharacter().getRotate() - 4.25);
+        getCharacter().setRotate(getCharacter().getRotate() - 4.5);
     }
 
     @Override
     public void turnRight() {
-        getCharacter().setRotate(getCharacter().getRotate() + 4.25);
-        safeZone.setRotate(getCharacter().getRotate() + 4.25);
+        getCharacter().setRotate(getCharacter().getRotate() + 4.5);
     }
 
     @Override
@@ -45,8 +43,8 @@ public class Ship extends Character {
         double changeX = Math.cos(Math.toRadians(getCharacter().getRotate()));
         double changeY = Math.sin(Math.toRadians(getCharacter().getRotate()));
 
-        changeX *= 0.08;
-        changeY *= 0.08;
+        changeX *= 0.07;
+        changeY *= 0.07;
 
         setMovement(getMovement().add(changeX, changeY));
     }

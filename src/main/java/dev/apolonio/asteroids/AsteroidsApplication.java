@@ -660,10 +660,9 @@ public class AsteroidsApplication extends Application {
                 // Center ship
                 ship.getCharacter().setTranslateX(WIDTH / 2.0);
                 ship.getCharacter().setTranslateY(HEIGHT / 2.0);
-                ship.getSafeZone().setTranslateX(WIDTH / 2.0);
-                ship.getSafeZone().setTranslateY(HEIGHT / 2.0);
+                ship.getSafeZone().setCenterX(WIDTH / 2.0);
+                ship.getSafeZone().setCenterY(HEIGHT / 2.0);
                 ship.getCharacter().setRotate(0);
-                ship.getSafeZone().setRotate(0);
                 ship.setMovement(new Point2D(0, 0));
                 ship.getCharacter().setOpacity(1.0);
 
