@@ -1,8 +1,8 @@
 # Asteroids
 An Asteroids clone created in Java.
 
-![screenshot_3](https://github.com/user-attachments/assets/9f6465a0-751c-4bb6-9fb2-811b38cdebe4)
-![screenshot_9](https://github.com/user-attachments/assets/809e33d1-5b07-4dc3-acb3-37652981581f)
+![screenshot_10](https://github.com/user-attachments/assets/1b24fa27-9b3a-4e97-a21a-8ee08688ea0d)
+![screenshot_11](https://github.com/user-attachments/assets/9a8c6085-25db-44da-bbbd-9cb827bbd943)
 
 The UI is made with [JavaFX](https://openjfx.io/), a Java library meant for creating GUI apps.
 
@@ -12,7 +12,7 @@ All sound effects were obtained from [Freesound](https://freesound.org/) and are
 
 # Features
 - Score counter
-- Hi-score menu
+- Leaderboards
 - Saving and loading scores from a file
 - Title screen
 - Game over screen
