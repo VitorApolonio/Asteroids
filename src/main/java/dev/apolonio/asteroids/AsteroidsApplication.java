@@ -80,6 +80,7 @@ public class AsteroidsApplication extends Application {
     private MediaPlayer fireSfx;
     private MediaPlayer spreadFireSfx;
     private MediaPlayer powerUpSfx;
+    private MediaPlayer asteroidSfx;
     private MediaPlayer deathSfx;
 
     private int selectedMenuOption = 0;
@@ -193,6 +194,7 @@ public class AsteroidsApplication extends Application {
                 fireSfx = new MediaPlayer(new Media(Objects.requireNonNull(getClass().getResource("/sounds/fire.mp3")).toExternalForm()));
                 spreadFireSfx = new MediaPlayer(new Media(Objects.requireNonNull(getClass().getResource("/sounds/fire_spread.mp3")).toExternalForm()));
                 powerUpSfx = new MediaPlayer(new Media(Objects.requireNonNull(getClass().getResource("/sounds/power_up.mp3")).toExternalForm()));
+                asteroidSfx = new MediaPlayer(new Media(Objects.requireNonNull(getClass().getResource("/sounds/asteroid_break.mp3")).toExternalForm()));
                 deathSfx = new MediaPlayer(new Media(Objects.requireNonNull(getClass().getResource("/sounds/death.mp3")).toExternalForm()));
 
                 // Lower volume of loud sounds
@@ -373,7 +375,7 @@ public class AsteroidsApplication extends Application {
                         KeyValue scaleY = new KeyValue(collided.getCharacter().scaleYProperty(), 1.5);
                         KeyValue opacity = new KeyValue(collided.getCharacter().opacityProperty(), 0);
 
-                        KeyFrame frame = new KeyFrame(Duration.millis(500), scaleX, scaleY, opacity);
+                        KeyFrame frame = new KeyFrame(Duration.millis(333), scaleX, scaleY, opacity);
 
                         Timeline timeline = new Timeline(frame);
                         timeline.setOnFinished(event -> mainLayout.getChildren().remove(collided.getCharacter()));
@@ -381,6 +383,10 @@ public class AsteroidsApplication extends Application {
 
                         // This isn't on the animation, since otherwise you could still hit the asteroid until it finishes
                         asteroids.remove(collided);
+
+                        // Play sound
+                        asteroidSfx.seek(Duration.ZERO);
+                        asteroidSfx.play();
 
                         // Fewer points are awarded for spread shot kills
                         if (shotgun) {
