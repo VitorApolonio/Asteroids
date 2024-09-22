@@ -6,18 +6,18 @@ import javafx.scene.text.Text;
 
 public class MenuOption {
     private boolean selected;
-    private final Text element;
-    private final String text;
-    private final String selectedText;
+    private Text element;
+    private String text;
+    private String selectedText;
 
     public MenuOption(String optionName) {
         selected = false;
 
         text = optionName;
-        selectedText = "-> " + text + " <-";
+        selectedText = "-> " + optionName + " <-";
 
         Text element = new Text(optionName);
-        element.setFont(Font.font("Trebuchet MS", 60));
+        element.setFont(Font.font("Trebuchet MS", 50));
         element.setFill(Color.WHITE);
         this.element = element;
     }
@@ -32,6 +32,7 @@ public class MenuOption {
         element.setStroke(Color.BLUE);
         element.setStrokeWidth(2);
         element.setText(selectedText);
+        element.setStyle("-fx-font-size: 60;");
     }
 
     public void deselect() {
@@ -39,6 +40,7 @@ public class MenuOption {
 
         element.setStrokeWidth(0);
         element.setText(text);
+        element.setStyle("-fx-font-size: 50;");
     }
 
     public boolean isSelected() {

@@ -64,7 +64,7 @@ public class AsteroidsApplication extends Application {
     public static final int HEIGHT = 600;
 
     // Folder for storing screenshots and score data
-    private static final String gameDataFolderPath = System.getProperty("user.home") + "/Documents/Asteroids/";
+    private static final String GAME_DATA_FOLDER_PATH = System.getProperty("user.home") + "/Documents/Asteroids/";
 
     private List<Score> scoreList;
 
@@ -96,7 +96,7 @@ public class AsteroidsApplication extends Application {
         // Create title screen layout
         VBox startLayout = new VBox(HEIGHT / 8.0);
         startLayout.setPrefSize(WIDTH, HEIGHT);
-        startLayout.setStyle("-fx-background-color: black");
+        startLayout.setStyle("-fx-background-color: black;");
         startLayout.setAlignment(Pos.CENTER);
 
         // Create title text
@@ -109,7 +109,7 @@ public class AsteroidsApplication extends Application {
         // Create main menu layout
         StackPane mainMenuLayout = new StackPane();
         mainMenuLayout.setPrefSize(WIDTH, HEIGHT);
-        mainMenuLayout.setStyle("-fx-background-color: black");
+        mainMenuLayout.setStyle("-fx-background-color: black;");
         mainMenuLayout.setAlignment(Pos.CENTER);
 
         // Create menu options
@@ -122,17 +122,17 @@ public class AsteroidsApplication extends Application {
         menuOptionsList.add(leaderboardOption);
         menuOptionsList.add(quitOption);
 
-        VBox menuOptionsVbox = new VBox(5);
+        VBox menuOptionsVbox = new VBox(HEIGHT / 40.0);
         menuOptionsVbox.getChildren().addAll(menuOptionsList.stream().map(MenuOption::getTextElement).toList());
         menuOptionsVbox.setAlignment(Pos.CENTER);
         mainMenuLayout.getChildren().add(menuOptionsVbox);
 
         // Create leaderboard layout
         BorderPane leaderboardLayout = new BorderPane();
-        leaderboardLayout.setStyle("-fx-background-color: black");
+        leaderboardLayout.setStyle("-fx-background-color: black;");
         leaderboardLayout.setPrefSize(WIDTH, HEIGHT);
 
-        Text hiScoresText = getTextMedium("HIGHEST SCORES");
+        Text hiScoresText = getTextMedium("HIGH SCORES");
 
         VBox leaderboardLeftVbox = new VBox(HEIGHT / 20.0);
         leaderboardLeftVbox.setAlignment(Pos.CENTER);
@@ -161,10 +161,10 @@ public class AsteroidsApplication extends Application {
         leaderboardLayout.setLeft(leaderboardLeftVbox);
         leaderboardLayout.setRight(leaderboardRightVbox);
         leaderboardLayout.setBottom(backOption.getTextElement());
-        leaderboardLayout.setPadding(new Insets(20));
 
         BorderPane.setAlignment(hiScoresText, Pos.CENTER);
         BorderPane.setAlignment(backOption.getTextElement(), Pos.CENTER);
+        leaderboardLayout.setPadding(new Insets(20, 0, 20, 0));
 
         // Create scene with layout
         Scene view = new Scene(startLayout);
@@ -221,7 +221,7 @@ public class AsteroidsApplication extends Application {
         // Create main game layout
         Pane mainLayout = new Pane();
         mainLayout.setPrefSize(WIDTH, HEIGHT);
-        mainLayout.setStyle("-fx-background-color: black");
+        mainLayout.setStyle("-fx-background-color: black;");
 
         // Create player ship
         Ship ship = new Ship(WIDTH / 2, HEIGHT / 2);
@@ -242,7 +242,7 @@ public class AsteroidsApplication extends Application {
         // Create game over screen layout
         VBox endScreenLayout = new VBox(HEIGHT / 12.0);
         endScreenLayout.setPrefSize(WIDTH, HEIGHT);
-        endScreenLayout.setStyle("-fx-background-color: black");
+        endScreenLayout.setStyle("-fx-background-color: black;");
         endScreenLayout.setAlignment(Pos.CENTER);
 
         // Create game over text
@@ -259,7 +259,7 @@ public class AsteroidsApplication extends Application {
         // Create insert name screen
         VBox insertNameLayout = new VBox(HEIGHT / 12.0);
         insertNameLayout.setPrefSize(WIDTH, HEIGHT);
-        insertNameLayout.setStyle("-fx-background-color: black");
+        insertNameLayout.setStyle("-fx-background-color: black;");
         insertNameLayout.setAlignment(Pos.CENTER);
 
         // Create insert name text
@@ -718,7 +718,7 @@ public class AsteroidsApplication extends Application {
 
     private Text getTextScore(String textContent) {
         Text text = new Text(textContent);
-        text.setFont(Font.font("Courier New", FontWeight.BOLD, 45));
+        text.setFont(Font.font("Courier New", FontWeight.BOLD, 50));
         text.setFill(Color.WHITE);
 
         return text;
@@ -738,7 +738,7 @@ public class AsteroidsApplication extends Application {
 
         int imageNum = 0;
 
-        File scrDir = new File(gameDataFolderPath + "Screenshots");
+        File scrDir = new File(GAME_DATA_FOLDER_PATH + "Screenshots");
         File imgFile;
 
         // Keep checking if "screenshot-n.png" exists, until some number doesn't.
@@ -767,7 +767,7 @@ public class AsteroidsApplication extends Application {
 
     public void saveScores() {
         // Create file to store score values
-        String filePath = gameDataFolderPath + "scores.ser";
+        String filePath = GAME_DATA_FOLDER_PATH + "scores.ser";
         File scoreFile = new File(filePath);
 
         // Create if doesn't exist
@@ -791,7 +791,7 @@ public class AsteroidsApplication extends Application {
 
     public void loadScores() throws ClassNotFoundException {
 
-        String filePath = gameDataFolderPath + "scores.ser";
+        String filePath = GAME_DATA_FOLDER_PATH + "scores.ser";
         File scoreFile = new File(filePath);
 
         if (scoreFile.isFile()) {

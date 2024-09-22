@@ -8,7 +8,7 @@ import javafx.scene.shape.Shape;
 public class Ship extends Character {
 
     // This circle moves with the ship and is used to define the area in which asteroids can't spawn.
-    private final Circle safeZone;
+    private Circle safeZone;
     
     public Ship(int x, int y) {
         super(new Polygon(-10, -11,
