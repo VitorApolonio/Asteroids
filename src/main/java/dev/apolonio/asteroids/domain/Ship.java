@@ -16,7 +16,7 @@ public class Ship extends Character {
                 -10, 11,
                 20, 0), x, y);
 
-        safeZone = new Circle(250);
+        safeZone = new Circle(200);
         safeZone.setCenterX(getCharacter().getTranslateX());
         safeZone.setCenterY(getCharacter().getTranslateY());
         safeZone.setFill(Color.MAGENTA);
