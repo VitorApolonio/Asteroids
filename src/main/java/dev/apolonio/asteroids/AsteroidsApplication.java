@@ -173,7 +173,7 @@ public class AsteroidsApplication extends Application {
         window.setScene(view);
 
         // Splash screen (image that shows up before game starts)
-        ImageView splashImageView = new ImageView(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/images/splash.bmp"))));
+        ImageView splashImageView = new ImageView(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/images/splash.png"))));
         Pane splashRoot = new Pane(splashImageView);
         Scene splashScene = new Scene(splashRoot, splashImageView.getImage().getWidth(), splashImageView.getImage().getHeight());
 
