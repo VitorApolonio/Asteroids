@@ -777,6 +777,13 @@ public class AsteroidsApplication extends Application {
         String filePath = GAME_DATA_FOLDER_PATH + "scores.ser";
         File scoreFile = new File(filePath);
 
+        File gameDataDir = new File(GAME_DATA_FOLDER_PATH);
+
+        // Create game data folder if it doesn't exist
+        if (!gameDataDir.isDirectory()) {
+            gameDataDir.mkdir();
+        }
+
         // Create if doesn't exist
         try {
             if (!scoreFile.isFile()) {
@@ -810,7 +817,7 @@ public class AsteroidsApplication extends Application {
             }
         } else {
             System.out.println("[DEBUG] Score file doesn't exist: " + scoreFile.getAbsolutePath());
-            System.out.println("[DEBUG] Creating empty list");
+            System.out.println("[DEBUG] Creating empty list for scores");
             scoreList = new ArrayList<>();
         }
     }
