@@ -6,7 +6,7 @@
 
     <groupId>dev.apolonio.asteroids</groupId>
     <artifactId>Asteroids</artifactId>
-    <version>1.2.1</version>
+    <version>1.2.2</version>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
@@ -91,6 +91,8 @@
                                 <!-- Windows platform options -->
                                 <argument>--win-dir-chooser</argument>
                                 <argument>--win-menu</argument>
+                                <argument>--win-menu-group</argument>
+                                <argument>Asteroids</argument>
                                 <argument>--win-per-user-install</argument>
                                 <argument>--win-shortcut</argument>
                                 <argument>--win-shortcut-prompt</argument>
