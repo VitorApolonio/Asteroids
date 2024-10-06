@@ -4,12 +4,20 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 
+/**
+ * Represents a selectable option on a menu. Contains methods for getting the text, selecting and deselecting the option.
+ */
 public class MenuOption {
     private boolean selected;
     private Text element;
     private String text;
     private String selectedText;
 
+    /**
+     * Creates a new menu option with the provided text.
+     *
+     * @param optionName text for the option.
+     */
     public MenuOption(String optionName) {
         selected = false;
 
@@ -22,10 +30,18 @@ public class MenuOption {
         this.element = element;
     }
 
+    /**
+     * Returns a TextElement that can be displayed on the screen on a menu.
+     *
+     * @return the TextElement used for the option.
+     */
     public Text getTextElement() {
         return element;
     }
 
+    /**
+     * Selects the menu option, highlighting it by changing its style.
+     */
     public void select() {
         selected = true;
 
@@ -35,6 +51,9 @@ public class MenuOption {
         element.setStyle("-fx-font-size: 60;");
     }
 
+    /**
+     * Deselects the option, changing its style back to the default.
+     */
     public void deselect() {
         selected = false;
 
@@ -43,6 +62,11 @@ public class MenuOption {
         element.setStyle("-fx-font-size: 50;");
     }
 
+    /**
+     * Returns true if the option is selected, false otherwise.
+     *
+     * @return a boolean representing whether the option is selected or not.
+     */
     public boolean isSelected() {
         return selected;
     }
