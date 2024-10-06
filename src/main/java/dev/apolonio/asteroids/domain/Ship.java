@@ -5,38 +5,61 @@ import javafx.scene.shape.Circle;
 import javafx.scene.shape.Polygon;
 import javafx.scene.shape.Shape;
 
+/**
+ * Represents the spaceship controlled by the player.
+ * <p>
+ * The spaceship can move in the screen, and has a safe zone around it where asteroids can't spawn.
+ */
 public class Ship extends Character {
 
     // This circle moves with the ship and is used to define the area in which asteroids can't spawn.
     private Circle safeZone;
-    
+
+    /**
+     * Creates a new ship at given coordinates.
+     *
+     * @param x the X coordinate for the ship
+     * @param y the Y coordinate for the ship
+     */
     public Ship(int x, int y) {
+        // Creates a triangle to represent the ship
         super(new Polygon(-10, -11,
                 -5, 0,
                 -10, 11,
                 20, 0), x, y);
 
+        // Creates the circle for the safe zone
         safeZone = new Circle(200);
         safeZone.setCenterX(getCharacter().getTranslateX());
         safeZone.setCenterY(getCharacter().getTranslateY());
         safeZone.setFill(Color.MAGENTA);
         safeZone.setVisible(false); // Safe zone is invisible during normal gameplay
 
+        // Set style for ship polygon
         getCharacter().setFill(Color.WHITE);
         getCharacter().setStroke(Color.LIGHTGRAY);
         getCharacter().setStrokeWidth(2);
     }
 
+    /**
+     * Rotates the ship counterclockwise by 4.5 degrees
+     */
     @Override
     public void turnLeft() {
         getCharacter().setRotate(getCharacter().getRotate() - 4.5);
     }
 
+    /**
+     * Rotates the ship clockwise by 4.5 degrees
+     */
     @Override
     public void turnRight() {
         getCharacter().setRotate(getCharacter().getRotate() + 4.5);
     }
 
+    /**
+     * Accelerates the ship in the direction it is facing.
+     */
     @Override
     public void accelerate() {
 
@@ -49,6 +72,9 @@ public class Ship extends Character {
         setMovement(getMovement().add(changeX, changeY));
     }
 
+    /**
+     * Moves the ship and its safe zone, teleporting both to the other side of the screen if they move outside it.
+     */
     @Override
     public void move() {
         super.move();
@@ -57,10 +83,21 @@ public class Ship extends Character {
         safeZone.setCenterY(getCharacter().getTranslateY() + getMovement().getY());
     }
 
+    /**
+     * Returns the circle representing the ship's safe zone.
+     *
+     * @return a Circle representing the ship's safe zone.
+     */
     public Circle getSafeZone() {
         return safeZone;
     }
 
+    /**
+     * Returns true if the specified character is inside the ship's safe zone, false otherwise.
+     *
+     * @param other the Character to check for an intersection with the ship's safe zone.
+     * @return a boolean stating whether the safe zone and character intersect.
+     */
     public boolean inSafeZone(Character other) {
         Shape collisionArea = Shape.intersect(safeZone, other.getCharacter());
         return collisionArea.getBoundsInLocal().getWidth() != -1;
