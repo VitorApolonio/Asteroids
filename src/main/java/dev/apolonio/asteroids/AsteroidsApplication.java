@@ -61,28 +61,36 @@ public class AsteroidsApplication extends Application {
     // Time before closing splash screen in ms
     private static final int SPLASH_SCR_TIME = 2000;
 
+    // Width and height for game window
     public static final int WIDTH = 900;
     public static final int HEIGHT = 600;
 
-    // Folder for storing screenshots and score data
+    // Folder for storing game data files
     private static final String GAME_DATA_FOLDER_PATH = System.getProperty("user.home") + "/Documents/Asteroids/";
 
+    // List of user scores
     private List<Score> scoreList;
 
+    // Whether the game is paused
     private boolean isPaused = false;
+
+    // Whether the cheat code is active
     private boolean shotgun = false;
 
+    // User interface SFX
     private MediaPlayer menuSelectSfx;
     private MediaPlayer menuConfirmSfx;
     private MediaPlayer pauseSfx;
     private MediaPlayer unpauseSfx;
 
+    // Game SFX
     private MediaPlayer fireSfx;
     private MediaPlayer spreadFireSfx;
     private MediaPlayer powerUpSfx;
     private MediaPlayer asteroidSfx;
     private MediaPlayer deathSfx;
 
+    // Current selected option on main menu
     private int selectedMenuOption = 0;
 
     @Override
@@ -90,7 +98,7 @@ public class AsteroidsApplication extends Application {
 
         // Load scores from file
         try {
-            loadScores();
+            loadScores(GAME_DATA_FOLDER_PATH);
         } catch (ClassNotFoundException e) {
             System.err.println("[DEBUG] Failed to load scores: " + e.getMessage());
         }
@@ -599,7 +607,7 @@ public class AsteroidsApplication extends Application {
                 }
 
                 // Save scores to file
-                saveScores();
+                saveScores(GAME_DATA_FOLDER_PATH);
 
                 // Change to game over screen
                 window.getScene().setRoot(endScreenLayout);
@@ -616,7 +624,8 @@ public class AsteroidsApplication extends Application {
 
             // Save a screenshot of the current view with P key. Doesn't work on the insert initials screen since the P key is used to type a letter there.
             if (event.getCode() == KeyCode.P && windowRoot != insertNameLayout) {
-                saveScr(window.getScene());
+                String filePath = GAME_DATA_FOLDER_PATH + "/Screenshots";
+                saveScr(window.getScene(), filePath);
             }
 
             // Pause game with ESC key, only allowed on main view since it doesn't work properly on other scenes
@@ -679,30 +688,60 @@ public class AsteroidsApplication extends Application {
         });
     }
 
+    /**
+     * Returns a list of 10 TextElements, each containing a score value formatted as {@code NUL: 00000} where {@code NUL}
+     * is the player's initials and {@code 00000} is the number of points.
+     * <p>
+     * In the event there are not 10 scores, the remaining spaces
+     * will be filled with dashed lines {@code ---: -----}.
+     *
+     * @return a List containing 10 TextElements.
+     */
     private List<Text> getHiScoreTexts() {
+        // Sorts the list of user scores
         scoreList.sort(Score::compareTo);
 
+        // Create list to store score texts
         List<Text> texts = new ArrayList<>();
 
+        // Format scores to be added to leaderboard
         for (int i = 0; i < 10; i++) {
 
+            // Format score number to 2 places, padded with 0s
             Text scoreText = getTextScore(String.format("%02d", i + 1) + ". ");
 
             if (i < scoreList.size()) {
+                // If score is in the list, format score to 5 places, padded with 0s
                 Score s = scoreList.get(i);
                 scoreText.setText(scoreText.getText() + s.playerName() + ": " + String.format("%05d", s.playerScore()));
             } else {
+                // If score is not in the list, set player name and points to dashes
                 scoreText.setText(scoreText.getText() + "---: -----");
             }
 
+            // Center score text
             scoreText.setTextAlignment(TextAlignment.CENTER);
 
+            // Add to list
             texts.add(scoreText);
         }
 
         return texts;
     }
 
+    /**
+     * Returns a TextElement with the provided text.
+     * <p>
+     * The default font style is:
+     * <ul>
+     * <li> Family: Verdana
+     * <li> Size: 90pt
+     * <li> Weight: Bold
+     * </ul>
+     *
+     * @param textContent the content of the TextElement.
+     * @return a TextElement with the given text.
+     */
     private Text getTextLarge(String textContent) {
         Text text = new Text(textContent);
         text.setFont(Font.font("Verdana", FontWeight.BOLD, 90));
@@ -713,6 +752,19 @@ public class AsteroidsApplication extends Application {
         return text;
     }
 
+    /**
+     * Returns a TextElement with the provided text.
+     * <p>
+     * The default font style is:
+     * <ul>
+     * <li> Family: Trebuchet MS
+     * <li> Size: 60pt
+     * <li> Weight: Semi-bold
+     * </ul>
+     *
+     * @param textContent the content of the TextElement.
+     * @return a TextElement with the given text.
+     */
     private Text getTextMedium(String textContent) {
         Text text = new Text(textContent);
         text.setFont(Font.font("Trebuchet MS", FontWeight.SEMI_BOLD, 60));
@@ -723,6 +775,19 @@ public class AsteroidsApplication extends Application {
         return text;
     }
 
+    /**
+     * Returns a TextElement with the provided text.
+     * <p>
+     * The default font style is:
+     * <ul>
+     * <li> Family: Courier New
+     * <li> Size: 45pt
+     * <li> Weight: Bold
+     * </ul>
+     *
+     * @param textContent the content of the TextElement.
+     * @return a TextElement with the given text.
+     */
     private Text getTextScore(String textContent) {
         Text text = new Text(textContent);
         text.setFont(Font.font("Courier New", FontWeight.BOLD, 45));
@@ -731,6 +796,19 @@ public class AsteroidsApplication extends Application {
         return text;
     }
 
+    /**
+     * Returns a TextElement with the provided text.
+     * <p>
+     * The default font style is:
+     * <ul>
+     * <li> Family: Trebuchet MS
+     * <li> Size: 45pt
+     * <li> Weight: Default
+     * </ul>
+     *
+     * @param textContent the content of the TextElement.
+     * @return a TextElement with the given text.
+     */
     private Text getTextSmall(String textContent) {
         Text text = new Text(textContent);
         text.setFont(Font.font("Trebuchet MS", 45));
@@ -739,13 +817,22 @@ public class AsteroidsApplication extends Application {
         return text;
     }
 
-    private void saveScr(Scene scene) {
+    /**
+     * Attempts to save a screenshot of the scene at the provided folder.
+     *
+     * @param scene the scene to save as a screenshot.
+     * @param folderPath the path to the folder where the screenshot will be saved.
+     */
+    private void saveScr(Scene scene, String folderPath) {
+        // Save snapshot of scene as a WritableImage
         WritableImage image = new WritableImage(WIDTH, HEIGHT);
         scene.snapshot(image);
 
+        // Inicial number for image file name
         int imageNum = 0;
 
-        File scrDir = new File(GAME_DATA_FOLDER_PATH + "Screenshots");
+        // Folder to save screenshots at
+        File scrDir = new File(folderPath);
         File imgFile;
 
         // Keep checking if "screenshot-n.png" exists, until some number doesn't.
@@ -772,7 +859,14 @@ public class AsteroidsApplication extends Application {
         }
     }
 
-    public void saveScores() {
+    /**
+     * Attempts to save the leaderboard to a file at the specified folder.
+     * <p>
+     * The scores will be saved to a file with the name {@code scores.ser}.
+     *
+     * @param folderPath the path to the folder where the score file will be saved.
+     */
+    public void saveScores(String folderPath) {
         // Create file to store score values
         String filePath = GAME_DATA_FOLDER_PATH + "scores.ser";
         File scoreFile = new File(filePath);
@@ -803,7 +897,15 @@ public class AsteroidsApplication extends Application {
         }
     }
 
-    public void loadScores() throws ClassNotFoundException {
+    /**
+     * Attempts to load the leaderboard from a file at the specified file path.
+     * <p>
+     * The scores are expected to be saved to a file with the name {@code scores.ser}.
+     *
+     * @param folderPath path to the folder where the score file is located.
+     * @throws ClassNotFoundException if the Scores class doesn't exist.
+     */
+    public void loadScores(String folderPath) throws ClassNotFoundException {
 
         String filePath = GAME_DATA_FOLDER_PATH + "scores.ser";
         File scoreFile = new File(filePath);
