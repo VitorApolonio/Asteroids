@@ -98,7 +98,7 @@ public class AsteroidsApplication extends Application {
 
         // Load scores from file
         try {
-            loadScores(GAME_DATA_FOLDER_PATH);
+            loadScores();
         } catch (ClassNotFoundException e) {
             System.err.println("[DEBUG] Failed to load scores: " + e.getMessage());
         }
@@ -607,7 +607,7 @@ public class AsteroidsApplication extends Application {
                 }
 
                 // Save scores to file
-                saveScores(GAME_DATA_FOLDER_PATH);
+                saveScores();
 
                 // Change to game over screen
                 window.getScene().setRoot(endScreenLayout);
@@ -860,13 +860,11 @@ public class AsteroidsApplication extends Application {
     }
 
     /**
-     * Attempts to save the leaderboard to a file at the specified folder.
+     * Attempts to save the leaderboard to a file at the game data directory.
      * <p>
      * The scores will be saved to a file with the name {@code scores.ser}.
-     *
-     * @param folderPath the path to the folder where the score file will be saved.
      */
-    public void saveScores(String folderPath) {
+    public void saveScores() {
         // Create file to store score values
         String filePath = GAME_DATA_FOLDER_PATH + "scores.ser";
         File scoreFile = new File(filePath);
@@ -898,14 +896,13 @@ public class AsteroidsApplication extends Application {
     }
 
     /**
-     * Attempts to load the leaderboard from a file at the specified file path.
+     * Attempts to load the leaderboard from a file at the game data folder.
      * <p>
      * The scores are expected to be saved to a file with the name {@code scores.ser}.
      *
-     * @param folderPath path to the folder where the score file is located.
      * @throws ClassNotFoundException if the Scores class doesn't exist.
      */
-    public void loadScores(String folderPath) throws ClassNotFoundException {
+    public void loadScores() throws ClassNotFoundException {
 
         String filePath = GAME_DATA_FOLDER_PATH + "scores.ser";
         File scoreFile = new File(filePath);
