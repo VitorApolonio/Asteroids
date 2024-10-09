@@ -495,7 +495,7 @@ public class AsteroidsApplication extends Application {
             }
 
             // Select menu options
-            if (event.getCode() == KeyCode.DOWN && windowRoot == mainMenuLayout) {
+            if ((event.getCode() == KeyCode.DOWN || event.getCode() == KeyCode.S) && windowRoot == mainMenuLayout) {
                 menuSelectSfx.seek(Duration.ZERO);
                 menuSelectSfx.play();
 
@@ -508,7 +508,7 @@ public class AsteroidsApplication extends Application {
 
                 menuOptionsList.get(selectedMenuOption).select();
             }
-            if (event.getCode() == KeyCode.UP && windowRoot == mainMenuLayout) {
+            if ((event.getCode() == KeyCode.UP || event.getCode() == KeyCode.W) && windowRoot == mainMenuLayout) {
                 menuSelectSfx.seek(Duration.ZERO);
                 menuSelectSfx.play();
 
