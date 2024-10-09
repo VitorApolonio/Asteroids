@@ -1,11 +1,10 @@
 package dev.apolonio.asteroids;
 
+import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -862,13 +861,13 @@ public class AsteroidsApplication extends Application {
     /**
      * Attempts to save the leaderboard to a file at the specified folder.
      * <p>
-     * The scores will be saved to a file with the name {@code scores.ser}.
+     * The scores will be saved to a file with the name {@code scores.csv}.
      *
      * @param folderPath the path to the folder where the score file will be saved.
      */
     public void saveScores(String folderPath) {
         // Create file to store score values
-        String filePath = folderPath + "scores.ser";
+        String filePath = folderPath + "scores.csv";
         File scoreFile = new File(filePath);
 
         File gameDataDir = new File(folderPath);
@@ -889,8 +888,14 @@ public class AsteroidsApplication extends Application {
         }
 
         // Write list to file
-        try (ObjectOutputStream objStream = new ObjectOutputStream(new FileOutputStream(filePath))) {
-            objStream.writeObject(scoreList);
+        try (FileWriter writer = new FileWriter(scoreFile)) {
+            StringBuilder scoreSB = new StringBuilder();
+
+            for (Score s : scoreList) {
+                scoreSB.append(s.toString()).append(",");
+            }
+
+            writer.write(scoreSB.toString());
             System.out.println("[DEBUG] Saved scores: " + scoreFile.getAbsolutePath());
         } catch (IOException e) {
             System.err.println("[DEBUG] Failed to save scores: " + e.getMessage());
@@ -898,21 +903,29 @@ public class AsteroidsApplication extends Application {
     }
 
     /**
-     * Attempts to load the leaderboard from a file at the specified file path.
+     * Attempts to load the leaderboard from a file at the specified folder path.
      * <p>
-     * The scores are expected to be saved to a file with the name {@code scores.ser}.
+     * The scores are expected to be saved to a file with the name {@code scores.csv}.
      *
      * @param folderPath path to the folder where the score file is located.
      * @throws ClassNotFoundException if the Scores class doesn't exist.
      */
     public void loadScores(String folderPath) throws ClassNotFoundException {
 
-        String filePath = folderPath + "scores.ser";
+        String filePath = folderPath + "scores.csv";
         File scoreFile = new File(filePath);
 
         if (scoreFile.isFile()) {
-            try (ObjectInputStream objStream = new ObjectInputStream(new FileInputStream(filePath))) {
-                scoreList = (List<Score>) objStream.readObject();
+            try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
+                String[] nameScorePairs = reader.readLine().split(",");
+                List<Score> tempScoreList = new ArrayList<>();
+
+                for (String pair : nameScorePairs) {
+                    String[] values = pair.split(":");
+                    tempScoreList.add(new Score(values[0].strip(), Integer.parseInt(values[1].strip())));
+                }
+
+                scoreList = tempScoreList;
                 System.out.println("[DEBUG] Loaded scores: " + scoreFile.getAbsolutePath());
             } catch (IOException e) {
                 System.err.println("[DEBUG] Failed to load scores: " + e.getMessage());
