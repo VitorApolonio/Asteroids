@@ -98,7 +98,7 @@ public class AsteroidsApplication extends Application {
 
         // Load scores from file
         try {
-            loadScores();
+            loadScores(GAME_DATA_FOLDER_PATH);
         } catch (ClassNotFoundException e) {
             System.err.println("[DEBUG] Failed to load scores: " + e.getMessage());
         }
@@ -607,7 +607,7 @@ public class AsteroidsApplication extends Application {
                 }
 
                 // Save scores to file
-                saveScores();
+                saveScores(GAME_DATA_FOLDER_PATH);
 
                 // Change to game over screen
                 window.getScene().setRoot(endScreenLayout);
@@ -860,16 +860,18 @@ public class AsteroidsApplication extends Application {
     }
 
     /**
-     * Attempts to save the leaderboard to a file at the game data directory.
+     * Attempts to save the leaderboard to a file at the specified folder.
      * <p>
      * The scores will be saved to a file with the name {@code scores.ser}.
+     *
+     * @param folderPath the path to the folder where the score file will be saved.
      */
-    public void saveScores() {
+    public void saveScores(String folderPath) {
         // Create file to store score values
-        String filePath = GAME_DATA_FOLDER_PATH + "scores.ser";
+        String filePath = folderPath + "scores.ser";
         File scoreFile = new File(filePath);
 
-        File gameDataDir = new File(GAME_DATA_FOLDER_PATH);
+        File gameDataDir = new File(folderPath);
 
         // Create game data folder if it doesn't exist
         if (!gameDataDir.isDirectory()) {
@@ -896,15 +898,16 @@ public class AsteroidsApplication extends Application {
     }
 
     /**
-     * Attempts to load the leaderboard from a file at the game data folder.
+     * Attempts to load the leaderboard from a file at the specified file path.
      * <p>
      * The scores are expected to be saved to a file with the name {@code scores.ser}.
      *
+     * @param folderPath path to the folder where the score file is located.
      * @throws ClassNotFoundException if the Scores class doesn't exist.
      */
-    public void loadScores() throws ClassNotFoundException {
+    public void loadScores(String folderPath) throws ClassNotFoundException {
 
-        String filePath = GAME_DATA_FOLDER_PATH + "scores.ser";
+        String filePath = folderPath + "scores.ser";
         File scoreFile = new File(filePath);
 
         if (scoreFile.isFile()) {
