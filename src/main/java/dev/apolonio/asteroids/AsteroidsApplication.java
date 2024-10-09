@@ -549,13 +549,13 @@ public class AsteroidsApplication extends Application {
             }
 
             // Detect typed initials on insert name screen, up to 3 letters
-            if (event.getCode().isLetterKey() && windowRoot == insertNameLayout && initialsSB.toString().contains("_")) {
+            if ((event.getCode().isLetterKey() || event.getCode().isDigitKey()) && windowRoot == insertNameLayout && initialsSB.toString().contains("_")) {
                 menuSelectSfx.seek(Duration.ZERO);
                 menuSelectSfx.play();
 
                 for (int i = 0; i < initialsSB.length(); i++) {
                     if (initialsSB.charAt(i) == '_') {
-                        initialsSB.replace(i, i + 1, event.getText().toUpperCase());
+                        initialsSB.replace(i, i + 1, event.getText().toUpperCase()); // Replace last non-blank char with typed key
                         break;
                     }
                 }
@@ -570,7 +570,7 @@ public class AsteroidsApplication extends Application {
 
                 for (int i = initialsSB.length() - 1; i >= 0; i--) {
                     if (initialsSB.charAt(i) != '_') {
-                        initialsSB.replace(i, i + 1, "_"); // Replace last char with underscore
+                        initialsSB.replace(i, i + 1, "_"); // Replace last non-blank char with underscore
                         break;
                     }
                 }
