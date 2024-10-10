@@ -22,7 +22,7 @@ public class Asteroid extends Entity {
      */
     public Asteroid(int x, int y) {
         // Creates a new Entity using a polygon from PolygonFactory
-        super(new PolygonFactory().createPolygon(), x, y);
+        super(new PolygonFactory().createPentagon(), x, y);
 
         // Randomize inicial rotation
         Random rand = new Random();

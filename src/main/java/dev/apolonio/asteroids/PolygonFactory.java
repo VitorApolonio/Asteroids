@@ -6,19 +6,16 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
 
 /**
- * This factory generates a {@link Polygon} to be used for the {@link dev.apolonio.asteroids.domain.Asteroid Asteroid} class.
- * <p>
- * Each polygon has 5 sides (a pentagon), with the positions of each side being slightly randomized
- * for more varied asteroid shapes.
+ * This factory generates {@link Polygon Polygons} to be used in other classes.
  */
 public class PolygonFactory {
 
     /**
-     * Creates a {@link Polygon} to be used for asteroids.
+     * Creates a pentagon to be used for asteroids, using the {@link Polygon} class.
      *
      * @return the generated Polygon.
      */
-    public Polygon createPolygon() {
+    public Polygon createPentagon() {
         Random rand = new Random();
         // Randomize the size of the polygon. Here, the size is the distance between the center and a vertex, in pixels.
         double size = 30 + rand.nextInt(15);
@@ -45,6 +42,38 @@ public class PolygonFactory {
         // Randomize slightly the position of each point
         polygon.getPoints().replaceAll(aDouble -> aDouble + rand.nextDouble(15) - 7.5);
         
+        return polygon;
+    }
+
+    /**
+     * Creates a 4-point star to be used for stars using the {@link Polygon}.
+     *
+     * @return the generated Polygon.
+     */
+    public Polygon createStar() {
+        // Randomize size of the star
+        Random rand = new Random();
+        double size = 5 + rand.nextInt(7);
+        double innerSize = size / 3;
+
+        // Create a polygon and set its style
+        Polygon polygon = new Polygon();
+        polygon.setFill(Color.LIGHTGRAY);
+
+        // Calculate positions of star points
+        double c1 = Math.cos(Math.PI / 4);
+        double s1 = Math.sin(Math.PI / 4);
+
+        // Add star vertices to polygon
+        polygon.getPoints().addAll(0.0, -size,
+                s1 * innerSize, -c1 * innerSize,
+                size, 0.0,
+                s1 * innerSize, c1 * innerSize,
+                0.0, size,
+                -s1 * innerSize, c1 * innerSize,
+                -size, 0.0,
+                -s1 * innerSize, -c1 * innerSize);
+
         return polygon;
     }
 }

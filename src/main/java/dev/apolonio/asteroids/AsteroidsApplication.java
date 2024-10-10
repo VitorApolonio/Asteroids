@@ -18,6 +18,7 @@ import dev.apolonio.asteroids.domain.MenuOption;
 import dev.apolonio.asteroids.domain.Projectile;
 import dev.apolonio.asteroids.domain.Score;
 import dev.apolonio.asteroids.domain.Ship;
+import dev.apolonio.asteroids.domain.Star;
 import javafx.animation.Animation;
 import javafx.animation.AnimationTimer;
 import javafx.animation.FadeTransition;
@@ -238,9 +239,10 @@ public class AsteroidsApplication extends Application {
         mainLayout.getChildren().add(ship.getSafeZone());
         mainLayout.getChildren().add(ship.getCharacter());
 
-        // Create list of asteroids and projectiles (empty for now)
+        // Create entity lists (empty for now)
         List<Asteroid> asteroids = new ArrayList<>();
         List<Projectile> projectiles = new ArrayList<>();
+        List<Star> stars = new ArrayList<>();
 
         // Create user score text
         Text scoreText = getTextMedium("SCORE: 0");
@@ -344,7 +346,7 @@ public class AsteroidsApplication extends Application {
                             proj.accelerate();
                             proj.setMovement(proj.getMovement().normalize().multiply(4).add(ship.getMovement()));
 
-                            mainLayout.getChildren().add(0, proj.getCharacter());
+                            mainLayout.getChildren().add(proj.getCharacter());
                         }
                     }
 
@@ -528,6 +530,12 @@ public class AsteroidsApplication extends Application {
                 switch (selectedMenuOption) {
                     case 0:
                         window.getScene().setRoot(mainLayout);
+                        // Spawn 10 stars at random positions
+                        for (int i = 0; i < 10; i++) {
+                            Random rand = new Random();
+                            Star star = new Star(rand.nextInt(WIDTH), rand.nextInt(HEIGHT));
+                            stars.add(star);
+                        }
                         // Spawn 5 initial asteroids at random positions
                         for (int i = 0; i < 5; i++) {
                             Random rand = new Random();
@@ -535,6 +543,7 @@ public class AsteroidsApplication extends Application {
                             asteroids.add(asteroid);
                         }
                         asteroids.forEach(asteroid -> mainLayout.getChildren().add(0, asteroid.getCharacter()));
+                        stars.forEach(star -> mainLayout.getChildren().add(0, star.getCharacter()));
                         mainTimer.start();
                         break;
                     case 1:
@@ -666,9 +675,11 @@ public class AsteroidsApplication extends Application {
                 scoreText.setText("SCORE: 0");
                 finalScoreText.setText(("FINAL SCORE: 0"));
 
-                // Delete all asteroids and projectiles
+                // Delete all entities
+                mainLayout.getChildren().removeAll(stars.stream().map(Entity::getCharacter).toList());
                 mainLayout.getChildren().removeAll(asteroids.stream().map(Entity::getCharacter).toList());
                 mainLayout.getChildren().removeAll(projectiles.stream().map(Entity::getCharacter).toList());
+                stars.clear();
                 asteroids.clear();
                 projectiles.clear();
 
