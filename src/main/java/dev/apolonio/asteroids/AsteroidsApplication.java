@@ -723,7 +723,8 @@ public class AsteroidsApplication extends Application {
             if (i < scoreList.size()) {
                 // If score is in the list, format points to 5 places, padded with 0s
                 Score s = scoreList.get(i);
-                scoreText.setText(scoreText.getText() + s.playerName() + ": " + String.format("%05d", s.playerPoints()));
+                // The mod 100000 guarantees the number will not have more than 5 digits
+                scoreText.setText(scoreText.getText() + s.playerName() + ": " + String.format("%05d", s.playerPoints() % 100000));
             } else {
                 // If score is not in the list, set player name and points to dashes
                 scoreText.setText(scoreText.getText() + "---: -----");
