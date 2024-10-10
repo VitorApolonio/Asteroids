@@ -245,6 +245,12 @@ public class AsteroidsApplication extends Application {
         List<Projectile> projectiles = new ArrayList<>();
         List<Star> stars = new ArrayList<>();
 
+        /* A separate layout is created for the asteroids so that spawning more of them won't mess with
+           the element order of the main layout. */
+        Pane asteroidLayer = new Pane();
+        asteroidLayer.setPrefSize(WIDTH, HEIGHT);
+        mainLayout.getChildren().add(asteroidLayer);
+
         // Create list for star animations (empty for now)
         List<ScaleTransition> starAnimations = new ArrayList<>();
 
@@ -368,7 +374,7 @@ public class AsteroidsApplication extends Application {
                     asteroid.setMovement(asteroid.getMovement().multiply(Math.min(3, 1 + points.get() / 8000.0))); // Increase velocity with player score up to a max of 3x speed
                     if (!ship.inSafeZone(asteroid)) {
                         asteroids.add(asteroid);
-                        mainLayout.getChildren().add(asteroid.getCharacter());
+                        asteroidLayer.getChildren().add(asteroid.getCharacter());
                     }
                 }
 
@@ -552,7 +558,7 @@ public class AsteroidsApplication extends Application {
                         starAnimations.addAll(getStarAnimations(stars));
 
                         // Add elements to screen
-                        asteroids.forEach(asteroid -> mainLayout.getChildren().add(asteroid.getCharacter()));
+                        asteroids.forEach(asteroid -> asteroidLayer.getChildren().add(0, asteroid.getCharacter()));
                         stars.forEach(star -> mainLayout.getChildren().add(0, star.getCharacter()));
 
                         // Play star animations
@@ -693,8 +699,8 @@ public class AsteroidsApplication extends Application {
 
                 // Delete all entities
                 mainLayout.getChildren().removeAll(stars.stream().map(Entity::getCharacter).toList());
-                mainLayout.getChildren().removeAll(asteroids.stream().map(Entity::getCharacter).toList());
                 mainLayout.getChildren().removeAll(projectiles.stream().map(Entity::getCharacter).toList());
+                asteroidLayer.getChildren().clear();
                 stars.clear();
                 asteroids.clear();
                 projectiles.clear();
