@@ -536,15 +536,15 @@ public class AsteroidsApplication extends Application {
                     // Start
                     case 0:
                         window.getScene().setRoot(mainLayout);
-                        // Spawn 10 stars at random positions
-                        for (int i = 0; i < 10; i++) {
-                            Random rand = new Random();
+                        // A Random object is used to randomize entity positions on the screen.
+                        Random rand = new Random();
+                        // Spawn 30 stars at random positions
+                        for (int i = 0; i < 30; i++) {
                             Star star = new Star(rand.nextInt(WIDTH), rand.nextInt(HEIGHT));
                             stars.add(star);
                         }
                         // Spawn 5 initial asteroids at random positions
                         for (int i = 0; i < 5; i++) {
-                            Random rand = new Random();
                             Asteroid asteroid = new Asteroid(rand.nextInt(WIDTH / 3), rand.nextInt(HEIGHT));
                             asteroids.add(asteroid);
                         }

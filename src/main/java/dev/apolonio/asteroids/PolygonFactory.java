@@ -53,7 +53,7 @@ public class PolygonFactory {
     public Polygon createStar() {
         // Randomize size of the star
         Random rand = new Random();
-        double size = 5 + rand.nextInt(7);
+        double size = 3 + rand.nextInt(7);
         double innerSize = size / 3;
 
         // Create a polygon and set its style
