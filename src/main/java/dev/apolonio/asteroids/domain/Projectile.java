@@ -9,7 +9,7 @@ import javafx.scene.shape.Polygon;
  * Projectiles are fired by the player ship, and unlike other characters, don't teleport to the other side of the screen
  * after leaving it.
  */
-public class Projectile extends Character {
+public class Projectile extends Entity {
 
     /**
      * Creates a new projectile at coordinates X, Y.

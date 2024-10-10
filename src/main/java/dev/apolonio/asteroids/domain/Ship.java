@@ -10,7 +10,7 @@ import javafx.scene.shape.Shape;
  * <p>
  * The spaceship can move in the screen, and has a safe zone around it where asteroids can't spawn.
  */
-public class Ship extends Character {
+public class Ship extends Entity {
 
     // This circle moves with the ship and is used to define the area in which asteroids can't spawn.
     private Circle safeZone;
@@ -84,21 +84,21 @@ public class Ship extends Character {
     }
 
     /**
-     * Returns the circle representing the ship's safe zone.
+     * Returns a {@link Circle} representing the ship's safe zone.
      *
-     * @return a Circle representing the ship's safe zone.
+     * @return the Circle representing the ship's safe zone.
      */
     public Circle getSafeZone() {
         return safeZone;
     }
 
     /**
-     * Returns true if the specified character is inside the ship's safe zone, false otherwise.
+     * Returns whether the specified {@link Entity} is inside the ship's safe zone.
      *
-     * @param other the Character to check for an intersection with the ship's safe zone.
-     * @return a boolean stating whether the safe zone and character intersect.
+     * @param other the Entity to check for an intersection with the ship's safe zone.
+     * @return      {@code true} if the entity and the safe zone intersect, {@code false} otherwise.
      */
-    public boolean inSafeZone(Character other) {
+    public boolean inSafeZone(Entity other) {
         Shape collisionArea = Shape.intersect(safeZone, other.getCharacter());
         return collisionArea.getBoundsInLocal().getWidth() != -1;
     }

@@ -10,7 +10,7 @@ import java.util.Random;
  * Asteroids move around randomly in the screen, slowly rotating. They can collide with the player ship but not with
  * one another.
  */
-public class Asteroid extends Character {
+public class Asteroid extends Entity {
     
     private double rotationalMovement;
 
@@ -21,7 +21,7 @@ public class Asteroid extends Character {
      * @param y the Y coordinate for the asteroid position
      */
     public Asteroid(int x, int y) {
-        // Creates a new Character using a polygon from PolygonFactory
+        // Creates a new Entity using a polygon from PolygonFactory
         super(new PolygonFactory().createPolygon(), x, y);
 
         // Randomize inicial rotation

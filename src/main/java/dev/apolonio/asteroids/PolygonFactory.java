@@ -6,7 +6,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
 
 /**
- * This factory generates polygon to be used for the Asteroid class.
+ * This factory generates a {@link Polygon} to be used for the {@link dev.apolonio.asteroids.domain.Asteroid Asteroid} class.
  * <p>
  * Each polygon has 5 sides (a pentagon), with the positions of each side being slightly randomized
  * for more varied asteroid shapes.
@@ -14,7 +14,7 @@ import javafx.scene.shape.Polygon;
 public class PolygonFactory {
 
     /**
-     * Creates a polygon to be used for asteroids.
+     * Creates a {@link Polygon} to be used for asteroids.
      *
      * @return the generated Polygon.
      */

@@ -16,7 +16,7 @@ public class MenuOption {
     /**
      * Creates a new menu option with the provided text.
      *
-     * @param optionName text for the option.
+     * @param optionName the text displayed on the option.
      */
     public MenuOption(String optionName) {
         selected = false;
@@ -31,9 +31,9 @@ public class MenuOption {
     }
 
     /**
-     * Returns a TextElement that can be displayed on the screen on a menu.
+     * Returns a {@link Text} that can be displayed on the screen on a menu.
      *
-     * @return the TextElement used for the option.
+     * @return the Text used for the option.
      */
     public Text getTextElement() {
         return element;
@@ -63,9 +63,9 @@ public class MenuOption {
     }
 
     /**
-     * Returns true if the option is selected, false otherwise.
+     * Returns a boolean representing whether the option is selected.
      *
-     * @return a boolean representing whether the option is selected or not.
+     * @return {@code true} if the option is selected, {@code false} otherwise.
      */
     public boolean isSelected() {
         return selected;

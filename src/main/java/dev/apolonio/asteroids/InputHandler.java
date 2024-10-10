@@ -20,7 +20,7 @@ public class InputHandler {
     /**
      * Creates a new InputHandler, listening for inputs on the provided stage.
      *
-     * @param window the Stage to listen for key presses on.
+     * @param window the {@link Stage} to listen for key presses on.
      */
     public InputHandler(Stage window) {
         heldKeys = new HashMap<>();
@@ -40,10 +40,10 @@ public class InputHandler {
     }
 
     /**
-     * Returns true if at least one of the provided keys is held down, false otherwise.
+     * Returns whether at least one of the provided keys is held down.
      *
-     * @param codes one or more KeyCode objects.
-     * @return a boolean stating whether at least one of the keys is being held down.
+     * @param codes one or more {@link KeyCode} objects.
+     * @return {@code true} if at least one key is being held down, {@code false} otherwise.
      */
     public boolean isHeld(KeyCode... codes) {
         // If at least one of the provided keys is held down, return true

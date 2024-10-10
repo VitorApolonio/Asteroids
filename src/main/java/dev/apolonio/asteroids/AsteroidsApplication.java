@@ -13,7 +13,7 @@ import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import dev.apolonio.asteroids.domain.Asteroid;
-import dev.apolonio.asteroids.domain.Character;
+import dev.apolonio.asteroids.domain.Entity;
 import dev.apolonio.asteroids.domain.MenuOption;
 import dev.apolonio.asteroids.domain.Projectile;
 import dev.apolonio.asteroids.domain.Score;
@@ -667,8 +667,8 @@ public class AsteroidsApplication extends Application {
                 finalScoreText.setText(("FINAL SCORE: 0"));
 
                 // Delete all asteroids and projectiles
-                mainLayout.getChildren().removeAll(asteroids.stream().map(Character::getCharacter).toList());
-                mainLayout.getChildren().removeAll(projectiles.stream().map(Character::getCharacter).toList());
+                mainLayout.getChildren().removeAll(asteroids.stream().map(Entity::getCharacter).toList());
+                mainLayout.getChildren().removeAll(projectiles.stream().map(Entity::getCharacter).toList());
                 asteroids.clear();
                 projectiles.clear();
 
