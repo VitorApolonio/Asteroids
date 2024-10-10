@@ -12,7 +12,7 @@ public record Score(String playerName, int playerPoints) implements Comparable<S
 
     @Override
     public String toString() {
-        return playerName + "=" + playerPoints;
+        return playerName + ":" + playerPoints;
     }
 
     @Override

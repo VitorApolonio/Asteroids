@@ -934,7 +934,7 @@ public class AsteroidsApplication extends Application {
                 List<Score> tempScoreList = new ArrayList<>(); // A temporary list is made to store scores as they're read
 
                 for (String pair : nameScorePairs) {
-                    String[] values = pair.split("="); // Scores are separated from initials by an "="
+                    String[] values = pair.split(":"); // Scores are separated from initials by a colon
                     tempScoreList.add(new Score(values[0].strip(), Integer.parseInt(values[1].strip())));
                 }
 
