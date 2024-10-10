@@ -1,24 +1,22 @@
 package dev.apolonio.asteroids.domain;
 
-import java.io.Serializable;
-
 /**
  * Represents a score value, which consists of a player name and a number of points.
  * <p>
- * Scores can be compared based on their numerical value, and serialized to be stored in a file.
+ * Scores can be compared based on their numerical value.
  *
  * @param playerName  the player name.
- * @param playerScore the number of points.
+ * @param playerPoints the number of points.
  */
-public record Score(String playerName, int playerScore) implements Comparable<Score>, Serializable {
+public record Score(String playerName, int playerPoints) implements Comparable<Score> {
 
     @Override
     public String toString() {
-        return playerName + ": " + playerScore;
+        return playerName + "=" + playerPoints;
     }
 
     @Override
     public int compareTo(Score o) {
-        return Integer.compare(o.playerScore, playerScore);
+        return Integer.compare(o.playerPoints, playerPoints);
     }
 }

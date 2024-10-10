@@ -717,13 +717,13 @@ public class AsteroidsApplication extends Application {
         // Format scores to be added to leaderboard
         for (int i = 0; i < 10; i++) {
 
-            // Format score number to 2 places, padded with 0s
+            // Format points to 2 places, padded with 0s
             Text scoreText = getTextScore(String.format("%02d", i + 1) + ". ");
 
             if (i < scoreList.size()) {
-                // If score is in the list, format score to 5 places, padded with 0s
+                // If score is in the list, format points to 5 places, padded with 0s
                 Score s = scoreList.get(i);
-                scoreText.setText(scoreText.getText() + s.playerName() + ": " + String.format("%05d", s.playerScore()));
+                scoreText.setText(scoreText.getText() + s.playerName() + ": " + String.format("%05d", s.playerPoints()));
             } else {
                 // If score is not in the list, set player name and points to dashes
                 scoreText.setText(scoreText.getText() + "---: -----");
@@ -927,16 +927,18 @@ public class AsteroidsApplication extends Application {
         File scoreFile = new File(filePath);
 
         if (scoreFile.isFile()) {
+            /* A BufferedReader is used for its ability to read whole lines at a time, and because it throws an IOException
+               instead of hiding file reading errors like the Scanner. */
             try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
                 String[] nameScorePairs = reader.readLine().split(",");
-                List<Score> tempScoreList = new ArrayList<>();
+                List<Score> tempScoreList = new ArrayList<>(); // A temporary list is made to store scores as they're read
 
                 for (String pair : nameScorePairs) {
-                    String[] values = pair.split(":");
+                    String[] values = pair.split("="); // Scores are separated from initials by an "="
                     tempScoreList.add(new Score(values[0].strip(), Integer.parseInt(values[1].strip())));
                 }
 
-                scoreList = tempScoreList;
+                scoreList = tempScoreList; // The values from the temp list are copied to the final list if nothing goes wrong
                 System.out.println("[DEBUG] Loaded scores: " + scoreFile.getAbsolutePath());
             } catch (IOException e) {
                 System.err.println("[DEBUG] Failed to load scores: " + e.getMessage());
