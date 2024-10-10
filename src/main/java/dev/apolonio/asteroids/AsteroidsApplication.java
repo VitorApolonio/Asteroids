@@ -25,6 +25,7 @@ import javafx.animation.FadeTransition;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.PauseTransition;
+import javafx.animation.ScaleTransition;
 import javafx.animation.Timeline;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -244,6 +245,9 @@ public class AsteroidsApplication extends Application {
         List<Projectile> projectiles = new ArrayList<>();
         List<Star> stars = new ArrayList<>();
 
+        // Create list for star animations (empty for now)
+        List<ScaleTransition> starAnimations = new ArrayList<>();
+
         // Create user score text
         Text scoreText = getTextMedium("SCORE: 0");
         scoreText.setTranslateX(30);
@@ -353,6 +357,7 @@ public class AsteroidsApplication extends Application {
                     cooldown += 30;
                 }
 
+                // Decrease cooldown if not already at 0
                 if (cooldown > 0) {
                     cooldown -= 1;
                 }
@@ -373,13 +378,13 @@ public class AsteroidsApplication extends Application {
                 projectiles.forEach(Projectile::move);
 
                 // Handle collisions between shots and asteroids
-                projectiles.forEach(proj -> {
+                for (Projectile projectile : projectiles) {
                     List<Asteroid> collisions = asteroids.stream()
-                            .filter(asteroid -> asteroid.collide(proj))
+                            .filter(asteroid -> asteroid.collide(projectile))
                             .toList();
 
                     // Increase score with hits
-                    collisions.forEach(collided -> {
+                    for (Asteroid collided : collisions) {
                         KeyValue scaleX = new KeyValue(collided.getCharacter().scaleXProperty(), 1.5);
                         KeyValue scaleY = new KeyValue(collided.getCharacter().scaleYProperty(), 1.5);
                         KeyValue opacity = new KeyValue(collided.getCharacter().opacityProperty(), 0);
@@ -403,8 +408,8 @@ public class AsteroidsApplication extends Application {
                         } else {
                             scoreText.setText("SCORE: " + points.addAndGet(100));
                         }
-                    });
-                });
+                    }
+                }
 
                 // Remove off-screen projectiles
                 Iterator<Projectile> projIt = projectiles.iterator();
@@ -528,6 +533,7 @@ public class AsteroidsApplication extends Application {
                 menuConfirmSfx.play();
 
                 switch (selectedMenuOption) {
+                    // Start
                     case 0:
                         window.getScene().setRoot(mainLayout);
                         // Spawn 10 stars at random positions
@@ -542,14 +548,24 @@ public class AsteroidsApplication extends Application {
                             Asteroid asteroid = new Asteroid(rand.nextInt(WIDTH / 3), rand.nextInt(HEIGHT));
                             asteroids.add(asteroid);
                         }
+                        // Create star animations
+                        starAnimations.addAll(getStarAnimations(stars));
+
+                        // Add elements to screen
                         asteroids.forEach(asteroid -> mainLayout.getChildren().add(asteroid.getCharacter()));
                         stars.forEach(star -> mainLayout.getChildren().add(0, star.getCharacter()));
+
+                        // Play star animations
+                        starAnimations.forEach(Animation::play);
+                        // Start main timer
                         mainTimer.start();
                         break;
+                    // Hi-Scores
                     case 1:
                         window.getScene().setRoot(leaderboardLayout);
                         backOption.select();
                         break;
+                    // Exit
                     case 2:
                         window.close();
                         break;
@@ -682,6 +698,7 @@ public class AsteroidsApplication extends Application {
                 stars.clear();
                 asteroids.clear();
                 projectiles.clear();
+                starAnimations.clear();
 
                 // Center ship
                 ship.getCharacter().setTranslateX(WIDTH / 2.0);
@@ -696,6 +713,31 @@ public class AsteroidsApplication extends Application {
                 window.getScene().setRoot(startLayout);
             }
         });
+    }
+
+    /**
+     * Returns a {@link List} of blinking animations for {@link Star} elements.
+     *
+     * @param stars a List of stars.
+     * @return      a List with an animation for each of the provided stars.
+     */
+    private static List<ScaleTransition> getStarAnimations(List<Star> stars) {
+        // Create list for animations
+        List<ScaleTransition> animations = new ArrayList<>();
+
+        // Create animations
+        for (Star s : stars) {
+            ScaleTransition starAnim = new ScaleTransition(Duration.millis(75), s.getCharacter());
+            starAnim.setFromX(1.0);
+            starAnim.setFromY(1.0);
+            starAnim.setToX(0.9);
+            starAnim.setToY(0.9);
+            starAnim.setAutoReverse(true);
+            starAnim.setCycleCount(Animation.INDEFINITE);
+            animations.add(starAnim);
+        }
+
+        return animations;
     }
 
     /**
