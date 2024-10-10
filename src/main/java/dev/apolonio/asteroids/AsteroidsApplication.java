@@ -363,7 +363,7 @@ public class AsteroidsApplication extends Application {
                     asteroid.setMovement(asteroid.getMovement().multiply(Math.min(3, 1 + points.get() / 8000.0))); // Increase velocity with player score up to a max of 3x speed
                     if (!ship.inSafeZone(asteroid)) {
                         asteroids.add(asteroid);
-                        mainLayout.getChildren().add(0, asteroid.getCharacter());
+                        mainLayout.getChildren().add(asteroid.getCharacter());
                     }
                 }
 
@@ -542,7 +542,7 @@ public class AsteroidsApplication extends Application {
                             Asteroid asteroid = new Asteroid(rand.nextInt(WIDTH / 3), rand.nextInt(HEIGHT));
                             asteroids.add(asteroid);
                         }
-                        asteroids.forEach(asteroid -> mainLayout.getChildren().add(0, asteroid.getCharacter()));
+                        asteroids.forEach(asteroid -> mainLayout.getChildren().add(asteroid.getCharacter()));
                         stars.forEach(star -> mainLayout.getChildren().add(0, star.getCharacter()));
                         mainTimer.start();
                         break;
