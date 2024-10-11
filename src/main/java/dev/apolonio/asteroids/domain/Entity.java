@@ -60,21 +60,26 @@ public abstract class Entity {
     public void move() {
         character.setTranslateX(character.getTranslateX() + movement.getX());
         character.setTranslateY(character.getTranslateY() + movement.getY());
-        
-        if (character.getBoundsInParent().getMaxX() < 0) {
-            character.setTranslateX(character.getBoundsInParent().getMaxX() + AsteroidsApplication.WIDTH);
+
+        /* This code checks if the entity is outside the screen bounds. If it is, the entity is moved into the screen
+           on the opposite side. However, the entity is only moved if it is moving in the direction of the bound it has
+           left (i.e. if it's outside the left side of the screen, the entity must also be moving towards the left to be
+           teleported). This is done because when the entity is moved, it is actually slightly outside the screen, and so
+           would be teleported again and again, from one side to the other, if there wasn't also a check for direction. */
+        if (character.getBoundsInParent().getMaxX() < 0 && movement.getX() < 0) {
+            character.setTranslateX(character.getLayoutBounds().getMaxX() + AsteroidsApplication.WIDTH);
         }
         
-        if (character.getBoundsInParent().getMinX() > AsteroidsApplication.WIDTH) {
-            character.setTranslateX(character.getBoundsInParent().getMinX() % AsteroidsApplication.WIDTH);
+        if (character.getBoundsInParent().getMinX() > AsteroidsApplication.WIDTH && movement.getX() > 0) {
+            character.setTranslateX(character.getLayoutBounds().getMinX() % AsteroidsApplication.WIDTH);
         }
-        
-        if (character.getBoundsInParent().getMaxY() < 0) {
-            character.setTranslateY(character.getBoundsInParent().getMaxY() + AsteroidsApplication.HEIGHT);
+
+        if (character.getBoundsInParent().getMaxY() < 0 && movement.getY() < 0) {
+            character.setTranslateY(character.getLayoutBounds().getMaxY() + AsteroidsApplication.HEIGHT);
         }
-        
-        if (character.getBoundsInParent().getMinY() > AsteroidsApplication.HEIGHT) {
-            character.setTranslateY(character.getBoundsInParent().getMinY() % AsteroidsApplication.HEIGHT);
+
+        if (character.getBoundsInParent().getMinY() > AsteroidsApplication.HEIGHT && movement.getY() > 0) {
+            character.setTranslateY(character.getLayoutBounds().getMinY() % AsteroidsApplication.HEIGHT);
         }
     }
 
