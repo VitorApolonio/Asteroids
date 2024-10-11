@@ -544,8 +544,8 @@ public class AsteroidsApplication extends Application {
                         window.getScene().setRoot(mainLayout);
                         // A Random object is used to randomize entity positions on the screen.
                         Random rand = new Random();
-                        // Spawn 30 stars at random positions
-                        for (int i = 0; i < 30; i++) {
+                        // Spawn 40 stars at random positions
+                        for (int i = 0; i < 40; i++) {
                             Star star = new Star(rand.nextInt(WIDTH), rand.nextInt(HEIGHT));
                             stars.add(star);
                         }
@@ -733,7 +733,7 @@ public class AsteroidsApplication extends Application {
 
         // Create animations
         for (Star s : stars) {
-            ScaleTransition starAnim = new ScaleTransition(Duration.millis(75), s.getCharacter());
+            ScaleTransition starAnim = new ScaleTransition(Duration.millis(Math.random() * 200), s.getCharacter());
             starAnim.setFromX(1.0);
             starAnim.setFromY(1.0);
             starAnim.setToX(0.9);
