@@ -18,7 +18,7 @@ public class PolygonFactory {
     public Polygon createPentagon() {
         Random rand = new Random();
         // Randomize the size of the polygon. Here, the size is the distance between the center and a vertex, in pixels.
-        double size = 30 + rand.nextInt(15);
+        double size = rand.nextGaussian(40.0, 5.0);
 
         // Create a polygon and set its style
         Polygon polygon = new Polygon();
@@ -53,7 +53,7 @@ public class PolygonFactory {
     public Polygon createStar() {
         // Randomize size of the star
         Random rand = new Random();
-        double size = 3 + rand.nextInt(7);
+        double size = rand.nextGaussian(5.0, 2.5);
         double innerSize = size / 3;
 
         // Create a polygon and set its style
