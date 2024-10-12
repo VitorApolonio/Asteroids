@@ -15,7 +15,7 @@ import java.util.Map;
  * movement is delayed, so this class is used to handle those situations.
  */
 public class InputHandler {
-    private Map<KeyCode, Boolean> heldKeys;
+    private final Map<KeyCode, Boolean> heldKeys;
 
     /**
      * Creates a new InputHandler, listening for inputs on the provided stage.
@@ -34,9 +34,7 @@ public class InputHandler {
         /* Set all keys to not pressed on scene root change.
            This is done to avoid stuff like the ship firing immediately when starting the game because both
            events are triggered with the same key. */
-        window.getScene().rootProperty().addListener((observable, oldValue, newValue) -> {
-            heldKeys.clear();
-        });
+        window.getScene().rootProperty().addListener((observable, oldValue, newValue) -> heldKeys.clear());
     }
 
     /**

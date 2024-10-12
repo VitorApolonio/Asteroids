@@ -9,9 +9,9 @@ import javafx.scene.text.Text;
  */
 public class MenuOption {
     private boolean selected;
-    private Text element;
-    private String text;
-    private String selectedText;
+    private final Text element;
+    private final String text;
+    private final String selectedText;
 
     /**
      * Creates a new menu option with the provided text.

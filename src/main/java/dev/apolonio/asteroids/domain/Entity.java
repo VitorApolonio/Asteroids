@@ -10,7 +10,7 @@ import javafx.scene.shape.Shape;
  * the screen and detecting collisions with other entities.
  */
 public abstract class Entity {
-    private Polygon character;
+    private final Polygon character;
     private Point2D movement;
 
     /**

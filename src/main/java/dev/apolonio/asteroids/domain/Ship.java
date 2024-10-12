@@ -13,7 +13,7 @@ import javafx.scene.shape.Shape;
 public class Ship extends Entity {
 
     // This circle moves with the ship and is used to define the area in which asteroids can't spawn.
-    private Circle safeZone;
+    private final Circle safeZone;
 
     /**
      * Creates a new ship at given coordinates.

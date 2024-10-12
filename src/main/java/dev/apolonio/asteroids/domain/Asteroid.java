@@ -12,7 +12,7 @@ import java.util.Random;
  */
 public class Asteroid extends Entity {
     
-    private double rotationalMovement;
+    private final double rotationalMovement;
 
     /**
      * Creates a new asteroid at position X, Y.
