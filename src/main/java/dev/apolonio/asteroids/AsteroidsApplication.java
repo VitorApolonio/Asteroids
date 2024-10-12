@@ -984,7 +984,7 @@ public class AsteroidsApplication extends Application {
 
                 for (String pair : nameScorePairs) {
                     String[] values = pair.split(":"); // Scores are separated from initials by a colon
-                    tempScoreList.add(new Score(values[0].strip(), Integer.parseInt(values[1].strip())));
+                    tempScoreList.add(new Score(values[0], Integer.parseInt(values[1].strip())));
                 }
 
                 scoreList = tempScoreList; // The values from the temp list are copied to the final list if nothing goes wrong
