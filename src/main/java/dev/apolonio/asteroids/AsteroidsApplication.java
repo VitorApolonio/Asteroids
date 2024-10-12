@@ -14,6 +14,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import dev.apolonio.asteroids.domain.Asteroid;
 import dev.apolonio.asteroids.domain.Entity;
+import dev.apolonio.asteroids.domain.Menu;
 import dev.apolonio.asteroids.domain.MenuOption;
 import dev.apolonio.asteroids.domain.Projectile;
 import dev.apolonio.asteroids.domain.Score;
@@ -91,9 +92,6 @@ public class AsteroidsApplication extends Application {
     private MediaPlayer asteroidSfx;
     private MediaPlayer deathSfx;
 
-    // Current selected option on main menu
-    private int selectedMenuOption = 0;
-
     @Override
     public void start(Stage window) {
 
@@ -124,17 +122,14 @@ public class AsteroidsApplication extends Application {
         mainMenuLayout.setAlignment(Pos.CENTER);
 
         // Create menu options
-        List<MenuOption> menuOptionsList = new ArrayList<>();
         MenuOption startOption = new MenuOption("START GAME");
         MenuOption leaderboardOption = new MenuOption("HI-SCORES");
         MenuOption quitOption = new MenuOption("QUIT");
 
-        menuOptionsList.add(startOption);
-        menuOptionsList.add(leaderboardOption);
-        menuOptionsList.add(quitOption);
+        Menu mainMenu = new Menu(startOption, leaderboardOption, quitOption);
 
         VBox menuOptionsVbox = new VBox(HEIGHT / 40.0);
-        menuOptionsVbox.getChildren().addAll(menuOptionsList.stream().map(MenuOption::getTextElement).toList());
+        menuOptionsVbox.getChildren().addAll(mainMenu.getOptions().stream().map(MenuOption::getTextElement).toList());
         menuOptionsVbox.setAlignment(Pos.CENTER);
         mainMenuLayout.getChildren().add(menuOptionsVbox);
 
@@ -504,41 +499,29 @@ public class AsteroidsApplication extends Application {
                 menuConfirmSfx.play();
 
                 window.getScene().setRoot(mainMenuLayout);
-                menuOptionsList.get(selectedMenuOption).select();
             }
 
-            // Select menu options
+            // Select next main menu option
             if ((event.getCode() == KeyCode.DOWN || event.getCode() == KeyCode.S) && windowRoot == mainMenuLayout) {
                 menuSelectSfx.seek(Duration.ZERO);
                 menuSelectSfx.play();
 
-                menuOptionsList.get(selectedMenuOption).deselect();
-                selectedMenuOption++;
-
-                if (selectedMenuOption > menuOptionsList.size() - 1) {
-                    selectedMenuOption = 0;
-                }
-
-                menuOptionsList.get(selectedMenuOption).select();
+                mainMenu.selectNext();
             }
+
+            // Select previous main menu option
             if ((event.getCode() == KeyCode.UP || event.getCode() == KeyCode.W) && windowRoot == mainMenuLayout) {
                 menuSelectSfx.seek(Duration.ZERO);
                 menuSelectSfx.play();
 
-                menuOptionsList.get(selectedMenuOption).deselect();
-                selectedMenuOption--;
-
-                if (selectedMenuOption < 0) {
-                    selectedMenuOption = menuOptionsList.size() - 1;
-                }
-
-                menuOptionsList.get(selectedMenuOption).select();
+                mainMenu.selectPrevious();
             }
+
             if (event.getCode() == KeyCode.SPACE && windowRoot == mainMenuLayout) {
                 menuConfirmSfx.seek(Duration.ZERO);
                 menuConfirmSfx.play();
 
-                switch (selectedMenuOption) {
+                switch (mainMenu.getSelectedIndex()) {
                     // Start
                     case 0:
                         window.getScene().setRoot(mainLayout);
@@ -649,7 +632,7 @@ public class AsteroidsApplication extends Application {
                 menuConfirmSfx.play();
 
                 window.getScene().setRoot(mainMenuLayout);
-                menuOptionsList.get(selectedMenuOption).select();
+                mainMenu.selectFirst();
             }
 
             // Save a screenshot of the current view with P key. Doesn't work on the insert initials screen since the P key is used to type a letter there.
@@ -690,7 +673,7 @@ public class AsteroidsApplication extends Application {
                 initialsText.setText(initialsSB.toString().replace("", " ").strip());
 
                 // Reset selected menu option
-                selectedMenuOption = 0;
+                mainMenu.selectFirst();
 
                 // Clear points
                 points.set(0);
