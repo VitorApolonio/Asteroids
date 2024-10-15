@@ -74,10 +74,13 @@ public class Ship extends Entity {
 
     /**
      * Moves the ship and its safe zone, teleporting both to the other side of the screen if they move outside it.
+     *
+     * @param scrWidth the width of the screen in pixels
+     * @param scrHeight the height of the screen in pixels
      */
     @Override
-    public void move() {
-        super.move();
+    public void move(double scrWidth, double scrHeight) {
+        super.move(scrWidth, scrHeight);
 
         safeZone.setCenterX(getCharacter().getTranslateX() + getMovement().getX());
         safeZone.setCenterY(getCharacter().getTranslateY() + getMovement().getY());
