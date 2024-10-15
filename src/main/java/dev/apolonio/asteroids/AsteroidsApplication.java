@@ -187,6 +187,28 @@ public class AsteroidsApplication extends Application {
         menuOptionsVbox.setAlignment(Pos.CENTER);
         mainMenuLayout.getChildren().add(menuOptionsVbox);
 
+        // Create resolution selection menu layout
+        StackPane resMenuLayout = new StackPane();
+        resMenuLayout.setAlignment(Pos.CENTER);
+
+        // Create menu title
+        Text resMenuTitle = getTextMedium("RESOLUTION SELECT");
+
+        // Create resolution menu options
+        MenuOption res640x480 = new MenuOption("640x480");
+        MenuOption res800x600 = new MenuOption("800x600");
+        MenuOption res1280x720 = new MenuOption("1280x720");
+        MenuOption res1920x1080 = new MenuOption("1920x1080");
+        MenuOption resBackOption = new MenuOption("BACK");
+
+        Menu resMenu = new Menu(res640x480, res800x600, res1280x720, res1920x1080, resBackOption);
+
+        VBox resMenuOptionsVbox = new VBox(window.getHeight() / 40.0);
+        resMenuOptionsVbox.getChildren().add(resMenuTitle);
+        resMenuOptionsVbox.getChildren().addAll(resMenu.getOptions().stream().map(MenuOption::getTextElement).toList());
+        resMenuOptionsVbox.setAlignment(Pos.CENTER);
+        resMenuLayout.getChildren().add(resMenuOptionsVbox);
+
         // Create leaderboard layout
         BorderPane leaderboardLayout = new BorderPane();
 
@@ -468,6 +490,9 @@ public class AsteroidsApplication extends Application {
             // This is used to figure out which screen the player is at when he presses a key
             Parent windowRoot = window.getScene().getRoot();
 
+            // Whether the current screen is a menu
+            boolean onMenuScreen = (windowRoot == mainMenuLayout || windowRoot == resMenuLayout);
+
             // Detects the sequence that toggles spread shot mode.
             if (isPaused && !shotgun) {
                 if (event.getCode() == correctSequence[correctPresses.get()]) {
@@ -493,22 +518,31 @@ public class AsteroidsApplication extends Application {
                 window.getScene().setRoot(mainMenuLayout);
             }
 
-            // Select next main menu option
-            if ((event.getCode() == KeyCode.DOWN || event.getCode() == KeyCode.S) && windowRoot == mainMenuLayout) {
+            // Select next menu option
+            if ((event.getCode() == KeyCode.DOWN || event.getCode() == KeyCode.S) && onMenuScreen) {
                 menuSelectSfx.seek(Duration.ZERO);
                 menuSelectSfx.play();
 
-                mainMenu.selectNext();
+                if (windowRoot == mainMenuLayout) {
+                    mainMenu.selectNext();
+                } else if (windowRoot == resMenuLayout) {
+                    resMenu.selectNext();
+                }
             }
 
-            // Select previous main menu option
-            if ((event.getCode() == KeyCode.UP || event.getCode() == KeyCode.W) && windowRoot == mainMenuLayout) {
+            // Select previous menu option
+            if ((event.getCode() == KeyCode.UP || event.getCode() == KeyCode.W) && onMenuScreen) {
                 menuSelectSfx.seek(Duration.ZERO);
                 menuSelectSfx.play();
 
-                mainMenu.selectPrevious();
+                if (windowRoot == mainMenuLayout) {
+                    mainMenu.selectPrevious();
+                } else if (windowRoot == resMenuLayout) {
+                    resMenu.selectPrevious();
+                }
             }
 
+            // Confirm selection on main menu
             if (event.getCode() == KeyCode.SPACE && windowRoot == mainMenuLayout) {
                 menuConfirmSfx.seek(Duration.ZERO);
                 menuConfirmSfx.play();
@@ -550,6 +584,24 @@ public class AsteroidsApplication extends Application {
                     case 2:
                         window.close();
                         break;
+                }
+            }
+
+            // Confirm selection on resolution change menu
+            if (event.getCode() == KeyCode.SPACE && windowRoot == resMenuLayout) {
+                menuConfirmSfx.seek(Duration.ZERO);
+                menuConfirmSfx.play();
+
+                // Back
+                if (resMenu.getSelectedIndex() == resMenu.getOptions().size() - 1) {
+                    window.getScene().setRoot(mainMenuLayout);
+                    mainMenu.selectFirst();
+                } else {
+                    // Since resolutions are in the format <width>x<height> we can just split them by the x to get both
+                    String[] values = resMenu.getSelected().getOptionText().split("x");
+
+                    window.setWidth(Integer.parseInt(values[0]));
+                    window.setHeight(Integer.parseInt(values[1]));
                 }
             }
 
