@@ -21,7 +21,7 @@ public class Ship extends Entity {
      * @param x the X coordinate for the ship
      * @param y the Y coordinate for the ship
      */
-    public Ship(int x, int y) {
+    public Ship(double x, double y) {
         // Creates a triangle to represent the ship
         super(new Polygon(-10, -11,
                 -5, 0,

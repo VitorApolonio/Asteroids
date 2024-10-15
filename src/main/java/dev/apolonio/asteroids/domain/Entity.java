@@ -20,7 +20,7 @@ public abstract class Entity {
      * @param x       the X coordinate for the Entity's inicial position.
      * @param y       the Y coordinate for the Entity's inicial position.
      */
-    public Entity(Polygon polygon, int x, int y) {
+    public Entity(Polygon polygon, double x, double y) {
         character = polygon;
         character.setTranslateX(x);
         character.setTranslateY(y);
