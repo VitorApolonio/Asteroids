@@ -71,7 +71,7 @@ public class AsteroidsApplication extends Application {
     private static final String GAME_DATA_FOLDER_PATH = System.getProperty("user.home") + "/Documents/Asteroids/";
 
     // List of user scores
-    private List<Score> scoreList;
+    private final List<Score> SCORE_LIST = new ArrayList<>();
 
     // Whether the game is paused
     private boolean isPaused = false;
@@ -95,13 +95,6 @@ public class AsteroidsApplication extends Application {
     @Override
     public void start(Stage window) {
 
-        // Load scores from file
-        try {
-            loadScores(GAME_DATA_FOLDER_PATH);
-        } catch (ClassNotFoundException e) {
-            System.err.println("[DEBUG] Failed to load scores: " + e.getMessage());
-        }
-
         // Set game window size
         window.setWidth(INITIAL_WIDTH);
         window.setHeight(INITIAL_HEIGHT);
@@ -116,6 +109,67 @@ public class AsteroidsApplication extends Application {
 
         Text pressToStart = getTextSmall("PRESS SPACE TO START");
         startLayout.getChildren().add(pressToStart);
+
+        // Create scene with layout
+        Scene view = new Scene(startLayout);
+        view.setFill(Color.BLACK);
+        window.setScene(view);
+
+        // Splash screen (image that shows up before game starts)
+        ImageView splashImageView = new ImageView(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/images/splash.png"))));
+        Pane splashRoot = new Pane(splashImageView);
+        Scene splashScene = new Scene(splashRoot, splashImageView.getImage().getWidth(), splashImageView.getImage().getHeight());
+
+        Stage splashStage = new Stage();
+        splashStage.initStyle(StageStyle.UNDECORATED);
+        splashStage.setScene(splashScene);
+        splashStage.show();
+
+        new Thread(() -> {
+            try {
+                // Load scores from file
+                try {
+                    loadScores(GAME_DATA_FOLDER_PATH);
+                } catch (ClassNotFoundException e) {
+                    System.err.println("[DEBUG] Failed to load scores: " + e.getMessage());
+                }
+
+                // Menu sounds
+                menuSelectSfx = new MediaPlayer(new Media(Objects.requireNonNull(getClass().getResource("/sounds/menu_select.mp3")).toExternalForm()));
+                menuConfirmSfx = new MediaPlayer(new Media(Objects.requireNonNull(getClass().getResource("/sounds/menu_confirm.mp3")).toExternalForm()));
+                pauseSfx = new MediaPlayer(new Media(Objects.requireNonNull(getClass().getResource("/sounds/pause.mp3")).toExternalForm()));
+                unpauseSfx = new MediaPlayer(new Media(Objects.requireNonNull(getClass().getResource("/sounds/unpause.mp3")).toExternalForm()));
+
+                // Main game sfx
+                fireSfx = new MediaPlayer(new Media(Objects.requireNonNull(getClass().getResource("/sounds/fire.mp3")).toExternalForm()));
+                spreadFireSfx = new MediaPlayer(new Media(Objects.requireNonNull(getClass().getResource("/sounds/fire_spread.mp3")).toExternalForm()));
+                powerUpSfx = new MediaPlayer(new Media(Objects.requireNonNull(getClass().getResource("/sounds/power_up.mp3")).toExternalForm()));
+                asteroidSfx = new MediaPlayer(new Media(Objects.requireNonNull(getClass().getResource("/sounds/asteroid_break.mp3")).toExternalForm()));
+                deathSfx = new MediaPlayer(new Media(Objects.requireNonNull(getClass().getResource("/sounds/death.mp3")).toExternalForm()));
+
+                // Lower volume of loud sounds
+                fireSfx.setVolume(0.20);
+                spreadFireSfx.setVolume(0.20);
+
+                // Preload menu confirm sound. This is done so there isn't a delay when you first open the main menu.
+                menuConfirmSfx.play();
+                menuConfirmSfx.stop();
+
+                // Wait some time
+                Thread.sleep(SPLASH_SCR_TIME);
+
+                // Close splash and show window when done
+                Platform.runLater(() -> {
+                    window.setTitle("Asteroids!");
+                    window.setResizable(false); // Resizing the window directly would cause problems, so it can only be resized in-game
+                    splashStage.close();
+                    window.show();
+                });
+
+            } catch (InterruptedException e) {
+                System.err.println("[DEBUG] Splash thread interrupted: " + e.getMessage());
+            }
+        }).start();
 
         // Create main menu layout
         StackPane mainMenuLayout = new StackPane();
@@ -169,60 +223,6 @@ public class AsteroidsApplication extends Application {
         BorderPane.setAlignment(hiScoresText, Pos.CENTER);
         BorderPane.setAlignment(backOption.getTextElement(), Pos.CENTER);
         leaderboardLayout.setPadding(new Insets(20, 0, 20, 0));
-
-        // Create scene with layout
-        Scene view = new Scene(startLayout);
-        view.setFill(Color.BLACK);
-        window.setScene(view);
-
-        // Splash screen (image that shows up before game starts)
-        ImageView splashImageView = new ImageView(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/images/splash.png"))));
-        Pane splashRoot = new Pane(splashImageView);
-        Scene splashScene = new Scene(splashRoot, splashImageView.getImage().getWidth(), splashImageView.getImage().getHeight());
-
-        Stage splashStage = new Stage();
-        splashStage.initStyle(StageStyle.UNDECORATED);
-        splashStage.setScene(splashScene);
-        splashStage.show();
-
-        new Thread(() -> {
-            try {
-                // Menu sounds
-                menuSelectSfx = new MediaPlayer(new Media(Objects.requireNonNull(getClass().getResource("/sounds/menu_select.mp3")).toExternalForm()));
-                menuConfirmSfx = new MediaPlayer(new Media(Objects.requireNonNull(getClass().getResource("/sounds/menu_confirm.mp3")).toExternalForm()));
-                pauseSfx = new MediaPlayer(new Media(Objects.requireNonNull(getClass().getResource("/sounds/pause.mp3")).toExternalForm()));
-                unpauseSfx = new MediaPlayer(new Media(Objects.requireNonNull(getClass().getResource("/sounds/unpause.mp3")).toExternalForm()));
-
-                // Main game sfx
-                fireSfx = new MediaPlayer(new Media(Objects.requireNonNull(getClass().getResource("/sounds/fire.mp3")).toExternalForm()));
-                spreadFireSfx = new MediaPlayer(new Media(Objects.requireNonNull(getClass().getResource("/sounds/fire_spread.mp3")).toExternalForm()));
-                powerUpSfx = new MediaPlayer(new Media(Objects.requireNonNull(getClass().getResource("/sounds/power_up.mp3")).toExternalForm()));
-                asteroidSfx = new MediaPlayer(new Media(Objects.requireNonNull(getClass().getResource("/sounds/asteroid_break.mp3")).toExternalForm()));
-                deathSfx = new MediaPlayer(new Media(Objects.requireNonNull(getClass().getResource("/sounds/death.mp3")).toExternalForm()));
-
-                // Lower volume of loud sounds
-                fireSfx.setVolume(0.20);
-                spreadFireSfx.setVolume(0.20);
-
-                // Preload menu confirm sound. This is done so there isn't a delay when you first open the main menu.
-                menuConfirmSfx.play();
-                menuConfirmSfx.stop();
-
-                // Wait some time
-                Thread.sleep(SPLASH_SCR_TIME);
-
-                // Close splash and show window when done
-                Platform.runLater(() -> {
-                    splashStage.close();
-                    window.setTitle("Asteroids!");
-                    window.setResizable(false); // Resizing the window directly would cause problems, so it can only be resized in-game
-                    window.show();
-                });
-
-            } catch (InterruptedException e) {
-                System.err.println("[DEBUG] Splash thread interrupted: " + e.getMessage());
-            }
-        }).start();
 
         // Create main game layout
         Pane mainLayout = new Pane();
@@ -589,12 +589,12 @@ public class AsteroidsApplication extends Application {
 
                 // Add text to high scores
                 Score score = new Score(initialsSB.toString().replaceAll("_", " "), points.get()); // Replace underscores with spaces
-                scoreList.add(score);
-                scoreList.sort(Score::compareTo);
+                SCORE_LIST.add(score);
+                SCORE_LIST.sort(Score::compareTo);
 
                 // Remove the lowest score if there are more than 10
-                if (scoreList.size() > 10) {
-                    scoreList.remove(scoreList.size() - 1);
+                if (SCORE_LIST.size() > 10) {
+                    SCORE_LIST.remove(SCORE_LIST.size() - 1);
                 }
 
                 // Update leaderboards
@@ -732,7 +732,7 @@ public class AsteroidsApplication extends Application {
      */
     private List<Text> getHiScoreTexts() {
         // Sorts the list of user scores
-        scoreList.sort(Score::compareTo);
+        SCORE_LIST.sort(Score::compareTo);
 
         // Create list to store score texts
         List<Text> texts = new ArrayList<>();
@@ -743,9 +743,9 @@ public class AsteroidsApplication extends Application {
             // Format points to 2 places, padded with 0s
             Text scoreText = getTextScore(String.format("%02d", i + 1) + ". ");
 
-            if (i < scoreList.size()) {
+            if (i < SCORE_LIST.size()) {
                 // If score is in the list, format points to 5 places, padded with 0s
-                Score s = scoreList.get(i);
+                Score s = SCORE_LIST.get(i);
                 // The mod 100000 guarantees the number will not have more than 5 digits
                 scoreText.setText(scoreText.getText() + s.playerName() + ": " + String.format("%05d", s.playerPoints() % 100000));
             } else {
@@ -928,7 +928,7 @@ public class AsteroidsApplication extends Application {
         try (FileWriter writer = new FileWriter(scoreFile)) {
             StringBuilder scoreSB = new StringBuilder();
 
-            for (Score s : scoreList) {
+            for (Score s : SCORE_LIST) {
                 scoreSB.append(s.toString()).append(",");
             }
 
@@ -964,15 +964,14 @@ public class AsteroidsApplication extends Application {
                     tempScoreList.add(new Score(values[0], Integer.parseInt(values[1].strip())));
                 }
 
-                scoreList = tempScoreList; // The values from the temp list are copied to the final list if nothing goes wrong
+                SCORE_LIST.addAll(tempScoreList); // The values from the temp list are copied to the final list if nothing goes wrong
                 System.out.println("[DEBUG] Loaded scores: " + scoreFile.getAbsolutePath());
             } catch (IOException e) {
                 System.err.println("[DEBUG] Failed to load scores: " + e.getMessage());
             }
         } else {
             System.out.println("[DEBUG] Score file doesn't exist: " + scoreFile.getAbsolutePath());
-            System.out.println("[DEBUG] Creating empty list for scores");
-            scoreList = new ArrayList<>();
+            System.out.println("[DEBUG] Score list will be empty.");
         }
     }
     
