@@ -105,7 +105,6 @@ public class AsteroidsApplication extends Application {
         // Create title screen layout
         VBox startLayout = new VBox(HEIGHT / 8.0);
         startLayout.setPrefSize(WIDTH, HEIGHT);
-        startLayout.setStyle("-fx-background-color: black;");
         startLayout.setAlignment(Pos.CENTER);
 
         // Create title text
@@ -118,7 +117,6 @@ public class AsteroidsApplication extends Application {
         // Create main menu layout
         StackPane mainMenuLayout = new StackPane();
         mainMenuLayout.setPrefSize(WIDTH, HEIGHT);
-        mainMenuLayout.setStyle("-fx-background-color: black;");
         mainMenuLayout.setAlignment(Pos.CENTER);
 
         // Create menu options
@@ -135,7 +133,6 @@ public class AsteroidsApplication extends Application {
 
         // Create leaderboard layout
         BorderPane leaderboardLayout = new BorderPane();
-        leaderboardLayout.setStyle("-fx-background-color: black;");
         leaderboardLayout.setPrefSize(WIDTH, HEIGHT);
 
         Text hiScoresText = getTextMedium("HIGH SCORES");
@@ -174,6 +171,7 @@ public class AsteroidsApplication extends Application {
 
         // Create scene with layout
         Scene view = new Scene(startLayout);
+        view.setFill(Color.BLACK);
         window.setScene(view);
 
         // Splash screen (image that shows up before game starts)
@@ -228,7 +226,6 @@ public class AsteroidsApplication extends Application {
         // Create main game layout
         Pane mainLayout = new Pane();
         mainLayout.setPrefSize(WIDTH, HEIGHT);
-        mainLayout.setStyle("-fx-background-color: black;");
 
         // Create player ship
         Ship ship = new Ship(WIDTH / 2, HEIGHT / 2);
@@ -259,7 +256,6 @@ public class AsteroidsApplication extends Application {
         // Create game over screen layout
         VBox endScreenLayout = new VBox(HEIGHT / 12.0);
         endScreenLayout.setPrefSize(WIDTH, HEIGHT);
-        endScreenLayout.setStyle("-fx-background-color: black;");
         endScreenLayout.setAlignment(Pos.CENTER);
 
         // Create game over text
@@ -276,7 +272,6 @@ public class AsteroidsApplication extends Application {
         // Create insert name screen
         VBox insertNameLayout = new VBox(HEIGHT / 12.0);
         insertNameLayout.setPrefSize(WIDTH, HEIGHT);
-        insertNameLayout.setStyle("-fx-background-color: black;");
         insertNameLayout.setAlignment(Pos.CENTER);
 
         // Create insert name text
