@@ -31,6 +31,15 @@ public class MenuOption {
     }
 
     /**
+     * Returns the text for this option.
+     *
+     * @return a {@link String} representing this option's text.
+     */
+    public String getOptionText() {
+        return text;
+    }
+
+    /**
      * Returns a {@link Text} that can be displayed on the screen on a menu.
      *
      * @return the Text used for the option.
