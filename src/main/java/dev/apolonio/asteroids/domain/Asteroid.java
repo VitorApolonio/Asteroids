@@ -20,7 +20,7 @@ public class Asteroid extends Entity {
      * @param x the X coordinate for the asteroid position
      * @param y the Y coordinate for the asteroid position
      */
-    public Asteroid(int x, int y) {
+    public Asteroid(double x, double y) {
         // Creates a new Entity using a polygon from PolygonFactory
         super(new PolygonFactory().createPentagon(), x, y);
 

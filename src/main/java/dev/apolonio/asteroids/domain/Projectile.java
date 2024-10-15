@@ -17,7 +17,7 @@ public class Projectile extends Entity {
      * @param x the X coordinate for the projectile's inicial position.
      * @param y the Y coordinate for the projectile's inicial position.
      */
-    public Projectile(int x, int y) {
+    public Projectile(double x, double y) {
         // Creates a rectangle to represent the class
         super(new Polygon(10, -4,
                 10, 4,

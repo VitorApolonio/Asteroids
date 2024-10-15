@@ -17,7 +17,7 @@ public class Star extends Entity {
      * @param x the X coordinate for the Star.
      * @param y the Y coordinate for the Star.
      */
-    public Star(int x, int y) {
+    public Star(double x, double y) {
         super(new PolygonFactory().createStar(), x, y);
 
         Random rand = new Random();
