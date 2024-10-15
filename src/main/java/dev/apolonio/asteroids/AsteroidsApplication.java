@@ -63,9 +63,9 @@ public class AsteroidsApplication extends Application {
     // Time before closing splash screen in ms
     private static final int SPLASH_SCR_TIME = 2000;
 
-    // Width and height for game window
-    public static final int WIDTH = 900;
-    public static final int HEIGHT = 600;
+    // Initial width and height for game window
+    public static final int INITIAL_WIDTH = 800;
+    public static final int INITIAL_HEIGHT = 600;
 
     // Folder for storing game data files
     private static final String GAME_DATA_FOLDER_PATH = System.getProperty("user.home") + "/Documents/Asteroids/";
@@ -102,9 +102,12 @@ public class AsteroidsApplication extends Application {
             System.err.println("[DEBUG] Failed to load scores: " + e.getMessage());
         }
 
+        // Set game window size
+        window.setWidth(INITIAL_WIDTH);
+        window.setHeight(INITIAL_HEIGHT);
+
         // Create title screen layout
-        VBox startLayout = new VBox(HEIGHT / 8.0);
-        startLayout.setPrefSize(WIDTH, HEIGHT);
+        VBox startLayout = new VBox(window.getHeight() / 8.0);
         startLayout.setAlignment(Pos.CENTER);
 
         // Create title text
@@ -116,7 +119,6 @@ public class AsteroidsApplication extends Application {
 
         // Create main menu layout
         StackPane mainMenuLayout = new StackPane();
-        mainMenuLayout.setPrefSize(WIDTH, HEIGHT);
         mainMenuLayout.setAlignment(Pos.CENTER);
 
         // Create menu options
@@ -126,24 +128,23 @@ public class AsteroidsApplication extends Application {
 
         Menu mainMenu = new Menu(startOption, leaderboardOption, quitOption);
 
-        VBox menuOptionsVbox = new VBox(HEIGHT / 40.0);
+        VBox menuOptionsVbox = new VBox(window.getHeight() / 40.0);
         menuOptionsVbox.getChildren().addAll(mainMenu.getOptions().stream().map(MenuOption::getTextElement).toList());
         menuOptionsVbox.setAlignment(Pos.CENTER);
         mainMenuLayout.getChildren().add(menuOptionsVbox);
 
         // Create leaderboard layout
         BorderPane leaderboardLayout = new BorderPane();
-        leaderboardLayout.setPrefSize(WIDTH, HEIGHT);
 
         Text hiScoresText = getTextMedium("HIGH SCORES");
 
-        VBox leaderboardLeftVbox = new VBox(HEIGHT / 20.0);
+        VBox leaderboardLeftVbox = new VBox(window.getHeight() / 30.0);
         leaderboardLeftVbox.setAlignment(Pos.CENTER);
-        leaderboardLeftVbox.setPrefSize(WIDTH / 2.0, HEIGHT);
+        leaderboardLeftVbox.setPrefSize(window.getWidth() / 2.0, window.getHeight());
 
-        VBox leaderboardRightVbox = new VBox(HEIGHT / 20.0);
+        VBox leaderboardRightVbox = new VBox(window.getHeight() / 30.0);
         leaderboardRightVbox.setAlignment(Pos.CENTER);
-        leaderboardRightVbox.setPrefSize(WIDTH / 2.0, HEIGHT);
+        leaderboardRightVbox.setPrefSize(window.getWidth() / 2.0, window.getHeight());
 
         // Fill leaderboards
         List<Text> scoreTexts = getHiScoreTexts();
@@ -214,7 +215,7 @@ public class AsteroidsApplication extends Application {
                 Platform.runLater(() -> {
                     splashStage.close();
                     window.setTitle("Asteroids!");
-                    window.setResizable(false); // Resizing doesn't properly work yet, fixing it would require making all menus responsive
+                    window.setResizable(false); // Resizing the window directly would cause problems, so it can only be resized in-game
                     window.show();
                 });
 
@@ -225,10 +226,9 @@ public class AsteroidsApplication extends Application {
 
         // Create main game layout
         Pane mainLayout = new Pane();
-        mainLayout.setPrefSize(WIDTH, HEIGHT);
 
         // Create player ship
-        Ship ship = new Ship(WIDTH / 2, HEIGHT / 2);
+        Ship ship = new Ship(window.getWidth() / 2, window.getHeight() / 2);
         mainLayout.getChildren().add(ship.getSafeZone());
         mainLayout.getChildren().add(ship.getCharacter());
 
@@ -240,7 +240,6 @@ public class AsteroidsApplication extends Application {
         /* A separate layout is created for the asteroids so that spawning more of them won't mess with
            the element order of the main layout. */
         Pane asteroidLayer = new Pane();
-        asteroidLayer.setPrefSize(WIDTH, HEIGHT);
         mainLayout.getChildren().add(asteroidLayer);
 
         // Create list for star animations (empty for now)
@@ -254,8 +253,7 @@ public class AsteroidsApplication extends Application {
         AtomicInteger points = new AtomicInteger();
 
         // Create game over screen layout
-        VBox endScreenLayout = new VBox(HEIGHT / 12.0);
-        endScreenLayout.setPrefSize(WIDTH, HEIGHT);
+        VBox endScreenLayout = new VBox(window.getHeight() / 12.0);
         endScreenLayout.setAlignment(Pos.CENTER);
 
         // Create game over text
@@ -270,8 +268,7 @@ public class AsteroidsApplication extends Application {
         endScreenLayout.getChildren().add(tryAgainText);
 
         // Create insert name screen
-        VBox insertNameLayout = new VBox(HEIGHT / 12.0);
-        insertNameLayout.setPrefSize(WIDTH, HEIGHT);
+        VBox insertNameLayout = new VBox(window.getHeight() / 12.0);
         insertNameLayout.setAlignment(Pos.CENTER);
 
         // Create insert name text
@@ -287,8 +284,8 @@ public class AsteroidsApplication extends Application {
         // Pause text
         Text pauseText = getTextLarge("PAUSED");
         pauseText.setVisible(false);
-        pauseText.setTranslateX(WIDTH / 2.0 - pauseText.getBoundsInParent().getMaxX() / 2);
-        pauseText.setTranslateY(HEIGHT / 2.0 + pauseText.getBoundsInParent().getMaxY());
+        pauseText.setTranslateX(window.getWidth() / 2.0 - pauseText.getBoundsInParent().getMaxX() / 2);
+        pauseText.setTranslateY(window.getHeight() / 2.0 + pauseText.getBoundsInParent().getMaxY());
         mainLayout.getChildren().add(pauseText);
 
         // Pause flashing text animation
@@ -360,7 +357,7 @@ public class AsteroidsApplication extends Application {
 
                 // Continuously spawn asteroids starting with a 0.5% chance, raising by 0.5% more every 2500 points
                 if (Math.random() < 0.005 * (1 + points.get() / 2500.0)) {
-                    Asteroid asteroid = new Asteroid((int) (Math.random() * WIDTH / 3), (int) (Math.random() * HEIGHT / 2));
+                    Asteroid asteroid = new Asteroid((int) (Math.random() * window.getWidth() / 3), (int) (Math.random() * window.getHeight() / 2));
                     asteroid.setMovement(asteroid.getMovement().multiply(Math.min(3, 1 + points.get() / 8000.0))); // Increase velocity with player score up to a max of 3x speed
                     if (!ship.inSafeZone(asteroid)) {
                         asteroids.add(asteroid);
@@ -369,8 +366,8 @@ public class AsteroidsApplication extends Application {
                 }
 
                 // Ship and asteroid movement
-                ship.move();
-                asteroids.forEach(Asteroid::move);
+                ship.move(window.getWidth(), window.getHeight());
+                asteroids.forEach(a -> a.move(window.getWidth(), window.getHeight()));
                 projectiles.forEach(Projectile::move);
 
                 // Handle collisions between shots and asteroids
@@ -413,9 +410,9 @@ public class AsteroidsApplication extends Application {
                     Projectile proj = projIt.next();
 
                     if (proj.getCharacter().getTranslateX() < 0
-                            || proj.getCharacter().getTranslateX() > WIDTH
+                            || proj.getCharacter().getTranslateX() > window.getWidth()
                             || proj.getCharacter().getTranslateY() < 0
-                            || proj.getCharacter().getTranslateY() > HEIGHT) {
+                            || proj.getCharacter().getTranslateY() > window.getHeight()) {
                         projIt.remove();
                         mainLayout.getChildren().remove(proj.getCharacter());
                     }
@@ -524,12 +521,12 @@ public class AsteroidsApplication extends Application {
                         Random rand = new Random();
                         // Spawn 40 stars at random positions
                         for (int i = 0; i < 40; i++) {
-                            Star star = new Star(rand.nextInt(WIDTH), rand.nextInt(HEIGHT));
+                            Star star = new Star(rand.nextDouble(window.getWidth()), rand.nextDouble(window.getHeight()));
                             stars.add(star);
                         }
                         // Spawn 5 initial asteroids at random positions
                         for (int i = 0; i < 5; i++) {
-                            Asteroid asteroid = new Asteroid(rand.nextInt(WIDTH / 3), rand.nextInt(HEIGHT));
+                            Asteroid asteroid = new Asteroid(rand.nextDouble(window.getWidth() / 3), rand.nextDouble(window.getHeight()));
                             asteroids.add(asteroid);
                         }
                         // Create star animations
@@ -633,7 +630,7 @@ public class AsteroidsApplication extends Application {
             // Save a screenshot of the current view with P key. Doesn't work on the insert initials screen since the P key is used to type a letter there.
             if (event.getCode() == KeyCode.P && windowRoot != insertNameLayout) {
                 String filePath = GAME_DATA_FOLDER_PATH + "/Screenshots";
-                saveScr(window.getScene(), filePath);
+                saveScr(window.getScene(), filePath, (int) window.getWidth(), (int) window.getHeight());
             }
 
             // Pause game with ESC key, only allowed on main view since it doesn't work properly on other scenes
@@ -685,10 +682,10 @@ public class AsteroidsApplication extends Application {
                 starAnimations.clear();
 
                 // Center ship
-                ship.getCharacter().setTranslateX(WIDTH / 2.0);
-                ship.getCharacter().setTranslateY(HEIGHT / 2.0);
-                ship.getSafeZone().setCenterX(WIDTH / 2.0);
-                ship.getSafeZone().setCenterY(HEIGHT / 2.0);
+                ship.getCharacter().setTranslateX(window.getWidth() / 2.0);
+                ship.getCharacter().setTranslateY(window.getHeight() / 2.0);
+                ship.getSafeZone().setCenterX(window.getWidth() / 2.0);
+                ship.getSafeZone().setCenterY(window.getHeight() / 2.0);
                 ship.getCharacter().setRotate(0);
                 ship.setMovement(new Point2D(0, 0));
                 ship.getCharacter().setOpacity(1.0);
@@ -857,12 +854,14 @@ public class AsteroidsApplication extends Application {
     /**
      * Attempts to save a screenshot of the scene at the provided folder.
      *
-     * @param scene the scene to save as a screenshot.
+     * @param scene      the scene to save as a screenshot.
      * @param folderPath the path to the folder where the screenshot will be saved.
+     * @param scrWidth   the horizontal screen resolution in pixels
+     * @param scrHeight  the vertical screen resolution in pixels
      */
-    private void saveScr(Scene scene, String folderPath) {
+    private void saveScr(Scene scene, String folderPath, int scrWidth, int scrHeight) {
         // Save snapshot of scene as a WritableImage
-        WritableImage image = new WritableImage(WIDTH, HEIGHT);
+        WritableImage image = new WritableImage(scrWidth, scrHeight);
         scene.snapshot(image);
 
         // Inicial number for image file name

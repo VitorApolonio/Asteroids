@@ -40,11 +40,14 @@ public class Asteroid extends Entity {
     }
 
     /**
-     * Moves the asteroid in the direction it's facing and rotates it.
+     * Moves the asteroid in the direction it's facing and rotates it, teleporting it if it goes past the screen bounds.
+     *
+     * @param scrWidth the width of the screen in pixels
+     * @param scrHeight the height of the screen in pixels
      */
     @Override
-    public void move() {
-        super.move();
+    public void move(double scrWidth, double scrHeight) {
+        super.move(scrWidth, scrHeight);
         super.getCharacter().setRotate(super.getCharacter().getRotate() + rotationalMovement);
     }
 }

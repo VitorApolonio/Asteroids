@@ -29,7 +29,6 @@ public class Projectile extends Entity {
     /**
      * Moves the projectile in a straight line.
      */
-    @Override
     public void move() {
         getCharacter().setTranslateX(getCharacter().getTranslateX() + getMovement().getX());
         getCharacter().setTranslateY(getCharacter().getTranslateY() + getMovement().getY());
