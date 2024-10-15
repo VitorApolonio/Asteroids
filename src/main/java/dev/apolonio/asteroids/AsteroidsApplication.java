@@ -61,7 +61,7 @@ import javax.imageio.ImageIO;
 public class AsteroidsApplication extends Application {
 
     // Time before closing splash screen in ms
-    private static final int SPLASH_SCR_TIME = 2000;
+    private static final int SPLASH_SCR_TIME = 1000;
 
     // Initial width and height for game window
     public static final int INITIAL_WIDTH = 800;
