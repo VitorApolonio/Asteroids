@@ -18,6 +18,7 @@ Todos os efeitos sonoros foram obtidos do site [Freesound](https://freesound.org
 - Capturas de tela
 - Tela de splash
 - Efeitos sonoros
+- Seleção de resolução
 
 # Controles
 - **A / D ou Seta para Esquerda / Seta para Direita:** Virar nave

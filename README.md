@@ -18,6 +18,7 @@ All sound effects were obtained from [Freesound](https://freesound.org/), and ar
 - Saving screenshots
 - Splash screen
 - Sound effects
+- Resolution selection
 
 # Controls
 - **A / D or Left Arrow / Right Arrow:** Turn ship
