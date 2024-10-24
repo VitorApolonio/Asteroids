@@ -20,8 +20,9 @@ public class Ship extends Entity {
      *
      * @param x the X coordinate for the ship
      * @param y the Y coordinate for the ship
+     * @param zoneRadius the radius of the ship's safe zone
      */
-    public Ship(double x, double y) {
+    public Ship(double x, double y, double zoneRadius) {
         // Creates a triangle to represent the ship
         super(new Polygon(-10, -11,
                 -5, 0,
@@ -29,7 +30,7 @@ public class Ship extends Entity {
                 20, 0), x, y);
 
         // Creates the circle for the safe zone
-        safeZone = new Circle(200);
+        safeZone = new Circle(zoneRadius);
         safeZone.setCenterX(getCharacter().getTranslateX());
         safeZone.setCenterY(getCharacter().getTranslateY());
         safeZone.setFill(Color.MAGENTA);

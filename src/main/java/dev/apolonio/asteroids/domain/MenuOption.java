@@ -9,25 +9,28 @@ import javafx.scene.text.Text;
  */
 public class MenuOption {
     private boolean selected;
+    private double fontSize;
     private final Text element;
     private final String text;
     private final String selectedText;
 
     /**
-     * Creates a new menu option with the provided text.
+     * Creates a new menu option with the provided text and font size.
      *
      * @param optionName the text displayed on the option.
+     * @param fontSize   the font size for the text.
      */
-    public MenuOption(String optionName) {
+    public MenuOption(String optionName, double fontSize) {
         selected = false;
 
         text = optionName;
         selectedText = "-> " + optionName + " <-";
 
         Text element = new Text(optionName);
-        element.setFont(Font.font("Trebuchet MS", 50));
+        element.setFont(Font.font("Trebuchet MS", fontSize));
         element.setFill(Color.WHITE);
         this.element = element;
+        this.fontSize = fontSize;
     }
 
     /**
@@ -49,6 +52,20 @@ public class MenuOption {
     }
 
     /**
+     * Sets the text font size to the provided value.
+     */
+    public void setFontSize(double newSize) {
+        fontSize = newSize;
+
+        // The font is slightly larger when selected, this is to maintain that
+        if (selected) {
+            element.setStyle("-fx-font-size: " + fontSize * 1.15);
+        } else {
+            element.setStyle("-fx-font-size: " + fontSize);
+        }
+    }
+
+    /**
      * Selects the menu option, highlighting it by changing its style.
      */
     public void select() {
@@ -57,7 +74,7 @@ public class MenuOption {
         element.setStroke(Color.BLUE);
         element.setStrokeWidth(2);
         element.setText(selectedText);
-        element.setStyle("-fx-font-size: 60;");
+        element.setStyle("-fx-font-size: " + fontSize * 1.15);
     }
 
     /**
@@ -68,7 +85,7 @@ public class MenuOption {
 
         element.setStrokeWidth(0);
         element.setText(text);
-        element.setStyle("-fx-font-size: 50;");
+        element.setStyle("-fx-font-size: " + fontSize);
     }
 
     /**

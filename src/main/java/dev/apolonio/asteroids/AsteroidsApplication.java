@@ -42,8 +42,8 @@ import javafx.scene.image.WritableImage;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
-import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
@@ -52,6 +52,7 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.util.Duration;
@@ -64,8 +65,8 @@ public class AsteroidsApplication extends Application {
     private static final int SPLASH_SCR_TIME = 1000;
 
     // Initial width and height for game window
-    public static final int INITIAL_WIDTH = 800;
-    public static final int INITIAL_HEIGHT = 600;
+    private static final int INITIAL_WIDTH = 800;
+    private static final int INITIAL_HEIGHT = 600;
 
     // Folder for storing game data files
     private static final String GAME_DATA_FOLDER_PATH = System.getProperty("user.home") + "/Documents/Asteroids/";
@@ -100,15 +101,15 @@ public class AsteroidsApplication extends Application {
         window.setHeight(INITIAL_HEIGHT);
 
         // Create title screen layout
-        VBox startLayout = new VBox(window.getHeight() / 8.0);
+        VBox startLayout = new VBox(window.getHeight() / 8);
         startLayout.setAlignment(Pos.CENTER);
 
         // Create title text
-        Text titleText = getTextLarge("ASTEROIDS");
-        startLayout.getChildren().add(titleText);
+        Text txt_titleText = getTextLarge("ASTEROIDS", window.getHeight() / 7);
+        startLayout.getChildren().add(txt_titleText);
 
-        Text pressToStart = getTextSmall("PRESS SPACE TO START");
-        startLayout.getChildren().add(pressToStart);
+        Text txt_pressToStart = getTextSmall("PRESS SPACE TO START", window.getHeight() / 13);
+        startLayout.getChildren().add(txt_pressToStart);
 
         // Create scene with layout
         Scene view = new Scene(startLayout);
@@ -171,59 +172,52 @@ public class AsteroidsApplication extends Application {
             }
         }).start();
 
-        // Create main menu layout
-        StackPane mainMenuLayout = new StackPane();
+        // Create main menu
+        MenuOption startOption = new MenuOption("START GAME", window.getHeight() / 11);
+        MenuOption leaderboardOption = new MenuOption("HI-SCORES", window.getHeight() / 11);
+        MenuOption resChangeOption = new MenuOption("RESOLUTION", window.getHeight() / 11);
+        MenuOption quitOption = new MenuOption("QUIT", window.getHeight() / 11);
+
+        Menu mainMenu = new Menu(startOption, leaderboardOption, resChangeOption, quitOption);
+
+        VBox mainMenuLayout = new VBox(window.getHeight() / 40);
+        mainMenuLayout.getChildren().addAll(mainMenu.getOptions().stream().map(MenuOption::getTextElement).toList());
         mainMenuLayout.setAlignment(Pos.CENTER);
 
-        // Create menu options
-        MenuOption startOption = new MenuOption("START GAME");
-        MenuOption leaderboardOption = new MenuOption("HI-SCORES");
-        MenuOption quitOption = new MenuOption("QUIT");
-
-        Menu mainMenu = new Menu(startOption, leaderboardOption, quitOption);
-
-        VBox menuOptionsVbox = new VBox(window.getHeight() / 40.0);
-        menuOptionsVbox.getChildren().addAll(mainMenu.getOptions().stream().map(MenuOption::getTextElement).toList());
-        menuOptionsVbox.setAlignment(Pos.CENTER);
-        mainMenuLayout.getChildren().add(menuOptionsVbox);
-
-        // Create resolution selection menu layout
-        StackPane resMenuLayout = new StackPane();
-        resMenuLayout.setAlignment(Pos.CENTER);
-
         // Create menu title
-        Text resMenuTitle = getTextMedium("RESOLUTION SELECT");
+        Text txt_resMenuTitle = getTextMedium("RESOLUTION SELECT", window.getHeight() / 11);
 
         // Create resolution menu options
-        MenuOption res640x480 = new MenuOption("640x480");
-        MenuOption res800x600 = new MenuOption("800x600");
-        MenuOption res1280x720 = new MenuOption("1280x720");
-        MenuOption res1920x1080 = new MenuOption("1920x1080");
-        MenuOption resBackOption = new MenuOption("BACK");
+        MenuOption res640x480 = new MenuOption("640x480", window.getHeight() / 11);
+        MenuOption res800x600 = new MenuOption("800x600", window.getHeight() / 11);
+        MenuOption res1280x720 = new MenuOption("1280x720", window.getHeight() / 11);
+        MenuOption res1920x1080 = new MenuOption("1920x1080", window.getHeight() / 11);
+        MenuOption resBackOption = new MenuOption("BACK", window.getHeight() / 11);
 
         Menu resMenu = new Menu(res640x480, res800x600, res1280x720, res1920x1080, resBackOption);
 
-        VBox resMenuOptionsVbox = new VBox(window.getHeight() / 40.0);
-        resMenuOptionsVbox.getChildren().add(resMenuTitle);
-        resMenuOptionsVbox.getChildren().addAll(resMenu.getOptions().stream().map(MenuOption::getTextElement).toList());
-        resMenuOptionsVbox.setAlignment(Pos.CENTER);
-        resMenuLayout.getChildren().add(resMenuOptionsVbox);
+        VBox resMenuLayout = new VBox(window.getHeight() / 40);
+        resMenuLayout.getChildren().add(txt_resMenuTitle);
+        resMenuLayout.getChildren().addAll(resMenu.getOptions().stream().map(MenuOption::getTextElement).toList());
+        resMenuLayout.setAlignment(Pos.CENTER);
 
         // Create leaderboard layout
         BorderPane leaderboardLayout = new BorderPane();
 
-        Text hiScoresText = getTextMedium("HIGH SCORES");
+        Text txt_hiScoresTitle = getTextMedium("HIGH SCORES", window.getHeight() / 11);
 
-        VBox leaderboardLeftVbox = new VBox(window.getHeight() / 30.0);
+        VBox leaderboardLeftVbox = new VBox(window.getHeight() / 30);
         leaderboardLeftVbox.setAlignment(Pos.CENTER);
-        leaderboardLeftVbox.setPrefSize(window.getWidth() / 2.0, window.getHeight());
 
-        VBox leaderboardRightVbox = new VBox(window.getHeight() / 30.0);
+        VBox leaderboardRightVbox = new VBox(window.getHeight() / 30);
         leaderboardRightVbox.setAlignment(Pos.CENTER);
-        leaderboardRightVbox.setPrefSize(window.getWidth() / 2.0, window.getHeight());
+
+        HBox scoreContainerHbox = new HBox(window.getWidth() / 30);
+        scoreContainerHbox.setAlignment(Pos.CENTER);
+        scoreContainerHbox.getChildren().addAll(leaderboardLeftVbox, leaderboardRightVbox);
 
         // Fill leaderboards
-        List<Text> scoreTexts = getHiScoreTexts();
+        List<Text> scoreTexts = getHiScoreTexts(window.getHeight() / 14);
 
         for (int i = 0; i < 10; i++) {
             Text scoreText = scoreTexts.get(i);
@@ -235,22 +229,23 @@ public class AsteroidsApplication extends Application {
             }
         }
 
-        MenuOption backOption = new MenuOption("BACK");
+        MenuOption scoresBackOption = new MenuOption("BACK", window.getHeight() / 11);
 
-        leaderboardLayout.setTop(hiScoresText);
-        leaderboardLayout.setLeft(leaderboardLeftVbox);
-        leaderboardLayout.setRight(leaderboardRightVbox);
-        leaderboardLayout.setBottom(backOption.getTextElement());
+        leaderboardLayout.setTop(txt_hiScoresTitle);
+        leaderboardLayout.setCenter(scoreContainerHbox);
+        leaderboardLayout.setBottom(scoresBackOption.getTextElement());
 
-        BorderPane.setAlignment(hiScoresText, Pos.CENTER);
-        BorderPane.setAlignment(backOption.getTextElement(), Pos.CENTER);
+        BorderPane.setAlignment(txt_hiScoresTitle, Pos.CENTER);
+        BorderPane.setAlignment(scoresBackOption.getTextElement(), Pos.CENTER);
+        BorderPane.setAlignment(leaderboardLeftVbox, Pos.CENTER);
+        BorderPane.setAlignment(leaderboardRightVbox, Pos.CENTER);
         leaderboardLayout.setPadding(new Insets(20, 0, 20, 0));
 
         // Create main game layout
         Pane mainLayout = new Pane();
 
         // Create player ship
-        Ship ship = new Ship(window.getWidth() / 2, window.getHeight() / 2);
+        Ship ship = new Ship(window.getWidth() / 2, window.getHeight() / 2, window.getHeight() / 4);
         mainLayout.getChildren().add(ship.getSafeZone());
         mainLayout.getChildren().add(ship.getCharacter());
 
@@ -268,50 +263,50 @@ public class AsteroidsApplication extends Application {
         List<ScaleTransition> starAnimations = new ArrayList<>();
 
         // Create user score text
-        Text scoreText = getTextMedium("SCORE: 0");
-        scoreText.setTranslateX(30);
-        scoreText.setTranslateY(60);
-        mainLayout.getChildren().add(scoreText);
+        Text txt_currentScoreText = getTextMedium("SCORE: 0", window.getHeight() / 11);
+        txt_currentScoreText.setTranslateX(window.getWidth() / 20);
+        txt_currentScoreText.setTranslateY(window.getHeight() / 10);
+        mainLayout.getChildren().add(txt_currentScoreText);
         AtomicInteger points = new AtomicInteger();
 
         // Create game over screen layout
-        VBox endScreenLayout = new VBox(window.getHeight() / 12.0);
+        VBox endScreenLayout = new VBox(window.getHeight() / 12);
         endScreenLayout.setAlignment(Pos.CENTER);
 
         // Create game over text
-        Text gameOverText = getTextLarge("GAME OVER!");
-        endScreenLayout.getChildren().add(gameOverText);
+        Text txt_gameOverText = getTextLarge("GAME OVER!", window.getHeight() / 7);
+        endScreenLayout.getChildren().add(txt_gameOverText);
 
-        Text finalScoreText = getTextMedium("FINAL SCORE: 0");
-        endScreenLayout.getChildren().add(finalScoreText);
+        Text txt_finalScoreText = getTextMedium("FINAL SCORE: 0", window.getHeight() / 11);
+        endScreenLayout.getChildren().add(txt_finalScoreText);
 
-        Text tryAgainText = getTextSmall("PRESS SPACE TO CONTINUE");
-        tryAgainText.setVisible(false);
-        endScreenLayout.getChildren().add(tryAgainText);
+        Text txt_tryAgainText = getTextSmall("PRESS SPACE TO CONTINUE", window.getHeight() / 13);
+        txt_tryAgainText.setVisible(false);
+        endScreenLayout.getChildren().add(txt_tryAgainText);
 
         // Create insert name screen
-        VBox insertNameLayout = new VBox(window.getHeight() / 12.0);
+        VBox insertNameLayout = new VBox(window.getHeight() / 12);
         insertNameLayout.setAlignment(Pos.CENTER);
 
         // Create insert name text
-        Text instructionText = getTextMedium("ENTER YOUR NAME");
-        insertNameLayout.getChildren().add(instructionText);
+        Text txt_enterYourNameText = getTextMedium("ENTER YOUR NAME", window.getHeight() / 11);
+        insertNameLayout.getChildren().add(txt_enterYourNameText);
 
         StringBuilder initialsSB = new StringBuilder("___");
 
-        Text initialsText = getTextScore(initialsSB.toString().replace("", " ").strip());
-        initialsText.setStyle("-fx-font-size: 70;");
-        insertNameLayout.getChildren().add(initialsText);
+        Text txt_initialsText = getTextScore(initialsSB.toString().replace("", " ").strip(), window.getHeight() / 7);
+        insertNameLayout.getChildren().add(txt_initialsText);
 
         // Pause text
-        Text pauseText = getTextLarge("PAUSED");
-        pauseText.setVisible(false);
-        pauseText.setTranslateX(window.getWidth() / 2.0 - pauseText.getBoundsInParent().getMaxX() / 2);
-        pauseText.setTranslateY(window.getHeight() / 2.0 + pauseText.getBoundsInParent().getMaxY());
-        mainLayout.getChildren().add(pauseText);
+        Text txt_pauseText = getTextLarge("PAUSED", window.getHeight() / 7);
+        txt_pauseText.setVisible(false);
+        // This is to center the pause text
+        txt_pauseText.setTranslateX(window.getWidth() / 2 - txt_pauseText.getBoundsInParent().getWidth() / 2);
+        txt_pauseText.setTranslateY(window.getHeight() / 2);
+        mainLayout.getChildren().add(txt_pauseText);
 
         // Pause flashing text animation
-        FadeTransition pauseFade = new FadeTransition(Duration.millis(666), pauseText);
+        FadeTransition pauseFade = new FadeTransition(Duration.millis(666), txt_pauseText);
         pauseFade.setFromValue(0.0);
         pauseFade.setToValue(0.8);
         pauseFade.setAutoReverse(true);
@@ -378,9 +373,9 @@ public class AsteroidsApplication extends Application {
                 }
 
                 // Continuously spawn asteroids starting with a 0.5% chance, raising by 0.5% more every 2500 points
-                if (Math.random() < 0.005 * (1 + points.get() / 2500.0)) {
+                if (Math.random() < 0.005 * (1 + (double) points.get() / 2500)) {
                     Asteroid asteroid = new Asteroid((int) (Math.random() * window.getWidth() / 3), (int) (Math.random() * window.getHeight() / 2));
-                    asteroid.setMovement(asteroid.getMovement().multiply(Math.min(3, 1 + points.get() / 8000.0))); // Increase velocity with player score up to a max of 3x speed
+                    asteroid.setMovement(asteroid.getMovement().multiply(Math.min(3, 1 + points.get() / 8000))); // Increase velocity with player score up to a max of 3x speed
                     if (!ship.inSafeZone(asteroid)) {
                         asteroids.add(asteroid);
                         asteroidLayer.getChildren().add(asteroid.getCharacter());
@@ -419,9 +414,9 @@ public class AsteroidsApplication extends Application {
 
                         // Fewer points are awarded for spread shot kills
                         if (shotgun) {
-                            scoreText.setText("SCORE: " + points.addAndGet(50));
+                            txt_currentScoreText.setText("SCORE: " + points.addAndGet(50));
                         } else {
-                            scoreText.setText("SCORE: " + points.addAndGet(100));
+                            txt_currentScoreText.setText("SCORE: " + points.addAndGet(100));
                         }
                     }
                 }
@@ -455,12 +450,12 @@ public class AsteroidsApplication extends Application {
                         deathFade.setFromValue(1.0);
                         deathFade.setToValue(0.0);
                         deathFade.setOnFinished(event -> {
-                            finalScoreText.setText("FINAL SCORE: " + points.get());
+                            txt_finalScoreText.setText("FINAL SCORE: " + points.get());
                             window.getScene().setRoot(insertNameLayout);
 
                             // Delay before "PRESS SPACE" text pops up
                             PauseTransition tryAgainPause = new PauseTransition(Duration.millis(1000));
-                            tryAgainPause.setOnFinished(event2 -> tryAgainText.setVisible(true));
+                            tryAgainPause.setOnFinished(event2 -> txt_tryAgainText.setVisible(true));
                             tryAgainPause.play();
                         });
                         deathFade.play();
@@ -469,6 +464,42 @@ public class AsteroidsApplication extends Application {
                 }
             }
         };
+
+        // Resizes all elements whenever the window changes size
+        window.heightProperty().addListener((ov, oldVal, newVal) -> {
+            // Large texts
+            txt_titleText.setStyle("-fx-font-size: " + newVal.doubleValue() / 7);
+            txt_gameOverText.setStyle("-fx-font-size: " + newVal.doubleValue() / 7);
+            txt_pauseText.setStyle("-fx-font-size: " + newVal.doubleValue() / 7);
+            txt_initialsText.setStyle("-fx-font-size: " + newVal.doubleValue() / 7);
+            // Medium texts
+            txt_pressToStart.setStyle("-fx-font-size: " + newVal.doubleValue() / 11);
+            txt_enterYourNameText.setStyle("-fx-font-size: " + newVal.doubleValue() / 11);
+            txt_hiScoresTitle.setStyle("-fx-font-size: " + newVal.doubleValue() / 11);
+            txt_resMenuTitle.setStyle("-fx-font-size: " + newVal.doubleValue() / 11);
+            txt_currentScoreText.setStyle("-fx-font-size: " + newVal.doubleValue() / 11);
+            // Medium texts (menus)
+            mainMenu.getOptions().forEach(o -> o.setFontSize(newVal.doubleValue() / 11));
+            resMenu.getOptions().forEach(o -> o.setFontSize(newVal.doubleValue() / 11));
+            scoresBackOption.setFontSize(newVal.doubleValue() / 11);
+            // Small texts
+            txt_tryAgainText.setStyle("-fx-font-size: " + newVal.doubleValue() / 13);
+            leaderboardLeftVbox.getChildren().forEach(n -> n.setStyle("-fx-font-size: " + newVal.doubleValue() / 14));
+            leaderboardRightVbox.getChildren().forEach(n -> n.setStyle("-fx-font-size: " + newVal.doubleValue() / 14));
+
+            // Redo position calculations for text and ship
+            ship.getCharacter().setTranslateX(window.getWidth() / 2);
+            ship.getCharacter().setTranslateY(window.getHeight() / 2);
+            txt_currentScoreText.setTranslateX(window.getWidth() / 15);
+            txt_currentScoreText.setTranslateY(window.getHeight() / 10);
+            txt_pauseText.setTranslateX(window.getWidth() / 2 - txt_pauseText.getBoundsInParent().getWidth() / 2);
+            txt_pauseText.setTranslateY(window.getHeight() / 2);
+
+            // Update spacing on score list
+            scoreContainerHbox.setSpacing(window.getWidth() / 13);
+            leaderboardLeftVbox.setSpacing(window.getHeight() / 20);
+            leaderboardRightVbox.setSpacing(window.getHeight() / 20);
+        });
 
         // Keeps track of how many keys were pressed in the correct sequence for the spread shot cheat code
         AtomicInteger correctPresses = new AtomicInteger();
@@ -523,9 +554,9 @@ public class AsteroidsApplication extends Application {
                 menuSelectSfx.seek(Duration.ZERO);
                 menuSelectSfx.play();
 
-                if (windowRoot == mainMenuLayout) {
+                if (windowRoot.equals(mainMenuLayout)) {
                     mainMenu.selectNext();
-                } else if (windowRoot == resMenuLayout) {
+                } else if (windowRoot.equals(resMenuLayout)) {
                     resMenu.selectNext();
                 }
             }
@@ -535,9 +566,9 @@ public class AsteroidsApplication extends Application {
                 menuSelectSfx.seek(Duration.ZERO);
                 menuSelectSfx.play();
 
-                if (windowRoot == mainMenuLayout) {
+                if (windowRoot.equals(mainMenuLayout)) {
                     mainMenu.selectPrevious();
-                } else if (windowRoot == resMenuLayout) {
+                } else if (windowRoot.equals(resMenuLayout)) {
                     resMenu.selectPrevious();
                 }
             }
@@ -549,7 +580,7 @@ public class AsteroidsApplication extends Application {
 
                 switch (mainMenu.getSelectedIndex()) {
                     // Start
-                    case 0:
+                    case 0: {
                         window.getScene().setRoot(mainLayout);
                         // A Random object is used to randomize entity positions on the screen.
                         Random rand = new Random();
@@ -575,15 +606,24 @@ public class AsteroidsApplication extends Application {
                         // Start main timer
                         mainTimer.start();
                         break;
+                    }
                     // Hi-Scores
-                    case 1:
+                    case 1: {
                         window.getScene().setRoot(leaderboardLayout);
-                        backOption.select();
+                        scoresBackOption.select();
                         break;
+                    }
+                    // Resolution change menu
+                    case 2: {
+                        window.getScene().setRoot(resMenuLayout);
+                        resMenu.selectLast();
+                        break;
+                    }
                     // Exit
-                    case 2:
+                    case 3: {
                         window.close();
                         break;
+                    }
                 }
             }
 
@@ -592,7 +632,7 @@ public class AsteroidsApplication extends Application {
                 menuConfirmSfx.seek(Duration.ZERO);
                 menuConfirmSfx.play();
 
-                // Back
+                // Back option
                 if (resMenu.getSelectedIndex() == resMenu.getOptions().size() - 1) {
                     window.getScene().setRoot(mainMenuLayout);
                     mainMenu.selectFirst();
@@ -617,7 +657,7 @@ public class AsteroidsApplication extends Application {
                     }
                 }
 
-                initialsText.setText(initialsSB.toString().replace("", " ").strip());
+                txt_initialsText.setText(initialsSB.toString().replace("", " ").strip());
             }
 
             // Remove characters with backspace
@@ -631,7 +671,7 @@ public class AsteroidsApplication extends Application {
                         break;
                     }
                 }
-                initialsText.setText(initialsSB.toString().replace("", " ").strip());
+                txt_initialsText.setText(initialsSB.toString().replace("", " ").strip());
             }
 
             // Confirm initials
@@ -653,7 +693,7 @@ public class AsteroidsApplication extends Application {
                 leaderboardLeftVbox.getChildren().clear();
                 leaderboardRightVbox.getChildren().clear();
 
-                List<Text> scoreTextsList = getHiScoreTexts();
+                List<Text> scoreTextsList = getHiScoreTexts(window.getHeight() / 14);
 
                 for (int i = 0; i < 10; i++) {
                     if (i < 5) {
@@ -692,7 +732,7 @@ public class AsteroidsApplication extends Application {
                     unpauseSfx.play();
 
                     pauseFade.stop();
-                    pauseText.setVisible(false);
+                    txt_pauseText.setVisible(false);
                     mainTimer.start();
                     isPaused = false;
                 } else {
@@ -700,29 +740,29 @@ public class AsteroidsApplication extends Application {
                     pauseSfx.play();
 
                     pauseFade.play();
-                    pauseText.setVisible(true);
+                    txt_pauseText.setVisible(true);
                     mainTimer.stop();
                     isPaused = true;
                 }
             }
 
             // Leave game over screen and restart game
-            if (event.getCode() == KeyCode.SPACE && windowRoot == endScreenLayout && tryAgainText.isVisible()) {
+            if (event.getCode() == KeyCode.SPACE && windowRoot == endScreenLayout && txt_tryAgainText.isVisible()) {
                 menuConfirmSfx.seek(Duration.ZERO);
                 menuConfirmSfx.play();
 
                 // Reset initials
                 initialsSB.setLength(0);
                 initialsSB.append("___");
-                initialsText.setText(initialsSB.toString().replace("", " ").strip());
+                txt_initialsText.setText(initialsSB.toString().replace("", " ").strip());
 
                 // Reset selected menu option
                 mainMenu.selectFirst();
 
                 // Clear points
                 points.set(0);
-                scoreText.setText("SCORE: 0");
-                finalScoreText.setText(("FINAL SCORE: 0"));
+                txt_currentScoreText.setText("SCORE: 0");
+                txt_finalScoreText.setText(("FINAL SCORE: 0"));
 
                 // Delete all entities
                 mainLayout.getChildren().removeAll(stars.stream().map(Entity::getCharacter).toList());
@@ -734,10 +774,10 @@ public class AsteroidsApplication extends Application {
                 starAnimations.clear();
 
                 // Center ship
-                ship.getCharacter().setTranslateX(window.getWidth() / 2.0);
-                ship.getCharacter().setTranslateY(window.getHeight() / 2.0);
-                ship.getSafeZone().setCenterX(window.getWidth() / 2.0);
-                ship.getSafeZone().setCenterY(window.getHeight() / 2.0);
+                ship.getCharacter().setTranslateX(window.getWidth() / 2);
+                ship.getCharacter().setTranslateY(window.getHeight() / 2);
+                ship.getSafeZone().setCenterX(window.getWidth() / 2);
+                ship.getSafeZone().setCenterY(window.getHeight() / 2);
                 ship.getCharacter().setRotate(0);
                 ship.setMovement(new Point2D(0, 0));
                 ship.getCharacter().setOpacity(1.0);
@@ -780,9 +820,10 @@ public class AsteroidsApplication extends Application {
      * In the event there are not 10 scores, the remaining spaces
      * will be filled with dashed lines {@code ---: -----}.
      *
-     * @return a List containing 10 TextElements.
+     * @param fontSize the font size to be used for the texts
+     * @return         a List containing 10 TextElements.
      */
-    private List<Text> getHiScoreTexts() {
+    private List<Text> getHiScoreTexts(double fontSize) {
         // Sorts the list of user scores
         SCORE_LIST.sort(Score::compareTo);
 
@@ -793,44 +834,44 @@ public class AsteroidsApplication extends Application {
         for (int i = 0; i < 10; i++) {
 
             // Format points to 2 places, padded with 0s
-            Text scoreText = getTextScore(String.format("%02d", i + 1) + ". ");
+            Text txt_scoreText = getTextScore(String.format("%02d", i + 1) + ". ", fontSize);
 
             if (i < SCORE_LIST.size()) {
                 // If score is in the list, format points to 5 places, padded with 0s
                 Score s = SCORE_LIST.get(i);
                 // The mod 100000 guarantees the number will not have more than 5 digits
-                scoreText.setText(scoreText.getText() + s.playerName() + ": " + String.format("%05d", s.playerPoints() % 100000));
+                txt_scoreText.setText(txt_scoreText.getText() + s.playerName() + ": " + String.format("%05d", s.playerPoints() % 100000));
             } else {
                 // If score is not in the list, set player name and points to dashes
-                scoreText.setText(scoreText.getText() + "---: -----");
+                txt_scoreText.setText(txt_scoreText.getText() + "---: -----");
             }
 
             // Center score text
-            scoreText.setTextAlignment(TextAlignment.CENTER);
+            txt_scoreText.setTextAlignment(TextAlignment.CENTER);
 
             // Add to list
-            texts.add(scoreText);
+            texts.add(txt_scoreText);
         }
 
         return texts;
     }
 
     /**
-     * Returns a TextElement with the provided text.
+     * Returns a {@link Text} element with the provided text and font size.
      * <p>
      * The default font style is:
      * <ul>
      * <li> Family: Verdana
-     * <li> Size: 90pt
      * <li> Weight: Bold
      * </ul>
      *
      * @param textContent the content of the TextElement.
-     * @return a TextElement with the given text.
+     * @param fontSize    the font size
+     * @return            a TextElement with the given text.
      */
-    private Text getTextLarge(String textContent) {
+    private Text getTextLarge(String textContent, double fontSize) {
         Text text = new Text(textContent);
-        text.setFont(Font.font("Verdana", FontWeight.BOLD, 90));
+        text.setFont(Font.font("Verdana", FontWeight.BOLD, fontSize));
         text.setFill(Color.WHITE);
         text.setStroke(Color.BLUE);
         text.setStrokeWidth(3);
@@ -839,21 +880,21 @@ public class AsteroidsApplication extends Application {
     }
 
     /**
-     * Returns a TextElement with the provided text.
+     * Returns a {@link Text} element with the provided text and font size.
      * <p>
      * The default font style is:
      * <ul>
      * <li> Family: Trebuchet MS
-     * <li> Size: 60pt
      * <li> Weight: Semi-bold
      * </ul>
      *
      * @param textContent the content of the TextElement.
-     * @return a TextElement with the given text.
+     * @param fontSize    the font size
+     * @return            a TextElement with the given text.
      */
-    private Text getTextMedium(String textContent) {
+    private Text getTextMedium(String textContent, double fontSize) {
         Text text = new Text(textContent);
-        text.setFont(Font.font("Trebuchet MS", FontWeight.SEMI_BOLD, 60));
+        text.setFont(Font.font("Trebuchet MS", FontWeight.SEMI_BOLD, fontSize));
         text.setFill(Color.WHITE);
         text.setStroke(Color.BLUE);
         text.setStrokeWidth(1.25);
@@ -862,42 +903,42 @@ public class AsteroidsApplication extends Application {
     }
 
     /**
-     * Returns a TextElement with the provided text.
+     * Returns a {@link Text} element with the provided text and font size.
      * <p>
      * The default font style is:
      * <ul>
      * <li> Family: Courier New
-     * <li> Size: 45pt
      * <li> Weight: Bold
      * </ul>
      *
      * @param textContent the content of the TextElement.
-     * @return a TextElement with the given text.
+     * @param fontSize    the font size
+     * @return            a TextElement with the given text.
      */
-    private Text getTextScore(String textContent) {
+    private Text getTextScore(String textContent, double fontSize) {
         Text text = new Text(textContent);
-        text.setFont(Font.font("Courier New", FontWeight.BOLD, 45));
+        text.setFont(Font.font("Courier New", FontWeight.BOLD, fontSize));
         text.setFill(Color.WHITE);
 
         return text;
     }
 
     /**
-     * Returns a TextElement with the provided text.
+     * Returns a {@link Text} element with the provided text and font size.
      * <p>
      * The default font style is:
      * <ul>
      * <li> Family: Trebuchet MS
-     * <li> Size: 45pt
      * <li> Weight: Default
      * </ul>
      *
      * @param textContent the content of the TextElement.
-     * @return a TextElement with the given text.
+     * @param fontSize    the font size
+     * @return            a TextElement with the given text.
      */
-    private Text getTextSmall(String textContent) {
+    private Text getTextSmall(String textContent, double fontSize) {
         Text text = new Text(textContent);
-        text.setFont(Font.font("Trebuchet MS", 45));
+        text.setFont(Font.font("Trebuchet MS", fontSize));
         text.setFill(Color.WHITE);
 
         return text;
