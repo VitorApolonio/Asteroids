@@ -40,6 +40,8 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCodeCombination;
+import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
@@ -125,6 +127,7 @@ public class AsteroidsApplication extends Application {
         splashStage.setScene(splashScene);
         splashStage.show();
 
+        // This thread loads some game data such as sounds, then closes the splash screen.
         new Thread(() -> {
             try {
                 // Load scores from file
@@ -163,6 +166,8 @@ public class AsteroidsApplication extends Application {
                     window.setTitle("Asteroids!");
                     window.setResizable(false); // Resizing the window directly would cause problems, so it can only be resized in-game
                     splashStage.close();
+                    // This is so the game doesn't exit fullscreen when pausing
+                    window.setFullScreenExitKeyCombination(KeyCombination.NO_MATCH);
                     window.show();
                 });
 
@@ -640,8 +645,11 @@ public class AsteroidsApplication extends Application {
                     // Since resolutions are in the format <width>x<height> we can just split them by the x to get both
                     String[] values = resMenu.getSelected().getOptionText().split("x");
 
-                    window.setWidth(Integer.parseInt(values[0]));
-                    window.setHeight(Integer.parseInt(values[1]));
+                    // The window size isn't altered on fullscreen mode
+                    if (!window.isFullScreen()) {
+                        window.setWidth(Integer.parseInt(values[0]));
+                        window.setHeight(Integer.parseInt(values[1]));
+                    }
                 }
             }
 
@@ -717,6 +725,13 @@ public class AsteroidsApplication extends Application {
 
                 window.getScene().setRoot(mainMenuLayout);
                 mainMenu.selectFirst();
+            }
+
+            /* Toggle fullscreen with ALT + ENTER. Only allowed on menu screens since the star spawn points depend on
+               the screen resolution, and so wouldn't be properly distributed on the screen if the resolution changes. */
+            KeyCombination fsKeyCombo = new KeyCodeCombination(KeyCode.ENTER, KeyCombination.ALT_DOWN);
+            if (fsKeyCombo.match(event) && windowRoot != mainLayout) {
+                window.setFullScreen(!window.isFullScreen());
             }
 
             /* Save a screenshot of the current view with P key.
