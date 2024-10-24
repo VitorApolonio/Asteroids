@@ -52,7 +52,6 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
-import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.util.Duration;
@@ -478,6 +477,7 @@ public class AsteroidsApplication extends Application {
             txt_hiScoresTitle.setStyle("-fx-font-size: " + newVal.doubleValue() / 11);
             txt_resMenuTitle.setStyle("-fx-font-size: " + newVal.doubleValue() / 11);
             txt_currentScoreText.setStyle("-fx-font-size: " + newVal.doubleValue() / 11);
+            txt_finalScoreText.setStyle("-fx-font-size: " + newVal.doubleValue() / 11);
             // Medium texts (menus)
             mainMenu.getOptions().forEach(o -> o.setFontSize(newVal.doubleValue() / 11));
             resMenu.getOptions().forEach(o -> o.setFontSize(newVal.doubleValue() / 11));
@@ -719,7 +719,8 @@ public class AsteroidsApplication extends Application {
                 mainMenu.selectFirst();
             }
 
-            // Save a screenshot of the current view with P key. Doesn't work on the insert initials screen since the P key is used to type a letter there.
+            /* Save a screenshot of the current view with P key.
+               Doesn't work on the insert initials screen since the P key is used to type a letter there. */
             if (event.getCode() == KeyCode.P && windowRoot != insertNameLayout) {
                 String filePath = GAME_DATA_FOLDER_PATH + "/Screenshots";
                 saveScr(window.getScene(), filePath, (int) window.getWidth(), (int) window.getHeight());
