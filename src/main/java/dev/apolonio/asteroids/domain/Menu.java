@@ -61,6 +61,18 @@ public class Menu {
     }
 
     /**
+     * Selects the last option of the menu
+     */
+    public void selectLast() {
+        // If there's already a selected option, deselect it first
+        if (selected != null) {
+            selected.deselect();
+        }
+        selected = options.get(options.size() - 1);
+        selected.select();
+    }
+
+    /**
      * Selects the menu option following the current.
      * <p>
      * If the selected option is the last, wraps around selecting the first.
