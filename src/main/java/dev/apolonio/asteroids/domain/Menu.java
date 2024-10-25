@@ -81,7 +81,14 @@ public class Menu {
         selected.deselect();
         int newIndex = (options.indexOf(selected) + 1) % options.size();
         selected = options.get(newIndex);
+
+        // Skip this option if it's disabled
+        if (!selected.getEnabled()) {
+            selectNext();
+        }
+
         selected.select();
+
     }
 
     /**
@@ -93,6 +100,12 @@ public class Menu {
         selected.deselect();
         int newIndex = (options.indexOf(selected) - 1 + options.size()) % options.size();
         selected = options.get(newIndex);
+
+        // Skip this option if it's disabled
+        if (!selected.getEnabled()) {
+            selectPrevious();
+        }
+
         selected.select();
     }
 }

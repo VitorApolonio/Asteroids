@@ -9,6 +9,7 @@ import javafx.scene.text.Text;
  */
 public class MenuOption {
     private boolean selected;
+    private boolean enabled;
     private double fontSize;
     private final Text element;
     private final String text;
@@ -22,6 +23,7 @@ public class MenuOption {
      */
     public MenuOption(String optionName, double fontSize) {
         selected = false;
+        enabled = true;
 
         text = optionName;
         selectedText = "-> " + optionName + " <-";
@@ -95,5 +97,29 @@ public class MenuOption {
      */
     public boolean isSelected() {
         return selected;
+    }
+
+    /**
+     * Enables or disables this option. A disabled option cannot be selected, and is greyed out.
+     *
+     * @param enabled {@code true} or {@code false}, to enable or disable this option, respectively.
+     */
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+
+        if (enabled) {
+            element.setFill(Color.WHITE);
+        } else {
+            element.setFill(Color.GRAY);
+        }
+    }
+
+    /**
+     * Returns the option's activation status.
+     *
+     * @return {@code true} if the option is enabled, {@code false} otherwise.
+     */
+    public boolean getEnabled() {
+        return enabled;
     }
 }

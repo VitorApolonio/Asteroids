@@ -727,10 +727,20 @@ public class AsteroidsApplication extends Application {
                 mainMenu.selectFirst();
             }
 
-            /* Toggle fullscreen with ALT + ENTER. Only allowed on menu screens since the star spawn points depend on
-               the screen resolution, and so wouldn't be properly distributed on the screen if the resolution changes. */
+            /* Toggle fullscreen with ALT + ENTER. Only allowed on menu screens except for the resolution change menu.
+               On the main layout the stars are distributed based on the resolution, so changing it mid-game would
+               result in poorly distributed stars, and the resolution menu is disabled on fullscreen */
             KeyCombination fsKeyCombo = new KeyCodeCombination(KeyCode.ENTER, KeyCombination.ALT_DOWN);
-            if (fsKeyCombo.match(event) && windowRoot != mainLayout) {
+            if (fsKeyCombo.match(event) && windowRoot != mainLayout && windowRoot != resMenuLayout) {
+                // Disable menu on fullscreen, re-enable if exiting
+                resChangeOption.setEnabled(window.isFullScreen());
+
+                // Select next option if resolution menu is disabled and selected
+                if (resChangeOption.isSelected() && !resChangeOption.getEnabled()) {
+                    mainMenu.selectNext();
+                }
+
+                // Toggle fullscreen
                 window.setFullScreen(!window.isFullScreen());
             }
 
