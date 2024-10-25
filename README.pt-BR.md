@@ -26,6 +26,7 @@ Todos os efeitos sonoros foram obtidos do site [Freesound](https://freesound.org
 - **Barra de espaço:** Atirar
 - **ESC:** Pausar o jogo
 - **P:** Salvar captura de tela
+- **ALT+ENTER:** Tela cheia
 
 # Como compilar
 Para compilar o jogo, é necessário ter um JDK instalado na versão 17 ou mais recente que inclui o JavaFX (como o [LibericaJDK](https://bell-sw.com/pages/downloads/#jdk-21-lts)), e o [Maven](https://maven.apache.org/download.cgi).

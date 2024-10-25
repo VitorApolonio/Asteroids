@@ -26,6 +26,7 @@ All sound effects were obtained from [Freesound](https://freesound.org/), and ar
 - **Space bar:** Shoot
 - **ESC:** Pause game
 - **P:** Print screenshot (saved to scr folder)
+- **ALT+ENTER:** Toggle full screen
 
 # How to build
 To build the game, you'll need a JDK updated to version 17 or higher that includes JavaFX (such as [LibericaJDK](https://bell-sw.com/pages/downloads/#jdk-21-lts)), and [Maven](https://maven.apache.org/download.cgi).
