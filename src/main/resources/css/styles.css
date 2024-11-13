@@ -1,0 +1,41 @@
+.title {
+    -fx-fill: #FFFFFF;
+    -fx-font-family: 'Verdana';
+    -fx-font-weight: 700;
+    -fx-stroke: #0000FF;
+    -fx-stroke-width: 3;
+}
+
+.score {
+    -fx-fill: #FFFFFF;
+    -fx-font-family: 'Courier New';
+    -fx-font-weight: 700;
+}
+
+.subtitle {
+    -fx-fill: #FFFFFF;
+    -fx-font-family: 'Trebuchet MS';
+    -fx-font-weight: 600;
+    -fx-stroke: #0000FF;
+    -fx-stroke-width: 1.25;
+}
+
+.note {
+    -fx-fill: #FFFFFF;
+    -fx-font-family: 'Trebuchet MS';
+}
+
+.option {
+    -fx-fill: #FFFFFF;
+    -fx-font-family: 'Trebuchet MS';
+    -fx-font-weight: 600;
+}
+
+.option-selected {
+    -fx-stroke: #0000FF;
+    -fx-stroke-width: 2;
+}
+
+.option-disabled {
+    -fx-fill: #808080;
+}

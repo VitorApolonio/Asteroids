@@ -1,8 +1,10 @@
 package dev.apolonio.asteroids.domain;
 
+import javafx.beans.binding.Bindings;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
+import javafx.stage.Stage;
 
 /**
  * Represents a selectable option on a menu. Contains methods for getting the text, selecting and deselecting the option.
@@ -10,7 +12,6 @@ import javafx.scene.text.Text;
 public class MenuOption {
     private boolean selected;
     private boolean enabled;
-    private double fontSize;
     private final Text element;
     private final String text;
     private final String selectedText;
@@ -19,9 +20,9 @@ public class MenuOption {
      * Creates a new menu option with the provided text and font size.
      *
      * @param optionName the text displayed on the option.
-     * @param fontSize   the font size for the text.
+     * @param stage      a {@link Stage}, used for calculating the font size relative to the screen.
      */
-    public MenuOption(String optionName, double fontSize) {
+    public MenuOption(String optionName, Stage stage) {
         selected = false;
         enabled = true;
 
@@ -29,10 +30,10 @@ public class MenuOption {
         selectedText = "-> " + optionName + " <-";
 
         Text element = new Text(optionName);
-        element.setFont(Font.font("Trebuchet MS", fontSize));
-        element.setFill(Color.WHITE);
+        element.styleProperty().bind(Bindings.concat("-fx-font-size: ", stage.heightProperty().divide(11)));
+        element.getStyleClass().add("option");
+
         this.element = element;
-        this.fontSize = fontSize;
     }
 
     /**
@@ -54,29 +55,15 @@ public class MenuOption {
     }
 
     /**
-     * Sets the text font size to the provided value.
-     */
-    public void setFontSize(double newSize) {
-        fontSize = newSize;
-
-        // The font is slightly larger when selected, this is to maintain that
-        if (selected) {
-            element.setStyle("-fx-font-size: " + fontSize * 1.15);
-        } else {
-            element.setStyle("-fx-font-size: " + fontSize);
-        }
-    }
-
-    /**
      * Selects the menu option, highlighting it by changing its style.
      */
     public void select() {
         selected = true;
 
-        element.setStroke(Color.BLUE);
-        element.setStrokeWidth(2);
-        element.setText(selectedText);
-        element.setStyle("-fx-font-size: " + fontSize * 1.15);
+        element.getStyleClass().add("option-selected");
+
+        element.setScaleX(1.15);
+        element.setScaleY(1.15);
     }
 
     /**
@@ -85,9 +72,10 @@ public class MenuOption {
     public void deselect() {
         selected = false;
 
-        element.setStrokeWidth(0);
-        element.setText(text);
-        element.setStyle("-fx-font-size: " + fontSize);
+        element.getStyleClass().remove("option-selected");
+
+        element.setScaleX(1.0);
+        element.setScaleY(1.0);
     }
 
     /**
@@ -108,9 +96,9 @@ public class MenuOption {
         this.enabled = enabled;
 
         if (enabled) {
-            element.setFill(Color.WHITE);
+            element.getStyleClass().remove("option-disabled");
         } else {
-            element.setFill(Color.GRAY);
+            element.getStyleClass().add("option-disabled");
         }
     }
 
