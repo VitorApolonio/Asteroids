@@ -35,6 +35,7 @@ import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
+import javafx.geometry.VPos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
@@ -47,6 +48,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
@@ -337,10 +339,14 @@ public class AsteroidsApplication extends Application {
         txt_pauseText.styleProperty().bind(Bindings.concat("-fx-font-size: ", window.heightProperty().divide(7)));
         txt_pauseText.getStyleClass().add("title");
         txt_pauseText.setVisible(false);
-        // This is to center the pause text
-        txt_pauseText.xProperty().bind(window.heightProperty().divide(2));
-        txt_pauseText.yProperty().bind(window.heightProperty().divide(2));
-        mainLayout.getChildren().add(txt_pauseText);
+        txt_pauseText.setTextOrigin(VPos.CENTER);
+        /* This was the best way I could figure out to center the pause text without refactoring half the code.
+           The bounds for text elements appear to work a bit differently from other objects, so subtracting it from
+           half the window size doesn't work. */
+        StackPane pausePane = new StackPane(txt_pauseText);
+        pausePane.minWidthProperty().bind(window.widthProperty());
+        pausePane.minHeightProperty().bind(window.heightProperty());
+        mainLayout.getChildren().add(pausePane);
 
         // Pause flashing text animation
         FadeTransition pauseFade = new FadeTransition(Duration.millis(666), txt_pauseText);
