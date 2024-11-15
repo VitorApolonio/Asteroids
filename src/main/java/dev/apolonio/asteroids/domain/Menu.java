@@ -79,14 +79,14 @@ public class Menu {
      */
     public void selectNext() {
         selected.deselect();
-        int newIndex = (options.indexOf(selected) + 1) % options.size();
-        selected = options.get(newIndex);
 
-        // Skip this option if it's disabled
-        if (!selected.getEnabled()) {
-            selectNext();
+        int newIndex = (options.indexOf(selected) + 1) % options.size();
+        while (!options.get(newIndex).getEnabled()) {
+            newIndex++;
+            newIndex %= options.size();
         }
 
+        selected = options.get(newIndex);
         selected.select();
 
     }
@@ -98,14 +98,14 @@ public class Menu {
      */
     public void selectPrevious() {
         selected.deselect();
-        int newIndex = (options.indexOf(selected) - 1 + options.size()) % options.size();
-        selected = options.get(newIndex);
 
-        // Skip this option if it's disabled
-        if (!selected.getEnabled()) {
-            selectPrevious();
+        int newIndex = (options.indexOf(selected) - 1 + options.size()) % options.size();
+        while (!options.get(newIndex).getEnabled()) {
+            newIndex += options.size() - 1;
+            newIndex %= options.size();
         }
 
+        selected = options.get(newIndex);
         selected.select();
     }
 }
