@@ -265,7 +265,8 @@ public class AsteroidsApplication extends Application {
         Pane mainLayout = new Pane();
 
         // Create player ship
-        Ship ship = new Ship(window.getWidth() / 2, window.getHeight() / 2, window.getHeight() / 4);
+        Ship ship = new Ship(window.getWidth() / 2, window.getHeight() / 2, 1);
+        ship.getSafeZone().radiusProperty().bind(window.heightProperty().divide(4));
         mainLayout.getChildren().add(ship.getSafeZone());
         mainLayout.getChildren().add(ship.getCharacter());
 
