@@ -101,7 +101,8 @@ public class AsteroidsApplication extends Application {
         window.setHeight(INITIAL_HEIGHT);
 
         // Create title screen layout
-        VBox startLayout = new VBox(window.getHeight() / 8);
+        VBox startLayout = new VBox();
+        startLayout.spacingProperty().bind(window.heightProperty().divide(10));
         startLayout.setAlignment(Pos.CENTER);
 
         // Create title text
@@ -190,7 +191,8 @@ public class AsteroidsApplication extends Application {
 
         Menu mainMenu = new Menu(startOption, leaderboardOption, resChangeOption, quitOption);
 
-        VBox mainMenuLayout = new VBox(window.getHeight() / 40);
+        VBox mainMenuLayout = new VBox();
+        mainMenuLayout.spacingProperty().bind(window.heightProperty().divide(50));
         mainMenuLayout.getChildren().addAll(mainMenu.getOptions().stream().map(MenuOption::getTextElement).toList());
         mainMenuLayout.setAlignment(Pos.CENTER);
 
@@ -208,7 +210,8 @@ public class AsteroidsApplication extends Application {
 
         Menu resMenu = new Menu(res640x480, res800x600, res1280x720, res1920x1080, resBackOption);
 
-        VBox resMenuLayout = new VBox(window.getHeight() / 40);
+        VBox resMenuLayout = new VBox();
+        resMenuLayout.spacingProperty().bind(window.heightProperty().divide(50));
         resMenuLayout.getChildren().add(txt_resMenuTitle);
         resMenuLayout.getChildren().addAll(resMenu.getOptions().stream().map(MenuOption::getTextElement).toList());
         resMenuLayout.setAlignment(Pos.CENTER);
@@ -283,13 +286,14 @@ public class AsteroidsApplication extends Application {
         Text txt_currentScoreText = new Text("SCORE: 0");
         txt_currentScoreText.styleProperty().bind(Bindings.concat("-fx-font-size: ", window.heightProperty().divide(11)));
         txt_currentScoreText.getStyleClass().add("subtitle");
-        txt_currentScoreText.setTranslateX(window.getWidth() / 20);
-        txt_currentScoreText.setTranslateY(window.getHeight() / 10);
+        txt_currentScoreText.translateXProperty().bind(window.widthProperty().divide(20));
+        txt_currentScoreText.translateYProperty().bind(window.heightProperty().divide(9));
         mainLayout.getChildren().add(txt_currentScoreText);
         AtomicInteger points = new AtomicInteger();
 
         // Create game over screen layout
-        VBox endScreenLayout = new VBox(window.getHeight() / 12);
+        VBox endScreenLayout = new VBox();
+        endScreenLayout.spacingProperty().bind(window.heightProperty().divide(12));
         endScreenLayout.setAlignment(Pos.CENTER);
 
         // Create game over text
@@ -310,7 +314,8 @@ public class AsteroidsApplication extends Application {
         endScreenLayout.getChildren().add(txt_tryAgainText);
 
         // Create insert name screen
-        VBox insertNameLayout = new VBox(window.getHeight() / 12);
+        VBox insertNameLayout = new VBox();
+        insertNameLayout.spacingProperty().bind(window.heightProperty().divide(12));
         insertNameLayout.setAlignment(Pos.CENTER);
 
         // Create insert name text
@@ -596,8 +601,6 @@ public class AsteroidsApplication extends Application {
                         starAnimations.clear();
 
                         // Redo position calculations for text and ship
-                        txt_currentScoreText.setTranslateX(window.getWidth() / 15);
-                        txt_currentScoreText.setTranslateY(window.getHeight() / 9);
                         ship.getCharacter().setTranslateX(window.getWidth() / 2);
                         ship.getCharacter().setTranslateY(window.getHeight() / 2);
                         ship.getSafeZone().setCenterX(window.getWidth() / 2);
@@ -664,11 +667,8 @@ public class AsteroidsApplication extends Application {
                     // Since resolutions are in the format <width>x<height> we can just split them by the x to get both
                     String[] values = resMenu.getSelected().getOptionText().split("x");
 
-                    // The window size isn't altered on fullscreen mode
-                    if (!window.isFullScreen()) {
-                        window.setWidth(Integer.parseInt(values[0]));
-                        window.setHeight(Integer.parseInt(values[1]));
-                    }
+                    window.setWidth(Integer.parseInt(values[0]));
+                    window.setHeight(Integer.parseInt(values[1]));
                 }
             }
 
