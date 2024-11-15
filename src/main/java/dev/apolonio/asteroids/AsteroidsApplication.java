@@ -496,16 +496,6 @@ public class AsteroidsApplication extends Application {
             }
         };
 
-        // Resizes elements whenever the window changes size
-        window.heightProperty().addListener((ov, oldVal, newVal) -> {
-
-            // Redo position calculations for text and ship
-            ship.getCharacter().setTranslateX(window.getWidth() / 2);
-            ship.getCharacter().setTranslateY(window.getHeight() / 2);
-            txt_currentScoreText.setTranslateX(window.getWidth() / 15);
-            txt_currentScoreText.setTranslateY(window.getHeight() / 10);
-        });
-
         // Keeps track of how many keys were pressed in the correct sequence for the spread shot cheat code
         AtomicInteger correctPresses = new AtomicInteger();
         KeyCode[] correctSequence = {
@@ -586,8 +576,37 @@ public class AsteroidsApplication extends Application {
                 switch (mainMenu.getSelectedIndex()) {
                     // Start
                     case 0: {
+                        // Reset initials
+                        initialsSB.setLength(0);
+                        initialsSB.append("___");
+                        txt_initialsText.setText(initialsSB.toString().replace("", " ").strip());
+
+                        // Clear points
+                        points.set(0);
+                        txt_currentScoreText.setText("SCORE: 0");
+                        txt_finalScoreText.setText(("FINAL SCORE: 0"));
+
+                        // Delete all entities
+                        mainLayout.getChildren().removeAll(stars.stream().map(Entity::getCharacter).toList());
+                        mainLayout.getChildren().removeAll(projectiles.stream().map(Entity::getCharacter).toList());
+                        asteroidLayer.getChildren().clear();
+                        stars.clear();
+                        asteroids.clear();
+                        projectiles.clear();
+                        starAnimations.clear();
+
+                        // Redo position calculations for text and ship
+                        txt_currentScoreText.setTranslateX(window.getWidth() / 15);
+                        txt_currentScoreText.setTranslateY(window.getHeight() / 9);
+                        ship.getCharacter().setTranslateX(window.getWidth() / 2);
+                        ship.getCharacter().setTranslateY(window.getHeight() / 2);
+                        ship.getSafeZone().setCenterX(window.getWidth() / 2);
+                        ship.getSafeZone().setCenterY(window.getHeight() / 2);
+                        ship.getCharacter().setRotate(0);
+                        ship.setMovement(new Point2D(0, 0));
+                        ship.getCharacter().setOpacity(1.0);
+
                         window.getScene().setRoot(mainLayout);
-                        // A Random object is used to randomize entity positions on the screen.
                         Random rand = new Random();
                         // Spawn 40 stars at random positions
                         for (int i = 0; i < 40; i++) {
@@ -777,36 +796,8 @@ public class AsteroidsApplication extends Application {
                 menuConfirmSfx.seek(Duration.ZERO);
                 menuConfirmSfx.play();
 
-                // Reset initials
-                initialsSB.setLength(0);
-                initialsSB.append("___");
-                txt_initialsText.setText(initialsSB.toString().replace("", " ").strip());
-
                 // Reset selected menu option
                 mainMenu.selectFirst();
-
-                // Clear points
-                points.set(0);
-                txt_currentScoreText.setText("SCORE: 0");
-                txt_finalScoreText.setText(("FINAL SCORE: 0"));
-
-                // Delete all entities
-                mainLayout.getChildren().removeAll(stars.stream().map(Entity::getCharacter).toList());
-                mainLayout.getChildren().removeAll(projectiles.stream().map(Entity::getCharacter).toList());
-                asteroidLayer.getChildren().clear();
-                stars.clear();
-                asteroids.clear();
-                projectiles.clear();
-                starAnimations.clear();
-
-                // Center ship
-                ship.getCharacter().setTranslateX(window.getWidth() / 2);
-                ship.getCharacter().setTranslateY(window.getHeight() / 2);
-                ship.getSafeZone().setCenterX(window.getWidth() / 2);
-                ship.getSafeZone().setCenterY(window.getHeight() / 2);
-                ship.getCharacter().setRotate(0);
-                ship.setMovement(new Point2D(0, 0));
-                ship.getCharacter().setOpacity(1.0);
 
                 // Go back to title screen
                 window.getScene().setRoot(startLayout);
