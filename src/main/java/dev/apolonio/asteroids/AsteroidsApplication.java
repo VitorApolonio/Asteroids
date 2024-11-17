@@ -612,7 +612,7 @@ public class AsteroidsApplication extends Application {
                         ship.getCharacter().setTranslateY(window.getHeight() / 2);
                         ship.getSafeZone().setCenterX(window.getWidth() / 2);
                         ship.getSafeZone().setCenterY(window.getHeight() / 2);
-                        ship.getCharacter().setRotate(0);
+                        ship.getCharacter().setRotate(225);
                         ship.setMovement(new Point2D(0, 0));
                         ship.getCharacter().setOpacity(1.0);
 
