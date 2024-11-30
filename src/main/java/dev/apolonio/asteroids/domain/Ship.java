@@ -67,8 +67,8 @@ public class Ship extends Entity {
         double changeX = Math.cos(Math.toRadians(getCharacter().getRotate()));
         double changeY = Math.sin(Math.toRadians(getCharacter().getRotate()));
 
-        changeX *= 0.07;
-        changeY *= 0.07;
+        changeX *= 0.07 * getVelocityScale().get();
+        changeY *= 0.07 * getVelocityScale().get();
 
         setMovement(getMovement().add(changeX, changeY));
     }

@@ -1,6 +1,9 @@
 package dev.apolonio.asteroids.domain;
 
 import dev.apolonio.asteroids.AsteroidsApplication;
+import javafx.beans.binding.DoubleBinding;
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.geometry.Point2D;
 import javafx.scene.shape.Polygon;
 import javafx.scene.shape.Shape;
@@ -12,6 +15,7 @@ import javafx.scene.shape.Shape;
 public abstract class Entity {
     private final Polygon character;
     private Point2D movement;
+    private DoubleProperty velScale;
 
     /**
      * Creates a new Entity at the specified X and Y coordinates.
@@ -26,6 +30,8 @@ public abstract class Entity {
         character.setTranslateY(y);
         
         movement = new Point2D(0, 0);
+
+        velScale = new SimpleDoubleProperty(1.0);
     }
 
     /**
@@ -116,11 +122,29 @@ public abstract class Entity {
         double dy = Math.sin(angleInRadians);
 
         // Lower dx and dy to 6% of the original value
-        dx *= 0.06;
-        dy *= 0.06;
+        dx *= 0.06 * velScale.get();
+        dy *= 0.06 * velScale.get();
 
         // Apply change in velocity
         movement = movement.add(dx, dy);
+    }
+
+    /**
+     * Returns this entity's current velocity multiplier.
+     *
+     * @return a {@code double} representing the current velocity scale.
+     */
+    public DoubleProperty getVelocityScale() {
+        return velScale;
+    }
+
+    /**
+     * Sets this entity's velocity multiplier.
+     *
+     * @param scale a {@link DoubleProperty} value for the multiplier.
+     */
+    public void setVelScale(DoubleProperty scale) {
+        this.velScale = scale;
     }
 
     /**

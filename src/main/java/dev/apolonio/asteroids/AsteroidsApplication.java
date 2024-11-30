@@ -31,6 +31,7 @@ import javafx.animation.Timeline;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
+import javafx.beans.binding.DoubleBinding;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
@@ -101,6 +102,9 @@ public class AsteroidsApplication extends Application {
         // Set game window size
         window.setWidth(INITIAL_WIDTH);
         window.setHeight(INITIAL_HEIGHT);
+
+        // Resolution scale, used for sizing entities relative to the window.
+        final DoubleBinding RES_SCALE = window.heightProperty().divide(INITIAL_HEIGHT);
 
         // Create title screen layout
         VBox startLayout = new VBox();
@@ -263,12 +267,17 @@ public class AsteroidsApplication extends Application {
         BorderPane.setAlignment(leaderboardRightVbox, Pos.CENTER);
         leaderboardLayout.setPadding(new Insets(20, 0, 20, 0));
 
-        // Create main game layout
+        // Create main game layout, this is the space stage where asteroids pop up
         Pane mainLayout = new Pane();
 
         // Create player ship
         Ship ship = new Ship(window.getWidth() / 2, window.getHeight() / 2, 1);
         ship.getSafeZone().radiusProperty().bind(window.heightProperty().divide(4));
+
+        ship.getCharacter().scaleXProperty().bind(RES_SCALE);
+        ship.getCharacter().scaleYProperty().bind(RES_SCALE);
+        ship.getVelocityScale().bind(RES_SCALE);
+
         mainLayout.getChildren().add(ship.getSafeZone());
         mainLayout.getChildren().add(ship.getCharacter());
 
@@ -385,7 +394,9 @@ public class AsteroidsApplication extends Application {
                 // Projectile
                 if (inputHandler.isHeld(KeyCode.SPACE) && cooldown <= 0 && projectiles.size() < 3) {
 
-                    // Fires 1 projectile, or 3 if spread shot is active
+                    /* Fires 1 projectile, or 3 if spread shot is active.
+                       "i" represents the angle of the shot, using a loop here avoids code repetition for the
+                       additional projectiles, since they're the same thing with different starting angles. */
                     for (int i = -15; i <= 15; i+=15) {
                         if (shotgun) {
                             spreadFireSfx.seek(Duration.ZERO);
@@ -400,8 +411,15 @@ public class AsteroidsApplication extends Application {
                             proj.getCharacter().setRotate(ship.getCharacter().getRotate() + i);
                             projectiles.add(proj);
 
+                            proj.getCharacter().scaleXProperty().bind(RES_SCALE);
+                            proj.getCharacter().scaleYProperty().bind(RES_SCALE);
+                            proj.getVelocityScale().bind(RES_SCALE);
+
                             proj.accelerate();
-                            proj.setMovement(proj.getMovement().normalize().multiply(4).add(ship.getMovement()));
+                            proj.setMovement(proj.getMovement()
+                                    .normalize()
+                                    .multiply(4)
+                                    .add(ship.getMovement()));
 
                             mainLayout.getChildren().add(proj.getCharacter());
                         }
@@ -418,6 +436,8 @@ public class AsteroidsApplication extends Application {
                 // Continuously spawn asteroids starting with a 0.5% chance, raising by 0.5% more every 2500 points
                 if (Math.random() < 0.005 * (1 + (double) points.get() / 2500)) {
                     Asteroid asteroid = new Asteroid((int) (Math.random() * window.getWidth() / 3), (int) (Math.random() * window.getHeight() / 2));
+                    asteroid.getCharacter().setScaleX(RES_SCALE.get());
+                    asteroid.getCharacter().setScaleY(RES_SCALE.get());
                     asteroid.setMovement(asteroid.getMovement().multiply(Math.min(3, 1 + points.get() / 8000))); // Increase velocity with player score up to a max of 3x speed
                     if (!ship.inSafeZone(asteroid)) {
                         asteroids.add(asteroid);
@@ -618,14 +638,18 @@ public class AsteroidsApplication extends Application {
 
                         window.getScene().setRoot(mainLayout);
                         Random rand = new Random();
-                        // Spawn 40 stars at random positions
-                        for (int i = 0; i < 40; i++) {
+                        // Spawn stars at random positions
+                        for (int i = 0; i < 49; i++) {
                             Star star = new Star(rand.nextDouble(window.getWidth()), rand.nextDouble(window.getHeight()));
+                            star.getCharacter().setScaleX(RES_SCALE.get());
+                            star.getCharacter().setScaleY(RES_SCALE.get());
                             stars.add(star);
                         }
-                        // Spawn 5 initial asteroids at random positions
+                        // Spawn initial asteroids at random positions
                         for (int i = 0; i < 5; i++) {
                             Asteroid asteroid = new Asteroid(rand.nextDouble(window.getWidth() / 3), rand.nextDouble(window.getHeight()));
+                            asteroid.getCharacter().setScaleX(RES_SCALE.get());
+                            asteroid.getCharacter().setScaleY(RES_SCALE.get());
                             asteroids.add(asteroid);
                         }
                         // Create star animations
@@ -825,10 +849,10 @@ public class AsteroidsApplication extends Application {
         // Create animations
         for (Star s : stars) {
             ScaleTransition starAnim = new ScaleTransition(Duration.millis(Math.random() * 200), s.getCharacter());
-            starAnim.setFromX(1.0);
-            starAnim.setFromY(1.0);
-            starAnim.setToX(0.9);
-            starAnim.setToY(0.9);
+            starAnim.setFromX(s.getCharacter().getScaleX());
+            starAnim.setFromY(s.getCharacter().getScaleY());
+            starAnim.setToX(s.getCharacter().getScaleX() * 0.9);
+            starAnim.setToY(s.getCharacter().getScaleY() * 0.9);
             starAnim.setAutoReverse(true);
             starAnim.setCycleCount(Animation.INDEFINITE);
             animations.add(starAnim);
