@@ -54,6 +54,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Polygon;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
@@ -417,8 +418,8 @@ public class AsteroidsApplication extends Application {
 
                             proj.accelerate();
                             proj.setMovement(proj.getMovement()
-                                    .normalize()
-                                    .multiply(4)
+                                    .normalize() // note that this nullifies the scaling from accelerate(), so the speed must again be scaled to match the window size
+                                    .multiply(3 * RES_SCALE.get())
                                     .add(ship.getMovement()));
 
                             mainLayout.getChildren().add(proj.getCharacter());
@@ -436,10 +437,10 @@ public class AsteroidsApplication extends Application {
                 // Continuously spawn asteroids starting with a 0.5% chance, raising by 0.5% more every 2500 points
                 if (Math.random() < 0.005 * (1 + (double) points.get() / 2500)) {
                     Asteroid asteroid = new Asteroid((int) (Math.random() * window.getWidth() / 3), (int) (Math.random() * window.getHeight() / 2));
-                    asteroid.getCharacter().setScaleX(RES_SCALE.get());
-                    asteroid.getCharacter().setScaleY(RES_SCALE.get());
-                    asteroid.setMovement(asteroid.getMovement().multiply(Math.min(3, 1 + points.get() / 8000))); // Increase velocity with player score up to a max of 3x speed
                     if (!ship.inSafeZone(asteroid)) {
+                        asteroid.getCharacter().setScaleX(RES_SCALE.get());
+                        asteroid.getCharacter().setScaleY(RES_SCALE.get());
+                        asteroid.setMovement(asteroid.getMovement().multiply(Math.min(3, 1 + points.get() / 8000))); // Increase velocity with player score up to a max of 3x speed
                         asteroids.add(asteroid);
                         asteroidLayer.getChildren().add(asteroid.getCharacter());
                     }
@@ -456,16 +457,17 @@ public class AsteroidsApplication extends Application {
                             .filter(asteroid -> asteroid.collide(projectile))
                             .toList();
 
-                    // Increase score with hits
+                    // Increase score with hits, play asteroid fade animation
                     for (Asteroid collided : collisions) {
-                        KeyValue scaleX = new KeyValue(collided.getCharacter().scaleXProperty(), 1.5);
-                        KeyValue scaleY = new KeyValue(collided.getCharacter().scaleYProperty(), 1.5);
-                        KeyValue opacity = new KeyValue(collided.getCharacter().opacityProperty(), 0);
+                        Polygon asteroidPolygon = collided.getCharacter();
+                        KeyValue scaleX = new KeyValue(asteroidPolygon.scaleXProperty(), asteroidPolygon.getScaleX() * 1.5);
+                        KeyValue scaleY = new KeyValue(asteroidPolygon.scaleYProperty(), asteroidPolygon.getScaleY() * 1.5);
+                        KeyValue opacity = new KeyValue(asteroidPolygon.opacityProperty(), 0);
 
                         KeyFrame frame = new KeyFrame(Duration.millis(333), scaleX, scaleY, opacity);
 
                         Timeline timeline = new Timeline(frame);
-                        timeline.setOnFinished(event -> mainLayout.getChildren().remove(collided.getCharacter()));
+                        timeline.setOnFinished(event -> mainLayout.getChildren().remove(asteroidPolygon));
                         timeline.play();
 
                         // This isn't on the animation, since otherwise you could still hit the asteroid until it finishes
@@ -611,7 +613,7 @@ public class AsteroidsApplication extends Application {
                         // Reset initials
                         initialsSB.setLength(0);
                         initialsSB.append("___");
-                        txt_initialsText.setText(initialsSB.toString().replace("", " ").strip());
+                        txt_initialsText.setText(spaceChars(initialsSB.toString()));
 
                         // Clear points
                         points.set(0);
@@ -715,7 +717,7 @@ public class AsteroidsApplication extends Application {
                     }
                 }
 
-                txt_initialsText.setText(initialsSB.toString().replace("", " ").strip());
+                txt_initialsText.setText(spaceChars(initialsSB.toString()));
             }
 
             // Remove characters with backspace
@@ -729,7 +731,7 @@ public class AsteroidsApplication extends Application {
                         break;
                     }
                 }
-                txt_initialsText.setText(initialsSB.toString().replace("", " ").strip());
+                txt_initialsText.setText(spaceChars(initialsSB.toString()));
             }
 
             // Confirm initials
@@ -834,6 +836,16 @@ public class AsteroidsApplication extends Application {
                 window.getScene().setRoot(startLayout);
             }
         });
+    }
+
+    /**
+     * Adds spaces in between the characters of the passed {@code String}, then removes trailing and leading spaces.
+     *
+     * @param str a String to format.
+     * @return    the passed string with spaces added between characters, plus trailing and leading spaces removed.
+     */
+    private static String spaceChars(String str) {
+        return str.replace("", " ").strip();
     }
 
     /**
