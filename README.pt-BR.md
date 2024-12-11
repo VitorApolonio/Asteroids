@@ -28,7 +28,7 @@ Todos os efeitos sonoros foram obtidos do site [Freesound](https://freesound.org
 - **A / D ou Seta para Esquerda / Seta para Direita:** Virar nave
 - **W ou Seta para Cima:** Acelerar nave
 - **Barra de espaço:** Atirar
-- **ESC:** Pausar o jogo
+- **ESC ou PAUSE:** Pausar o jogo
 - **P:** Salvar captura de tela
 - **ALT+ENTER:** Tela cheia
 

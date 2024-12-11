@@ -27,7 +27,7 @@ All sound effects were obtained from [Freesound](https://freesound.org/), and ar
 - **A / D or Left Arrow / Right Arrow:** Turn ship
 - **W or Up Arrow:** Accelerate ship
 - **Space bar:** Shoot
-- **ESC:** Pause game
+- **ESC or PAUSE:** Pause game
 - **P:** Print screenshot (saved to scr folder)
 - **ALT+ENTER:** Toggle full screen
 
