@@ -81,6 +81,9 @@ public class AsteroidsApplication extends Application {
     // Whether the game is paused
     private boolean gameIsPaused = false;
 
+    // Whether the ship is in its death animation
+    private boolean shipIsDying = false;
+
     // Whether the cheat code is active
     private boolean shotgun = false;
 
@@ -503,8 +506,11 @@ public class AsteroidsApplication extends Application {
                 // End game if ship hits an asteroid
                 for (Asteroid asteroid : asteroids) {
                     if (ship.collide(asteroid)) {
+                        shipIsDying = true;
+
                         stop();
                         shotgun = false; // Disable cheat on death
+                        ship.getSafeZone().setVisible(false);
 
                         // Play sound
                         deathSfx.seek(Duration.ZERO);
@@ -517,6 +523,7 @@ public class AsteroidsApplication extends Application {
                         deathFade.setOnFinished(event -> {
                             txt_finalScoreText.setText("FINAL SCORE: " + points.get());
                             window.getScene().setRoot(insertNameLayout);
+                            shipIsDying = false;
 
                             // Delay before "PRESS SPACE" text pops up
                             PauseTransition tryAgainPause = new PauseTransition(Duration.millis(1000));
@@ -804,7 +811,7 @@ public class AsteroidsApplication extends Application {
             }
 
             // Pause game with ESC key, only allowed on main view since it doesn't work properly on other scenes
-            if ((event.getCode() == KeyCode.ESCAPE || event.getCode() == KeyCode.PAUSE) && windowRoot == mainLayout) {
+            if ((event.getCode() == KeyCode.ESCAPE || event.getCode() == KeyCode.PAUSE) && windowRoot == mainLayout && !shipIsDying) {
                 if (gameIsPaused) {
                     unpauseSfx.seek(Duration.ZERO);
                     unpauseSfx.play();
@@ -822,6 +829,15 @@ public class AsteroidsApplication extends Application {
                     mainTimer.stop();
                     gameIsPaused = true;
                 }
+            }
+
+            // Toggle safe zone visibility with F2, for debugging
+            // TODO: Use more complex key combination for activation
+            if (gameIsPaused && event.getCode() == KeyCode.F2) {
+                menuSelectSfx.seek(Duration.ZERO);
+                menuSelectSfx.play();
+
+                ship.getSafeZone().setVisible(!ship.getSafeZone().isVisible());
             }
 
             // Leave game over screen and restart game
