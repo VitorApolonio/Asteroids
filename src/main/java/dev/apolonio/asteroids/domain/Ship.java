@@ -33,13 +33,10 @@ public class Ship extends Entity {
         safeZone = new Circle(zoneRadius);
         safeZone.setCenterX(getCharacter().getTranslateX());
         safeZone.setCenterY(getCharacter().getTranslateY());
-        safeZone.setFill(Color.MAGENTA);
         safeZone.setVisible(false); // Safe zone is invisible during normal gameplay
 
-        // Set style for ship polygon
-        getCharacter().setFill(Color.WHITE);
-        getCharacter().setStroke(Color.LIGHTGRAY);
-        getCharacter().setStrokeWidth(2);
+        safeZone.getStyleClass().add("ship-zone");
+        getCharacter().getStyleClass().add("ship");
     }
 
     /**

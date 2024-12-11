@@ -79,7 +79,7 @@ public class AsteroidsApplication extends Application {
     private final List<Score> SCORE_LIST = new ArrayList<>();
 
     // Whether the game is paused
-    private boolean isPaused = false;
+    private boolean gameIsPaused = false;
 
     // Whether the cheat code is active
     private boolean shotgun = false;
@@ -436,7 +436,7 @@ public class AsteroidsApplication extends Application {
 
                 // Continuously spawn asteroids starting with a 0.5% chance, raising by 0.5% more every 2500 points
                 if (Math.random() < 0.005 * (1 + (double) points.get() / 2500)) {
-                    Asteroid asteroid = new Asteroid((int) (Math.random() * window.getWidth() / 3), (int) (Math.random() * window.getHeight() / 2));
+                    Asteroid asteroid = new Asteroid(Math.random() * window.getWidth() / 3, Math.random() * window.getHeight() / 2);
                     if (!ship.inSafeZone(asteroid)) {
                         asteroid.getCharacter().setScaleX(RES_SCALE.get());
                         asteroid.getCharacter().setScaleY(RES_SCALE.get());
@@ -554,7 +554,7 @@ public class AsteroidsApplication extends Application {
             boolean onMenuScreen = (windowRoot == mainMenuLayout || windowRoot == resMenuLayout);
 
             // Detects the sequence that toggles spread shot mode.
-            if (isPaused && !shotgun) {
+            if (gameIsPaused && !shotgun) {
                 if (event.getCode() == correctSequence[correctPresses.get()]) {
                     correctPresses.getAndIncrement();
                 } else {
@@ -805,14 +805,14 @@ public class AsteroidsApplication extends Application {
 
             // Pause game with ESC key, only allowed on main view since it doesn't work properly on other scenes
             if ((event.getCode() == KeyCode.ESCAPE || event.getCode() == KeyCode.PAUSE) && windowRoot == mainLayout) {
-                if (isPaused) {
+                if (gameIsPaused) {
                     unpauseSfx.seek(Duration.ZERO);
                     unpauseSfx.play();
 
                     pauseFade.stop();
                     txt_pauseText.setVisible(false);
                     mainTimer.start();
-                    isPaused = false;
+                    gameIsPaused = false;
                 } else {
                     pauseSfx.seek(Duration.ZERO);
                     pauseSfx.play();
@@ -820,7 +820,7 @@ public class AsteroidsApplication extends Application {
                     pauseFade.play();
                     txt_pauseText.setVisible(true);
                     mainTimer.stop();
-                    isPaused = true;
+                    gameIsPaused = true;
                 }
             }
 
@@ -931,7 +931,7 @@ public class AsteroidsApplication extends Application {
         WritableImage image = new WritableImage(scrWidth, scrHeight);
         scene.snapshot(image);
 
-        // Inicial number for image file name
+        // Initial number for image file name
         int imageNum = 0;
 
         // Folder to save screenshots at

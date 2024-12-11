@@ -24,7 +24,7 @@ public class Asteroid extends Entity {
         // Creates a new Entity using a polygon from PolygonFactory
         super(new PolygonFactory().createPentagon(), x, y);
 
-        // Randomize inicial rotation
+        // Randomize initial rotation
         Random rand = new Random();
         super.getCharacter().setRotate(rand.nextInt(360));
 
@@ -35,8 +35,9 @@ public class Asteroid extends Entity {
             accelerate();
         }
 
-        // Randomize rotational velocity
         rotationalMovement = 0.5 - rand.nextDouble();
+
+        getCharacter().getStyleClass().add("asteroid");
     }
 
     /**

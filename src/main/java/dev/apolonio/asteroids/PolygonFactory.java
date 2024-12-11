@@ -17,14 +17,9 @@ public class PolygonFactory {
      */
     public Polygon createPentagon() {
         Random rand = new Random();
-        // Randomize the size of the polygon. Here, the size is the distance between the center and a vertex, in pixels.
-        double size = rand.nextGaussian(40.0, 5.0);
+        double size = rand.nextGaussian(35.0, 5.0);
 
-        // Create a polygon and set its style
         Polygon polygon = new Polygon();
-        polygon.setFill(Color.GRAY);
-        polygon.setStroke(Color.DARKGRAY);
-        polygon.setStrokeWidth(3);
 
         // This is the formula for calculating the positions of the vertices of a regular pentagon
         double c1 = Math.cos(Math.PI * 2 / 5);
