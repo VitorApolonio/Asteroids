@@ -827,8 +827,11 @@ public class AsteroidsApplication extends Application {
             }
 
             // Toggle safe zone visibility with F2, for debugging
-            // TODO: Use more complex key combination for activation
-            if (gameIsPaused && event.getCode() == KeyCode.F2) {
+            KeyCombination nlKeyCombo = new KeyCodeCombination(KeyCode.N,
+                    KeyCombination.CONTROL_DOWN,
+                    KeyCombination.SHIFT_DOWN,
+                    KeyCombination.ALT_DOWN);
+            if (nlKeyCombo.match(event) && gameIsPaused) {
                 GAME_SFX.get(0).seek(Duration.ZERO);
                 GAME_SFX.get(0).play();
 
