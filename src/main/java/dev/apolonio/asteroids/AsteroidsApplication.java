@@ -74,8 +74,9 @@ public class AsteroidsApplication extends Application {
     // Folder for storing game data files
     private static final String GAME_DATA_FOLDER_PATH = System.getProperty("user.home") + "/Documents/Asteroids/";
 
-    // List of user scores
+    // Score and SFX lists
     private final List<Score> SCORE_LIST = new ArrayList<>();
+    private final List<MediaPlayer> GAME_SFX = new ArrayList<>();
 
     // Whether the game is paused
     private boolean gameIsPaused = false;
@@ -85,19 +86,6 @@ public class AsteroidsApplication extends Application {
 
     // Whether the cheat code is active
     private boolean shotgun = false;
-
-    // User interface SFX
-    private MediaPlayer menuSelectSfx;
-    private MediaPlayer menuConfirmSfx;
-    private MediaPlayer pauseSfx;
-    private MediaPlayer unpauseSfx;
-
-    // Game SFX
-    private MediaPlayer fireSfx;
-    private MediaPlayer spreadFireSfx;
-    private MediaPlayer powerUpSfx;
-    private MediaPlayer asteroidSfx;
-    private MediaPlayer deathSfx;
 
     @Override
     public void start(Stage window) {
@@ -153,26 +141,34 @@ public class AsteroidsApplication extends Application {
                     System.err.println("[DEBUG] Failed to load scores: " + e.getMessage());
                 }
 
-                // Menu sounds
-                menuSelectSfx = new MediaPlayer(new Media(Objects.requireNonNull(getClass().getResource("/sounds/menu_select.mp3")).toExternalForm()));
-                menuConfirmSfx = new MediaPlayer(new Media(Objects.requireNonNull(getClass().getResource("/sounds/menu_confirm.mp3")).toExternalForm()));
-                pauseSfx = new MediaPlayer(new Media(Objects.requireNonNull(getClass().getResource("/sounds/pause.mp3")).toExternalForm()));
-                unpauseSfx = new MediaPlayer(new Media(Objects.requireNonNull(getClass().getResource("/sounds/unpause.mp3")).toExternalForm()));
+                /* All sounds are stored in the sounds folder, named snd<n>.mp3, where <n> is some number.
+                   Currently, these are all the sounds:
 
-                // Main game sfx
-                fireSfx = new MediaPlayer(new Media(Objects.requireNonNull(getClass().getResource("/sounds/fire.mp3")).toExternalForm()));
-                spreadFireSfx = new MediaPlayer(new Media(Objects.requireNonNull(getClass().getResource("/sounds/fire_spread.mp3")).toExternalForm()));
-                powerUpSfx = new MediaPlayer(new Media(Objects.requireNonNull(getClass().getResource("/sounds/power_up.mp3")).toExternalForm()));
-                asteroidSfx = new MediaPlayer(new Media(Objects.requireNonNull(getClass().getResource("/sounds/asteroid_break.mp3")).toExternalForm()));
-                deathSfx = new MediaPlayer(new Media(Objects.requireNonNull(getClass().getResource("/sounds/death.mp3")).toExternalForm()));
+                   SND0--------Menu Selection
+                   SND1--------Menu Confirmation
+                   SND2--------Pause
+                   SND3--------Unpause
+                   SND4--------Ship Fire
+                   SND5--------Spread Shot Fire
+                   SND6--------Power Up
+                   SND7--------Asteroid Break
+                   SND8--------Ship Destroyed
 
-                // Lower volume of loud sounds
-                fireSfx.setVolume(0.20);
-                spreadFireSfx.setVolume(0.20);
+                   If more are added, they are to be included in this table for reference.*/
+                for (int i = 0; i < 9; i++) {
+                    MediaPlayer sfxPlayer = new MediaPlayer(new Media(Objects.requireNonNull(getClass()
+                            .getResource("/sounds/snd" + i + ".mp3")).toExternalForm()));
+                    GAME_SFX.add(sfxPlayer);
+                }
+
+                // FIXME: Balance the volume of these, why are they louder?
+                // Lower volume of fire sounds
+                GAME_SFX.get(4).setVolume(0.20);
+                GAME_SFX.get(5).setVolume(0.20);
 
                 // Preload menu confirm sound. This is done so there isn't a delay when you first open the main menu.
-                menuConfirmSfx.play();
-                menuConfirmSfx.stop();
+                GAME_SFX.get(1).play();
+                GAME_SFX.get(1).stop();
 
                 // Wait some time
                 Thread.sleep(SPLASH_SCR_TIME);
@@ -402,11 +398,11 @@ public class AsteroidsApplication extends Application {
                        additional projectiles, since they're the same thing with different starting angles. */
                     for (int i = -15; i <= 15; i+=15) {
                         if (shotgun) {
-                            spreadFireSfx.seek(Duration.ZERO);
-                            spreadFireSfx.play();
+                            GAME_SFX.get(5).seek(Duration.ZERO);
+                            GAME_SFX.get(5).play();
                         } else {
-                            fireSfx.seek(Duration.ZERO);
-                            fireSfx.play();
+                            GAME_SFX.get(4).seek(Duration.ZERO);
+                            GAME_SFX.get(4).play();
                         }
 
                         if (shotgun || i == 0) {
@@ -476,8 +472,8 @@ public class AsteroidsApplication extends Application {
                         asteroids.remove(collided);
 
                         // Play sound
-                        asteroidSfx.seek(Duration.ZERO);
-                        asteroidSfx.play();
+                        GAME_SFX.get(7).seek(Duration.ZERO);
+                        GAME_SFX.get(7).play();
 
                         // Fewer points are awarded for spread shot kills
                         if (shotgun) {
@@ -512,8 +508,8 @@ public class AsteroidsApplication extends Application {
                         ship.getSafeZone().setVisible(false);
 
                         // Play sound
-                        deathSfx.seek(Duration.ZERO);
-                        deathSfx.play();
+                        GAME_SFX.get(8).seek(Duration.ZERO);
+                        GAME_SFX.get(8).play();
 
                         // Fade away animation for ship
                         FadeTransition deathFade = new FadeTransition(Duration.millis(1000), ship.getCharacter());
@@ -568,8 +564,8 @@ public class AsteroidsApplication extends Application {
                 }
 
                 if (correctPresses.get() == correctSequence.length) {
-                    powerUpSfx.seek(Duration.ZERO);
-                    powerUpSfx.play();
+                    GAME_SFX.get(6).seek(Duration.ZERO);
+                    GAME_SFX.get(6).play();
 
                     correctPresses.set(0);
                     shotgun = true;
@@ -578,16 +574,16 @@ public class AsteroidsApplication extends Application {
 
             // Open main menu with space bar
             if (event.getCode() == KeyCode.SPACE && windowRoot == startLayout) {
-                menuConfirmSfx.seek(Duration.ZERO);
-                menuConfirmSfx.play();
+                GAME_SFX.get(1).seek(Duration.ZERO);
+                GAME_SFX.get(1).play();
 
                 window.getScene().setRoot(mainMenuLayout);
             }
 
             // Select next menu option
             if ((event.getCode() == KeyCode.DOWN || event.getCode() == KeyCode.S) && onMenuScreen) {
-                menuSelectSfx.seek(Duration.ZERO);
-                menuSelectSfx.play();
+                GAME_SFX.get(0).seek(Duration.ZERO);
+                GAME_SFX.get(0).play();
 
                 if (windowRoot.equals(mainMenuLayout)) {
                     mainMenu.selectNext();
@@ -598,8 +594,8 @@ public class AsteroidsApplication extends Application {
 
             // Select previous menu option
             if ((event.getCode() == KeyCode.UP || event.getCode() == KeyCode.W) && onMenuScreen) {
-                menuSelectSfx.seek(Duration.ZERO);
-                menuSelectSfx.play();
+                GAME_SFX.get(0).seek(Duration.ZERO);
+                GAME_SFX.get(0).play();
 
                 if (windowRoot.equals(mainMenuLayout)) {
                     mainMenu.selectPrevious();
@@ -610,8 +606,8 @@ public class AsteroidsApplication extends Application {
 
             // Confirm selection on main menu
             if (event.getCode() == KeyCode.SPACE && windowRoot == mainMenuLayout) {
-                menuConfirmSfx.seek(Duration.ZERO);
-                menuConfirmSfx.play();
+                GAME_SFX.get(1).seek(Duration.ZERO);
+                GAME_SFX.get(1).play();
 
                 switch (mainMenu.getSelectedIndex()) {
                     // Start
@@ -695,8 +691,8 @@ public class AsteroidsApplication extends Application {
 
             // Confirm selection on resolution change menu
             if (event.getCode() == KeyCode.SPACE && windowRoot == resMenuLayout) {
-                menuConfirmSfx.seek(Duration.ZERO);
-                menuConfirmSfx.play();
+                GAME_SFX.get(1).seek(Duration.ZERO);
+                GAME_SFX.get(1).play();
 
                 // Back option
                 if (resMenu.getSelectedIndex() == resMenu.getOptions().size() - 1) {
@@ -713,8 +709,8 @@ public class AsteroidsApplication extends Application {
 
             // Detect typed initials on insert name screen, up to 3 letters
             if ((event.getCode().isLetterKey() || event.getCode().isDigitKey()) && windowRoot == insertNameLayout && initialsSB.toString().contains("_")) {
-                menuSelectSfx.seek(Duration.ZERO);
-                menuSelectSfx.play();
+                GAME_SFX.get(0).seek(Duration.ZERO);
+                GAME_SFX.get(0).play();
 
                 for (int i = 0; i < initialsSB.length(); i++) {
                     if (initialsSB.charAt(i) == '_') {
@@ -728,8 +724,8 @@ public class AsteroidsApplication extends Application {
 
             // Remove characters with backspace
             if ((event.getCode() == KeyCode.BACK_SPACE || event.getCode() == KeyCode.DELETE) && windowRoot == insertNameLayout && !"___".contentEquals(initialsSB)) {
-                menuSelectSfx.seek(Duration.ZERO);
-                menuSelectSfx.play();
+                GAME_SFX.get(0).seek(Duration.ZERO);
+                GAME_SFX.get(0).play();
 
                 for (int i = initialsSB.length() - 1; i >= 0; i--) {
                     if (initialsSB.charAt(i) != '_') {
@@ -742,8 +738,8 @@ public class AsteroidsApplication extends Application {
 
             // Confirm initials
             if (event.getCode() == KeyCode.SPACE && windowRoot == insertNameLayout && !"___".contentEquals(initialsSB)) {
-                menuSelectSfx.seek(Duration.ZERO);
-                menuSelectSfx.play();
+                GAME_SFX.get(0).seek(Duration.ZERO);
+                GAME_SFX.get(0).play();
 
                 // Add text to high scores
                 Score score = new Score(initialsSB.toString().replaceAll("_", " "), points.get()); // Replace underscores with spaces
@@ -778,8 +774,8 @@ public class AsteroidsApplication extends Application {
 
             // Leave leaderboard
             if (event.getCode() == KeyCode.SPACE && windowRoot == leaderboardLayout) {
-                menuConfirmSfx.seek(Duration.ZERO);
-                menuConfirmSfx.play();
+                GAME_SFX.get(1).seek(Duration.ZERO);
+                GAME_SFX.get(1).play();
 
                 window.getScene().setRoot(mainMenuLayout);
                 mainMenu.selectFirst();
@@ -812,16 +808,16 @@ public class AsteroidsApplication extends Application {
             // Pause game with ESC key, only allowed on main view since it doesn't work properly on other scenes
             if ((event.getCode() == KeyCode.ESCAPE || event.getCode() == KeyCode.PAUSE) && windowRoot == mainLayout && !shipIsDying) {
                 if (gameIsPaused) {
-                    unpauseSfx.seek(Duration.ZERO);
-                    unpauseSfx.play();
+                    GAME_SFX.get(3).seek(Duration.ZERO);
+                    GAME_SFX.get(3).play();
 
                     pauseFade.stop();
                     txt_pauseText.setVisible(false);
                     mainTimer.start();
                     gameIsPaused = false;
                 } else {
-                    pauseSfx.seek(Duration.ZERO);
-                    pauseSfx.play();
+                    GAME_SFX.get(2).seek(Duration.ZERO);
+                    GAME_SFX.get(2).play();
 
                     pauseFade.play();
                     txt_pauseText.setVisible(true);
@@ -833,16 +829,16 @@ public class AsteroidsApplication extends Application {
             // Toggle safe zone visibility with F2, for debugging
             // TODO: Use more complex key combination for activation
             if (gameIsPaused && event.getCode() == KeyCode.F2) {
-                menuSelectSfx.seek(Duration.ZERO);
-                menuSelectSfx.play();
+                GAME_SFX.get(0).seek(Duration.ZERO);
+                GAME_SFX.get(0).play();
 
                 ship.getSafeZone().setVisible(!ship.getSafeZone().isVisible());
             }
 
             // Leave game over screen and restart game
             if (event.getCode() == KeyCode.SPACE && windowRoot == endScreenLayout && txt_tryAgainText.isVisible()) {
-                menuConfirmSfx.seek(Duration.ZERO);
-                menuConfirmSfx.play();
+                GAME_SFX.get(1).seek(Duration.ZERO);
+                GAME_SFX.get(1).play();
 
                 // Reset selected menu option
                 mainMenu.selectFirst();
