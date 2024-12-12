@@ -1,17 +1,5 @@
 package dev.apolonio.asteroids;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Objects;
-import java.util.Random;
-import java.util.concurrent.atomic.AtomicInteger;
-
 import dev.apolonio.asteroids.domain.Asteroid;
 import dev.apolonio.asteroids.domain.Entity;
 import dev.apolonio.asteroids.domain.Menu;
@@ -62,6 +50,17 @@ import javafx.stage.StageStyle;
 import javafx.util.Duration;
 
 import javax.imageio.ImageIO;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Objects;
+import java.util.Random;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class AsteroidsApplication extends Application {
 

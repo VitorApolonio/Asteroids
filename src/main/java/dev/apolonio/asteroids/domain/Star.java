@@ -23,5 +23,7 @@ public class Star extends Entity {
         Random rand = new Random();
 
         getCharacter().setRotate(rand.nextInt(360));
+
+        getCharacter().getStyleClass().add("star");
     }
 }

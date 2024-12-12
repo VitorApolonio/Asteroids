@@ -1,9 +1,9 @@
 package dev.apolonio.asteroids;
 
-import java.util.Random;
-
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
+
+import java.util.Random;
 
 /**
  * This factory generates {@link Polygon Polygons} to be used in other classes.
@@ -51,9 +51,7 @@ public class PolygonFactory {
         double size = rand.nextGaussian(5.0, 2.5);
         double innerSize = size / 3;
 
-        // Create a polygon and set its style
         Polygon polygon = new Polygon();
-        polygon.setFill(Color.LIGHTGRAY);
 
         // Calculate positions of star points
         double c1 = Math.cos(Math.PI / 4);

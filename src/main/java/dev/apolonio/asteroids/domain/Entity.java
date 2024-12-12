@@ -1,7 +1,5 @@
 package dev.apolonio.asteroids.domain;
 
-import dev.apolonio.asteroids.AsteroidsApplication;
-import javafx.beans.binding.DoubleBinding;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.geometry.Point2D;

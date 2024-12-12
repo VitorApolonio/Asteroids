@@ -1,8 +1,6 @@
 package dev.apolonio.asteroids.domain;
 
 import javafx.beans.binding.Bindings;
-import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
