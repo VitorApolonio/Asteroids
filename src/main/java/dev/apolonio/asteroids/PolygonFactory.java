@@ -1,9 +1,13 @@
 package dev.apolonio.asteroids;
 
-import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
 
 import java.util.Random;
+
+import static java.lang.Math.PI;
+import static java.lang.Math.cos;
+import static java.lang.Math.sin;
+import static java.lang.Math.sqrt;
 
 /**
  * This factory generates {@link Polygon Polygons} to be used in other classes.
@@ -11,31 +15,30 @@ import java.util.Random;
 public class PolygonFactory {
 
     /**
-     * Creates a pentagon to be used for asteroids, using the {@link Polygon} class.
+     * Creates a polygon to be used for asteroids of the specified level, using the {@link Polygon} class.
      *
-     * @return the generated Polygon.
+     * @param level the level of the asteroid.
+     * @return      the generated Polygon.
      */
-    public Polygon createPentagon() {
+    public Polygon createPolygon(int level) {
+        if (level < 1) {
+            throw new IllegalArgumentException("Asteroid level must be greater than 0.");
+        }
+
         Random rand = new Random();
-        double size = rand.nextGaussian(35.0, 5.0);
+        double size = rand.nextGaussian(25 * sqrt(level), level);
+        int vertices = 2 * level + 1;
 
         Polygon polygon = new Polygon();
 
-        // This is the formula for calculating the positions of the vertices of a regular pentagon
-        double c1 = Math.cos(Math.PI * 2 / 5);
-        double c2 = Math.cos(Math.PI / 5);
-        double s1 = Math.sin(Math.PI * 2 / 5);
-        double s2 = Math.sin(Math.PI * 4 / 5);
+        // This here figures out the x and y coords for an n-sided regular polygon using trigonometry, isn't math fun?
+        double angleStep = 2 * PI / vertices;
+        for (int i = 0; i < vertices; i++) {
+            polygon.getPoints().addAll(sin(i * angleStep) * size, -cos(i * angleStep) * size);
+        }
 
-        // Add each vertex to the polygon
-        polygon.getPoints().addAll(0.0, size,
-                s1 * size, c1 * size,
-                s2 * size, -c2 * size,
-                -s2 * size, -c2 * size,
-                -s1 * size, c1 * size);
-
-        // Randomize slightly the position of each point
-        polygon.getPoints().replaceAll(aDouble -> aDouble + rand.nextDouble(15) - 7.5);
+        // Randomize slightly the position of each vertex
+        polygon.getPoints().replaceAll(p -> p + rand.nextDouble(10 * sqrt(level)));
         
         return polygon;
     }

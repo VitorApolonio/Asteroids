@@ -1,6 +1,5 @@
 package dev.apolonio.asteroids.domain;
 
-import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
 
 /**
