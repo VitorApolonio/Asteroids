@@ -26,9 +26,9 @@ public class PolygonFactory {
         }
 
         Random rand = new Random();
+        // Please excuse all the magic numbers, I just plugged random functions into GeoGebra until things looked right.
         double size = rand.nextGaussian(25 * sqrt(level), level);
         int vertices = 2 * level + 1;
-
         Polygon polygon = new Polygon();
 
         // This here figures out the x and y coords for an n-sided regular polygon using trigonometry, isn't math fun?

@@ -62,6 +62,10 @@ import java.util.Objects;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static java.lang.Math.min;
+import static java.lang.Math.random;
+import static java.lang.Math.sqrt;
+
 public class AsteroidsApplication extends Application {
 
     // Time before closing splash screen in ms
@@ -432,13 +436,22 @@ public class AsteroidsApplication extends Application {
                     cooldown -= 1;
                 }
 
-                // Continuously spawn asteroids starting with a 0.5% chance, raising by 0.5% more every 2500 points
-                if (Math.random() < 0.005 * (1 + (double) points.get() / 2500)) {
-                    Asteroid asteroid = new Asteroid(Math.random() * window.getWidth() / 3, Math.random() * window.getHeight() / 2);
+                // Asteroid level depends on player score
+                int asteroidLvl = 1;
+                if (points.get() > 12000) {
+                    asteroidLvl += (int) (0.5 + random() * 2);
+                } else if (points.get() > 9000) {
+                    asteroidLvl += (int) (random() * 2.5);
+                } else if (points.get() > 2000) {
+                    asteroidLvl += (int) (random() * 2);
+                }
+
+                // Spawn asteroids with a chance of 50% each second, affected by score
+                if (random() < 0.5 / 60 * min(1 + (double) points.get() / 8000, 1.75)) {
+                    Asteroid asteroid = makeAsteroid(random() * window.getWidth() / 3,
+                            random() * window.getWidth() / 2, asteroidLvl, RES_SCALE);
+                    // Don't spawn if in safe zone
                     if (!ship.inSafeZone(asteroid)) {
-                        asteroid.getCharacter().setScaleX(RES_SCALE.get());
-                        asteroid.getCharacter().setScaleY(RES_SCALE.get());
-                        asteroid.setMovement(asteroid.getMovement().multiply(Math.min(3, 1 + points.get() / 8000))); // Increase velocity with player score up to a max of 3x speed
                         asteroids.add(asteroid);
                         asteroidLayer.getChildren().add(asteroid.getCharacter());
                     }
@@ -651,9 +664,8 @@ public class AsteroidsApplication extends Application {
                         }
                         // Spawn initial asteroids at random positions
                         for (int i = 0; i < 5; i++) {
-                            Asteroid asteroid = new Asteroid(rand.nextDouble(window.getWidth() / 3), rand.nextDouble(window.getHeight()));
-                            asteroid.getCharacter().setScaleX(RES_SCALE.get());
-                            asteroid.getCharacter().setScaleY(RES_SCALE.get());
+                            Asteroid asteroid = makeAsteroid(rand.nextDouble(window.getWidth() / 3),
+                                    rand.nextDouble(window.getHeight()), 2, RES_SCALE);
                             asteroids.add(asteroid);
                         }
                         // Create star animations
@@ -874,7 +886,7 @@ public class AsteroidsApplication extends Application {
 
         // Create animations
         for (Star s : stars) {
-            ScaleTransition starAnim = new ScaleTransition(Duration.millis(Math.random() * 200), s.getCharacter());
+            ScaleTransition starAnim = new ScaleTransition(Duration.millis(random() * 200), s.getCharacter());
             starAnim.setFromX(s.getCharacter().getScaleX());
             starAnim.setFromY(s.getCharacter().getScaleY());
             starAnim.setToX(s.getCharacter().getScaleX() * 0.9);
@@ -885,6 +897,22 @@ public class AsteroidsApplication extends Application {
         }
 
         return animations;
+    }
+
+    /**
+     * Creates an {@link Asteroid} with given x and y coordinates, level and scale binding.
+     * @param x     x coordinate for the Asteroid.
+     * @param y     y coordinate for the Asteroid.
+     * @param level the Asteroid level.
+     * @param scale a {@link DoubleBinding} value, used for scaling the asteroid with the window.
+     * @return      the created Asteroid;
+     */
+    private Asteroid makeAsteroid(double x, double y, int level, DoubleBinding scale) {
+        Asteroid asteroid = new Asteroid(x, y, level);
+        asteroid.getCharacter().setScaleX(scale.get());
+        asteroid.getCharacter().setScaleY(scale.get());
+        asteroid.setMovement(asteroid.getMovement().multiply(1 / sqrt(level)));
+        return asteroid;
     }
 
     /**
