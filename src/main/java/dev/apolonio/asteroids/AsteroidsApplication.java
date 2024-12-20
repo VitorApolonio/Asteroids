@@ -436,18 +436,18 @@ public class AsteroidsApplication extends Application {
                     cooldown -= 1;
                 }
 
-                // Asteroid level depends on player score
-                int asteroidLvl = 1;
-                if (points.get() > 12000) {
-                    asteroidLvl += (int) (0.5 + random() * 2);
-                } else if (points.get() > 9000) {
-                    asteroidLvl += (int) (random() * 2.5);
-                } else if (points.get() > 2000) {
-                    asteroidLvl += (int) (random() * 2);
-                }
-
                 // Spawn asteroids with a chance of 50% each second, affected by score
                 if (random() < 0.5 / 60 * min(1 + (double) points.get() / 8000, 1.75)) {
+                    // Asteroid level depends on player score
+                    int asteroidLvl = 1;
+                    if (points.get() > 12000) {
+                        asteroidLvl += (int) (0.5 + random() * 2);
+                    } else if (points.get() > 9000) {
+                        asteroidLvl += (int) (random() * 2.5);
+                    } else if (points.get() > 2000) {
+                        asteroidLvl += (int) (random() * 2);
+                    }
+
                     Asteroid asteroid = makeAsteroid(random() * window.getWidth() / 3,
                             random() * window.getWidth() / 2, asteroidLvl, RES_SCALE);
                     // Don't spawn if in safe zone
@@ -478,7 +478,15 @@ public class AsteroidsApplication extends Application {
                         KeyFrame frame = new KeyFrame(Duration.millis(333), scaleX, scaleY, opacity);
 
                         Timeline timeline = new Timeline(frame);
-                        timeline.setOnFinished(event -> mainLayout.getChildren().remove(asteroidPolygon));
+                        timeline.setOnFinished(event -> {
+                            mainLayout.getChildren().remove(asteroidPolygon);
+                            // Sub asteroids spawn after the animation finishes
+                            List<Asteroid> newAsteroids = splitAsteroid(collided, RES_SCALE);
+                            newAsteroids.forEach(a -> {
+                                asteroids.add(a);
+                                asteroidLayer.getChildren().add(a.getCharacter());
+                            });
+                        });
                         timeline.play();
 
                         // This isn't on the animation, since otherwise you could still hit the asteroid until it finishes
@@ -901,6 +909,7 @@ public class AsteroidsApplication extends Application {
 
     /**
      * Creates an {@link Asteroid} with given x and y coordinates, level and scale binding.
+     *
      * @param x     x coordinate for the Asteroid.
      * @param y     y coordinate for the Asteroid.
      * @param level the Asteroid level.
@@ -913,6 +922,38 @@ public class AsteroidsApplication extends Application {
         asteroid.getCharacter().setScaleY(scale.get());
         asteroid.setMovement(asteroid.getMovement().multiply(1 / sqrt(level)));
         return asteroid;
+    }
+
+    /**
+     * Returns a list containing the resulting {@link Asteroid Asteroids} after splitting one main Asteroid.
+     *
+     * @param origin the Asteroid to split.
+     * @param scale  a {@link DoubleBinding} value, used for scaling asteroids with the window.
+     * @return       a list containing zero or more Asteroids.
+     */
+    private List<Asteroid> splitAsteroid(Asteroid origin, DoubleBinding scale) {
+        List<Asteroid> newAsteroids = new ArrayList<>();
+        switch (origin.getLevel()) {
+            case 3: {
+                for (int i = 0; i < 3; i++) {
+                    // 50% of one asteroid being a L2
+                    int asteroidLvl = (i == 0 && random() < 0.5) ? 2 : 1;
+                    Asteroid asteroid = makeAsteroid(origin.getCharacter().getTranslateX() + random() * 30 - 15,
+                            origin.getCharacter().getTranslateY() + random() * 30 - 15, asteroidLvl, scale);
+                    newAsteroids.add(asteroid);
+                }
+                break;
+            }
+            case 2: {
+                for (int i = 0; i < 2; i++) {
+                    Asteroid asteroid = makeAsteroid(origin.getCharacter().getTranslateX() + random() * 30 - 15,
+                            origin.getCharacter().getTranslateY() + random() * 30 - 15, 1, scale);
+                    newAsteroids.add(asteroid);
+                }
+            }
+            // There is no case 1, as L1 asteroids don't split when hit
+        }
+        return newAsteroids;
     }
 
     /**
