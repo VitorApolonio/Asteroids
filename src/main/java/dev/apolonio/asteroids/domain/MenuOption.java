@@ -10,9 +10,9 @@ import javafx.stage.Stage;
 public class MenuOption {
     private boolean selected;
     private boolean enabled;
-    private final Text element;
-    private final String text;
-    private final String selectedText;
+    private final Text ELEMENT;
+    private final String TEXT;
+    private final String TEXT_SELECTED;
 
     /**
      * Creates a new menu option with the provided text and font size.
@@ -24,14 +24,14 @@ public class MenuOption {
         selected = false;
         enabled = true;
 
-        text = optionName;
-        selectedText = "-> " + optionName + " <-";
+        TEXT = optionName;
+        TEXT_SELECTED = "-> " + optionName + " <-";
 
         Text element = new Text(optionName);
         element.styleProperty().bind(Bindings.concat("-fx-font-size: ", stage.heightProperty().divide(11)));
         element.getStyleClass().add("option");
 
-        this.element = element;
+        this.ELEMENT = element;
     }
 
     /**
@@ -40,7 +40,7 @@ public class MenuOption {
      * @return a {@link String} representing this option's text.
      */
     public String getOptionText() {
-        return text;
+        return TEXT;
     }
 
     /**
@@ -49,7 +49,7 @@ public class MenuOption {
      * @return the Text used for the option.
      */
     public Text getTextElement() {
-        return element;
+        return ELEMENT;
     }
 
     /**
@@ -58,10 +58,10 @@ public class MenuOption {
     public void select() {
         selected = true;
 
-        element.getStyleClass().add("option-selected");
+        ELEMENT.getStyleClass().add("option-selected");
 
-        element.setScaleX(1.15);
-        element.setScaleY(1.15);
+        ELEMENT.setScaleX(1.15);
+        ELEMENT.setScaleY(1.15);
     }
 
     /**
@@ -70,10 +70,10 @@ public class MenuOption {
     public void deselect() {
         selected = false;
 
-        element.getStyleClass().remove("option-selected");
+        ELEMENT.getStyleClass().remove("option-selected");
 
-        element.setScaleX(1.0);
-        element.setScaleY(1.0);
+        ELEMENT.setScaleX(1.0);
+        ELEMENT.setScaleY(1.0);
     }
 
     /**
@@ -94,9 +94,9 @@ public class MenuOption {
         this.enabled = enabled;
 
         if (enabled) {
-            element.getStyleClass().remove("option-disabled");
+            ELEMENT.getStyleClass().remove("option-disabled");
         } else {
-            element.getStyleClass().add("option-disabled");
+            ELEMENT.getStyleClass().add("option-disabled");
         }
     }
 

@@ -66,6 +66,12 @@ import static java.lang.Math.min;
 import static java.lang.Math.random;
 import static java.lang.Math.sqrt;
 
+/**
+ * The main game class.
+ * <p>
+ * Creates the game window, entities, menus and handles the game logic for spawning asteroids, deals with
+ * user input, performs file IO operations among other things.
+ */
 public class AsteroidsApplication extends Application {
 
     // Time before closing splash screen in ms
@@ -102,23 +108,23 @@ public class AsteroidsApplication extends Application {
         final DoubleBinding RES_SCALE = window.heightProperty().divide(INITIAL_HEIGHT);
 
         // Create title screen layout
-        VBox startLayout = new VBox();
-        startLayout.spacingProperty().bind(window.heightProperty().divide(10));
-        startLayout.setAlignment(Pos.CENTER);
+        final VBox LAYOUT_START = new VBox();
+        LAYOUT_START.spacingProperty().bind(window.heightProperty().divide(10));
+        LAYOUT_START.setAlignment(Pos.CENTER);
 
         // Create title text
         Text txt_titleText = new Text("ASTEROIDS");
         txt_titleText.styleProperty().bind(Bindings.concat("-fx-font-size: ", window.heightProperty().divide(7)));
         txt_titleText.getStyleClass().add("title");
-        startLayout.getChildren().add(txt_titleText);
+        LAYOUT_START.getChildren().add(txt_titleText);
 
         Text txt_pressToStart = new Text("PRESS SPACE TO START");
         txt_pressToStart.styleProperty().bind(Bindings.concat("-fx-font-size: ", window.heightProperty().divide(13)));
         txt_pressToStart.getStyleClass().add("note");
-        startLayout.getChildren().add(txt_pressToStart);
+        LAYOUT_START.getChildren().add(txt_pressToStart);
 
         // Create scene with layout
-        Scene view = new Scene(startLayout);
+        Scene view = new Scene(LAYOUT_START);
         view.setFill(Color.BLACK);
         window.setScene(view);
 
@@ -198,12 +204,12 @@ public class AsteroidsApplication extends Application {
         MenuOption resChangeOption = new MenuOption("RESOLUTION", window);
         MenuOption quitOption = new MenuOption("QUIT", window);
 
-        Menu mainMenu = new Menu(startOption, leaderboardOption, resChangeOption, quitOption);
+        final Menu MENU_MAIN = new Menu(startOption, leaderboardOption, resChangeOption, quitOption);
 
-        VBox mainMenuLayout = new VBox();
-        mainMenuLayout.spacingProperty().bind(window.heightProperty().divide(50));
-        mainMenuLayout.getChildren().addAll(mainMenu.getOptions().stream().map(MenuOption::getTextElement).toList());
-        mainMenuLayout.setAlignment(Pos.CENTER);
+        final VBox LAYOUT_MAIN_MENU = new VBox();
+        LAYOUT_MAIN_MENU.spacingProperty().bind(window.heightProperty().divide(50));
+        LAYOUT_MAIN_MENU.getChildren().addAll(MENU_MAIN.getOptions().stream().map(MenuOption::getTextElement).toList());
+        LAYOUT_MAIN_MENU.setAlignment(Pos.CENTER);
 
         // Create menu title
         Text txt_resMenuTitle = new Text("RESOLUTION SELECT");
@@ -217,16 +223,16 @@ public class AsteroidsApplication extends Application {
         MenuOption res1920x1080 = new MenuOption("1920x1080", window);
         MenuOption resBackOption = new MenuOption("BACK", window);
 
-        Menu resMenu = new Menu(res640x480, res800x600, res1280x720, res1920x1080, resBackOption);
+        final Menu MENU_RESOLUTION = new Menu(res640x480, res800x600, res1280x720, res1920x1080, resBackOption);
 
-        VBox resMenuLayout = new VBox();
-        resMenuLayout.spacingProperty().bind(window.heightProperty().divide(50));
-        resMenuLayout.getChildren().add(txt_resMenuTitle);
-        resMenuLayout.getChildren().addAll(resMenu.getOptions().stream().map(MenuOption::getTextElement).toList());
-        resMenuLayout.setAlignment(Pos.CENTER);
+        final VBox LAYOUT_RESOLUTION_MENU = new VBox();
+        LAYOUT_RESOLUTION_MENU.spacingProperty().bind(window.heightProperty().divide(50));
+        LAYOUT_RESOLUTION_MENU.getChildren().add(txt_resMenuTitle);
+        LAYOUT_RESOLUTION_MENU.getChildren().addAll(MENU_RESOLUTION.getOptions().stream().map(MenuOption::getTextElement).toList());
+        LAYOUT_RESOLUTION_MENU.setAlignment(Pos.CENTER);
 
         // Create leaderboard layout
-        BorderPane leaderboardLayout = new BorderPane();
+        final BorderPane LAYOUT_SCORES = new BorderPane();
 
         Text txt_hiScoresTitle = new Text("HIGH SCORES");
         txt_hiScoresTitle.styleProperty().bind(Bindings.concat("-fx-font-size: ", window.heightProperty().divide(11)));
@@ -260,18 +266,18 @@ public class AsteroidsApplication extends Application {
 
         MenuOption scoresBackOption = new MenuOption("BACK", window);
 
-        leaderboardLayout.setTop(txt_hiScoresTitle);
-        leaderboardLayout.setCenter(scoreContainerHbox);
-        leaderboardLayout.setBottom(scoresBackOption.getTextElement());
+        LAYOUT_SCORES.setTop(txt_hiScoresTitle);
+        LAYOUT_SCORES.setCenter(scoreContainerHbox);
+        LAYOUT_SCORES.setBottom(scoresBackOption.getTextElement());
 
         BorderPane.setAlignment(txt_hiScoresTitle, Pos.CENTER);
         BorderPane.setAlignment(scoresBackOption.getTextElement(), Pos.CENTER);
         BorderPane.setAlignment(leaderboardLeftVbox, Pos.CENTER);
         BorderPane.setAlignment(leaderboardRightVbox, Pos.CENTER);
-        leaderboardLayout.setPadding(new Insets(20, 0, 20, 0));
+        LAYOUT_SCORES.setPadding(new Insets(20, 0, 20, 0));
 
         // Create main game layout, this is the space stage where asteroids pop up
-        Pane mainLayout = new Pane();
+        final Pane LAYOUT_SPACE = new Pane();
 
         // Create player ship
         Ship ship = new Ship(window.getWidth() / 2, window.getHeight() / 2, 1);
@@ -281,8 +287,8 @@ public class AsteroidsApplication extends Application {
         ship.getCharacter().scaleYProperty().bind(RES_SCALE);
         ship.getVelocityScale().bind(RES_SCALE);
 
-        mainLayout.getChildren().add(ship.getSafeZone());
-        mainLayout.getChildren().add(ship.getCharacter());
+        LAYOUT_SPACE.getChildren().add(ship.getSafeZone());
+        LAYOUT_SPACE.getChildren().add(ship.getCharacter());
 
         // Create entity lists (empty for now)
         List<Asteroid> asteroids = new ArrayList<>();
@@ -291,8 +297,8 @@ public class AsteroidsApplication extends Application {
 
         /* A separate layout is created for the asteroids so that spawning more of them won't mess with
            the element order of the main layout. */
-        Pane asteroidLayer = new Pane();
-        mainLayout.getChildren().add(asteroidLayer);
+        final Pane LAYOUT_ASTEROID = new Pane();
+        LAYOUT_SPACE.getChildren().add(LAYOUT_ASTEROID);
 
         // Create list for star animations (empty for now)
         List<ScaleTransition> starAnimations = new ArrayList<>();
@@ -303,48 +309,48 @@ public class AsteroidsApplication extends Application {
         txt_currentScoreText.getStyleClass().add("subtitle");
         txt_currentScoreText.translateXProperty().bind(window.widthProperty().divide(20));
         txt_currentScoreText.translateYProperty().bind(window.heightProperty().divide(9));
-        mainLayout.getChildren().add(txt_currentScoreText);
+        LAYOUT_SPACE.getChildren().add(txt_currentScoreText);
         AtomicInteger points = new AtomicInteger();
 
         // Create game over screen layout
-        VBox endScreenLayout = new VBox();
-        endScreenLayout.spacingProperty().bind(window.heightProperty().divide(12));
-        endScreenLayout.setAlignment(Pos.CENTER);
+        VBox LAYOUT_END_SCREEN = new VBox();
+        LAYOUT_END_SCREEN.spacingProperty().bind(window.heightProperty().divide(12));
+        LAYOUT_END_SCREEN.setAlignment(Pos.CENTER);
 
         // Create game over text
         Text txt_gameOverText = new Text("GAME OVER!");
         txt_gameOverText.styleProperty().bind(Bindings.concat("-fx-font-size: ", window.heightProperty().divide(7)));
         txt_gameOverText.getStyleClass().add("title");
-        endScreenLayout.getChildren().add(txt_gameOverText);
+        LAYOUT_END_SCREEN.getChildren().add(txt_gameOverText);
 
         Text txt_finalScoreText = new Text("FINAL SCORE: 0");
         txt_finalScoreText.styleProperty().bind(Bindings.concat("-fx-font-size: ", window.heightProperty().divide(11)));
         txt_finalScoreText.getStyleClass().add("subtitle");
-        endScreenLayout.getChildren().add(txt_finalScoreText);
+        LAYOUT_END_SCREEN.getChildren().add(txt_finalScoreText);
 
         Text txt_tryAgainText = new Text("PRESS SPACE TO CONTINUE");
         txt_tryAgainText.styleProperty().bind(Bindings.concat("-fx-font-size: ", window.heightProperty().divide(13)));
         txt_tryAgainText.getStyleClass().add("note");
         txt_tryAgainText.setVisible(false);
-        endScreenLayout.getChildren().add(txt_tryAgainText);
+        LAYOUT_END_SCREEN.getChildren().add(txt_tryAgainText);
 
         // Create insert name screen
-        VBox insertNameLayout = new VBox();
-        insertNameLayout.spacingProperty().bind(window.heightProperty().divide(12));
-        insertNameLayout.setAlignment(Pos.CENTER);
+        VBox LAYOUT_INITIALS = new VBox();
+        LAYOUT_INITIALS.spacingProperty().bind(window.heightProperty().divide(12));
+        LAYOUT_INITIALS.setAlignment(Pos.CENTER);
 
         // Create insert name text
         Text txt_enterYourNameText = new Text("ENTER YOUR NAME");
         txt_enterYourNameText.styleProperty().bind(Bindings.concat("-fx-font-size: ", window.heightProperty().divide(11)));
         txt_enterYourNameText.getStyleClass().add("subtitle");
-        insertNameLayout.getChildren().add(txt_enterYourNameText);
+        LAYOUT_INITIALS.getChildren().add(txt_enterYourNameText);
 
         StringBuilder initialsSB = new StringBuilder("___");
 
         Text txt_initialsText = new Text(initialsSB.toString().replace("", " ").strip());
         txt_initialsText.styleProperty().bind(Bindings.concat("-fx-font-size: ", window.heightProperty().divide(7)));
         txt_initialsText.getStyleClass().add("score");
-        insertNameLayout.getChildren().add(txt_initialsText);
+        LAYOUT_INITIALS.getChildren().add(txt_initialsText);
 
         // Pause text
         Text txt_pauseText = new Text("PAUSED");
@@ -358,7 +364,7 @@ public class AsteroidsApplication extends Application {
         StackPane pausePane = new StackPane(txt_pauseText);
         pausePane.minWidthProperty().bind(window.widthProperty());
         pausePane.minHeightProperty().bind(window.heightProperty());
-        mainLayout.getChildren().add(pausePane);
+        LAYOUT_SPACE.getChildren().add(pausePane);
 
         // Pause flashing text animation
         FadeTransition pauseFade = new FadeTransition(Duration.millis(666), txt_pauseText);
@@ -424,7 +430,7 @@ public class AsteroidsApplication extends Application {
                                     .multiply(3 * RES_SCALE.get())
                                     .add(ship.getMovement()));
 
-                            mainLayout.getChildren().add(proj.getCharacter());
+                            LAYOUT_SPACE.getChildren().add(proj.getCharacter());
                         }
                     }
 
@@ -453,7 +459,7 @@ public class AsteroidsApplication extends Application {
                     // Don't spawn if in safe zone
                     if (!ship.inSafeZone(asteroid)) {
                         asteroids.add(asteroid);
-                        asteroidLayer.getChildren().add(asteroid.getCharacter());
+                        LAYOUT_ASTEROID.getChildren().add(asteroid.getCharacter());
                     }
                 }
 
@@ -481,12 +487,12 @@ public class AsteroidsApplication extends Application {
 
                         Timeline timeline = getScaleAnimation(asteroidPolygon, 1.5, 333);
                         timeline.setOnFinished(event -> {
-                            mainLayout.getChildren().remove(asteroidPolygon);
+                            LAYOUT_SPACE.getChildren().remove(asteroidPolygon);
                             // Sub asteroids spawn after the animation finishes
                             List<Asteroid> newAsteroids = splitAsteroid(collided, RES_SCALE);
                             newAsteroids.forEach(a -> {
                                 asteroids.add(a);
-                                asteroidLayer.getChildren().add(a.getCharacter());
+                                LAYOUT_ASTEROID.getChildren().add(a.getCharacter());
                             });
                         });
                         timeline.play();
@@ -511,16 +517,14 @@ public class AsteroidsApplication extends Application {
                         proj.getCharacter().scaleXProperty().unbind();
                         proj.getCharacter().scaleYProperty().unbind();
                         Timeline timeline = getScaleAnimation(proj.getCharacter(), 1.375, 125);
-                        timeline.setOnFinished(event -> {
-                            mainLayout.getChildren().remove(proj.getCharacter());
-                        });
+                        timeline.setOnFinished(event -> LAYOUT_SPACE.getChildren().remove(proj.getCharacter()));
                         timeline.play();
                         projIt.remove();
                     } else if (proj.getCharacter().getTranslateX() < 0
                             || proj.getCharacter().getTranslateX() > window.getWidth()
                             || proj.getCharacter().getTranslateY() < 0
                             || proj.getCharacter().getTranslateY() > window.getHeight()) {
-                        mainLayout.getChildren().remove(proj.getCharacter());
+                        LAYOUT_SPACE.getChildren().remove(proj.getCharacter());
                         projIt.remove();
                     }
                 }
@@ -545,7 +549,7 @@ public class AsteroidsApplication extends Application {
                         Timeline deathFade = getScaleAnimation(ship.getCharacter(), 1, 1000);
                         deathFade.setOnFinished(event -> {
                             txt_finalScoreText.setText("FINAL SCORE: " + points.get());
-                            window.getScene().setRoot(insertNameLayout);
+                            window.getScene().setRoot(LAYOUT_INITIALS);
                             shipIsDying = false;
 
                             // Delay before "PRESS SPACE" text pops up
@@ -585,7 +589,7 @@ public class AsteroidsApplication extends Application {
             Parent windowRoot = window.getScene().getRoot();
 
             // Whether the current screen is a menu
-            boolean onMenuScreen = (windowRoot == mainMenuLayout || windowRoot == resMenuLayout);
+            boolean onMenuScreen = (windowRoot == LAYOUT_MAIN_MENU || windowRoot == LAYOUT_RESOLUTION_MENU);
 
             // Detects the sequence that toggles spread shot mode.
             if (gameIsPaused && !shotgun) {
@@ -605,11 +609,11 @@ public class AsteroidsApplication extends Application {
             }
 
             // Open main menu with space bar
-            if (event.getCode() == KeyCode.SPACE && windowRoot == startLayout) {
+            if (event.getCode() == KeyCode.SPACE && windowRoot == LAYOUT_START) {
                 GAME_SFX.get(1).seek(Duration.ZERO);
                 GAME_SFX.get(1).play();
 
-                window.getScene().setRoot(mainMenuLayout);
+                window.getScene().setRoot(LAYOUT_MAIN_MENU);
             }
 
             // Select next menu option
@@ -617,10 +621,10 @@ public class AsteroidsApplication extends Application {
                 GAME_SFX.get(0).seek(Duration.ZERO);
                 GAME_SFX.get(0).play();
 
-                if (windowRoot.equals(mainMenuLayout)) {
-                    mainMenu.selectNext();
-                } else if (windowRoot.equals(resMenuLayout)) {
-                    resMenu.selectNext();
+                if (windowRoot.equals(LAYOUT_MAIN_MENU)) {
+                    MENU_MAIN.selectNext();
+                } else if (windowRoot.equals(LAYOUT_RESOLUTION_MENU)) {
+                    MENU_RESOLUTION.selectNext();
                 }
             }
 
@@ -629,19 +633,19 @@ public class AsteroidsApplication extends Application {
                 GAME_SFX.get(0).seek(Duration.ZERO);
                 GAME_SFX.get(0).play();
 
-                if (windowRoot.equals(mainMenuLayout)) {
-                    mainMenu.selectPrevious();
-                } else if (windowRoot.equals(resMenuLayout)) {
-                    resMenu.selectPrevious();
+                if (windowRoot.equals(LAYOUT_MAIN_MENU)) {
+                    MENU_MAIN.selectPrevious();
+                } else if (windowRoot.equals(LAYOUT_RESOLUTION_MENU)) {
+                    MENU_RESOLUTION.selectPrevious();
                 }
             }
 
             // Confirm selection on main menu
-            if (event.getCode() == KeyCode.SPACE && windowRoot == mainMenuLayout) {
+            if (event.getCode() == KeyCode.SPACE && windowRoot == LAYOUT_MAIN_MENU) {
                 GAME_SFX.get(1).seek(Duration.ZERO);
                 GAME_SFX.get(1).play();
 
-                switch (mainMenu.getSelectedIndex()) {
+                switch (MENU_MAIN.getSelectedIndex()) {
                     // Start
                     case 0: {
                         // Reset initials
@@ -655,9 +659,9 @@ public class AsteroidsApplication extends Application {
                         txt_finalScoreText.setText(("FINAL SCORE: 0"));
 
                         // Delete all entities
-                        mainLayout.getChildren().removeAll(stars.stream().map(Entity::getCharacter).toList());
-                        mainLayout.getChildren().removeAll(projectiles.stream().map(Entity::getCharacter).toList());
-                        asteroidLayer.getChildren().clear();
+                        LAYOUT_SPACE.getChildren().removeAll(stars.stream().map(Entity::getCharacter).toList());
+                        LAYOUT_SPACE.getChildren().removeAll(projectiles.stream().map(Entity::getCharacter).toList());
+                        LAYOUT_ASTEROID.getChildren().clear();
                         stars.clear();
                         asteroids.clear();
                         projectiles.clear();
@@ -672,7 +676,7 @@ public class AsteroidsApplication extends Application {
                         ship.setMovement(new Point2D(0, 0));
                         ship.getCharacter().setOpacity(1.0);
 
-                        window.getScene().setRoot(mainLayout);
+                        window.getScene().setRoot(LAYOUT_SPACE);
                         Random rand = new Random();
                         // Spawn stars at random positions
                         for (int i = 0; i < 49; i++) {
@@ -691,8 +695,8 @@ public class AsteroidsApplication extends Application {
                         starAnimations.addAll(getStarAnimations(stars));
 
                         // Add elements to screen
-                        asteroids.forEach(asteroid -> asteroidLayer.getChildren().add(0, asteroid.getCharacter()));
-                        stars.forEach(star -> mainLayout.getChildren().add(0, star.getCharacter()));
+                        asteroids.forEach(asteroid -> LAYOUT_ASTEROID.getChildren().add(0, asteroid.getCharacter()));
+                        stars.forEach(star -> LAYOUT_SPACE.getChildren().add(0, star.getCharacter()));
 
                         // Play star animations
                         starAnimations.forEach(Animation::play);
@@ -702,14 +706,14 @@ public class AsteroidsApplication extends Application {
                     }
                     // Hi-Scores
                     case 1: {
-                        window.getScene().setRoot(leaderboardLayout);
+                        window.getScene().setRoot(LAYOUT_SCORES);
                         scoresBackOption.select();
                         break;
                     }
                     // Resolution change menu
                     case 2: {
-                        window.getScene().setRoot(resMenuLayout);
-                        resMenu.selectLast();
+                        window.getScene().setRoot(LAYOUT_RESOLUTION_MENU);
+                        MENU_RESOLUTION.selectLast();
                         break;
                     }
                     // Exit
@@ -721,17 +725,17 @@ public class AsteroidsApplication extends Application {
             }
 
             // Confirm selection on resolution change menu
-            if (event.getCode() == KeyCode.SPACE && windowRoot == resMenuLayout) {
+            if (event.getCode() == KeyCode.SPACE && windowRoot == LAYOUT_RESOLUTION_MENU) {
                 GAME_SFX.get(1).seek(Duration.ZERO);
                 GAME_SFX.get(1).play();
 
                 // Back option
-                if (resMenu.getSelectedIndex() == resMenu.getOptions().size() - 1) {
-                    window.getScene().setRoot(mainMenuLayout);
-                    mainMenu.selectFirst();
+                if (MENU_RESOLUTION.getSelectedIndex() == MENU_RESOLUTION.getOptions().size() - 1) {
+                    window.getScene().setRoot(LAYOUT_MAIN_MENU);
+                    MENU_MAIN.selectFirst();
                 } else {
                     // Since resolutions are in the format <width>x<height> we can just split them by the x to get both
-                    String[] values = resMenu.getSelected().getOptionText().split("x");
+                    String[] values = MENU_RESOLUTION.getSelected().getOptionText().split("x");
 
                     window.setWidth(Integer.parseInt(values[0]));
                     window.setHeight(Integer.parseInt(values[1]));
@@ -739,7 +743,7 @@ public class AsteroidsApplication extends Application {
             }
 
             // Detect typed initials on insert name screen, up to 3 letters
-            if ((event.getCode().isLetterKey() || event.getCode().isDigitKey()) && windowRoot == insertNameLayout && initialsSB.toString().contains("_")) {
+            if ((event.getCode().isLetterKey() || event.getCode().isDigitKey()) && windowRoot == LAYOUT_INITIALS && initialsSB.toString().contains("_")) {
                 GAME_SFX.get(0).seek(Duration.ZERO);
                 GAME_SFX.get(0).play();
 
@@ -754,7 +758,7 @@ public class AsteroidsApplication extends Application {
             }
 
             // Remove characters with backspace
-            if ((event.getCode() == KeyCode.BACK_SPACE || event.getCode() == KeyCode.DELETE) && windowRoot == insertNameLayout && !"___".contentEquals(initialsSB)) {
+            if ((event.getCode() == KeyCode.BACK_SPACE || event.getCode() == KeyCode.DELETE) && windowRoot == LAYOUT_INITIALS && !"___".contentEquals(initialsSB)) {
                 GAME_SFX.get(0).seek(Duration.ZERO);
                 GAME_SFX.get(0).play();
 
@@ -768,7 +772,7 @@ public class AsteroidsApplication extends Application {
             }
 
             // Confirm initials
-            if (event.getCode() == KeyCode.SPACE && windowRoot == insertNameLayout && !"___".contentEquals(initialsSB)) {
+            if (event.getCode() == KeyCode.SPACE && windowRoot == LAYOUT_INITIALS && !"___".contentEquals(initialsSB)) {
                 GAME_SFX.get(0).seek(Duration.ZERO);
                 GAME_SFX.get(0).play();
 
@@ -800,29 +804,29 @@ public class AsteroidsApplication extends Application {
                 saveScores(GAME_DATA_FOLDER_PATH);
 
                 // Change to game over screen
-                window.getScene().setRoot(endScreenLayout);
+                window.getScene().setRoot(LAYOUT_END_SCREEN);
             }
 
             // Leave leaderboard
-            if (event.getCode() == KeyCode.SPACE && windowRoot == leaderboardLayout) {
+            if (event.getCode() == KeyCode.SPACE && windowRoot == LAYOUT_SCORES) {
                 GAME_SFX.get(1).seek(Duration.ZERO);
                 GAME_SFX.get(1).play();
 
-                window.getScene().setRoot(mainMenuLayout);
-                mainMenu.selectFirst();
+                window.getScene().setRoot(LAYOUT_MAIN_MENU);
+                MENU_MAIN.selectFirst();
             }
 
             /* Toggle fullscreen with ALT + ENTER. Only allowed on menu screens except for the resolution change menu.
                On the main layout the stars are distributed based on the resolution, so changing it mid-game would
                result in poorly distributed stars, and the resolution menu is disabled on fullscreen */
             KeyCombination fsKeyCombo = new KeyCodeCombination(KeyCode.ENTER, KeyCombination.ALT_DOWN);
-            if (fsKeyCombo.match(event) && windowRoot != mainLayout && windowRoot != resMenuLayout) {
+            if (fsKeyCombo.match(event) && windowRoot != LAYOUT_SPACE && windowRoot != LAYOUT_RESOLUTION_MENU) {
                 // Disable menu on fullscreen, re-enable if exiting
                 resChangeOption.setEnabled(window.isFullScreen());
 
                 // Select next option if resolution menu is disabled and selected
                 if (resChangeOption.isSelected() && !resChangeOption.getEnabled()) {
-                    mainMenu.selectNext();
+                    MENU_MAIN.selectNext();
                 }
 
                 // Toggle fullscreen
@@ -831,13 +835,13 @@ public class AsteroidsApplication extends Application {
 
             /* Save a screenshot of the current view with P key.
                Doesn't work on the insert initials screen since the P key is used to type a letter there. */
-            if (event.getCode() == KeyCode.P && windowRoot != insertNameLayout) {
+            if (event.getCode() == KeyCode.P && windowRoot != LAYOUT_INITIALS) {
                 String filePath = GAME_DATA_FOLDER_PATH + "/Screenshots";
                 saveScr(window.getScene(), filePath, (int) window.getWidth(), (int) window.getHeight());
             }
 
             // Pause game with ESC key, only allowed on main view since it doesn't work properly on other scenes
-            if ((event.getCode() == KeyCode.ESCAPE || event.getCode() == KeyCode.PAUSE) && windowRoot == mainLayout && !shipIsDying) {
+            if ((event.getCode() == KeyCode.ESCAPE || event.getCode() == KeyCode.PAUSE) && windowRoot == LAYOUT_SPACE && !shipIsDying) {
                 if (gameIsPaused) {
                     GAME_SFX.get(3).seek(Duration.ZERO);
                     GAME_SFX.get(3).play();
@@ -870,15 +874,15 @@ public class AsteroidsApplication extends Application {
             }
 
             // Leave game over screen and restart game
-            if (event.getCode() == KeyCode.SPACE && windowRoot == endScreenLayout && txt_tryAgainText.isVisible()) {
+            if (event.getCode() == KeyCode.SPACE && windowRoot == LAYOUT_END_SCREEN && txt_tryAgainText.isVisible()) {
                 GAME_SFX.get(1).seek(Duration.ZERO);
                 GAME_SFX.get(1).play();
 
                 // Reset selected menu option
-                mainMenu.selectFirst();
+                MENU_MAIN.selectFirst();
 
                 // Go back to title screen
-                window.getScene().setRoot(startLayout);
+                window.getScene().setRoot(LAYOUT_START);
             }
         });
     }

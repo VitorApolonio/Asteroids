@@ -12,7 +12,7 @@ import javafx.scene.shape.Shape;
 public class Ship extends Entity {
 
     // This circle moves with the ship and is used to define the area in which asteroids can't spawn.
-    private final Circle safeZone;
+    private final Circle SAFE_ZONE;
 
     /**
      * Creates a new ship at given coordinates.
@@ -29,12 +29,12 @@ public class Ship extends Entity {
                 20, 0), x, y);
 
         // Creates the circle for the safe zone
-        safeZone = new Circle(zoneRadius);
-        safeZone.setCenterX(getCharacter().getTranslateX());
-        safeZone.setCenterY(getCharacter().getTranslateY());
-        safeZone.setVisible(false); // Safe zone is invisible during normal gameplay
+        SAFE_ZONE = new Circle(zoneRadius);
+        SAFE_ZONE.setCenterX(getCharacter().getTranslateX());
+        SAFE_ZONE.setCenterY(getCharacter().getTranslateY());
+        SAFE_ZONE.setVisible(false); // Safe zone is invisible during normal gameplay
 
-        safeZone.getStyleClass().add("ship-zone");
+        SAFE_ZONE.getStyleClass().add("ship-zone");
         getCharacter().getStyleClass().add("ship");
     }
 
@@ -79,8 +79,8 @@ public class Ship extends Entity {
     public void move(double scrWidth, double scrHeight) {
         super.move(scrWidth, scrHeight);
 
-        safeZone.setCenterX(getCharacter().getTranslateX() + getMovement().getX());
-        safeZone.setCenterY(getCharacter().getTranslateY() + getMovement().getY());
+        SAFE_ZONE.setCenterX(getCharacter().getTranslateX() + getMovement().getX());
+        SAFE_ZONE.setCenterY(getCharacter().getTranslateY() + getMovement().getY());
     }
 
     /**
@@ -89,7 +89,7 @@ public class Ship extends Entity {
      * @return the Circle representing the ship's safe zone.
      */
     public Circle getSafeZone() {
-        return safeZone;
+        return SAFE_ZONE;
     }
 
     /**
@@ -99,7 +99,7 @@ public class Ship extends Entity {
      * @return      {@code true} if the entity and the safe zone intersect, {@code false} otherwise.
      */
     public boolean inSafeZone(Entity other) {
-        Shape collisionArea = Shape.intersect(safeZone, other.getCharacter());
+        Shape collisionArea = Shape.intersect(SAFE_ZONE, other.getCharacter());
         return collisionArea.getBoundsInLocal().getWidth() != -1;
     }
 }
