@@ -460,24 +460,26 @@ public class AsteroidsApplication extends Application {
                 // Ship and asteroid movement
                 ship.move(window.getWidth(), window.getHeight());
                 asteroids.forEach(a -> a.move(window.getWidth(), window.getHeight()));
-                projectiles.forEach(Projectile::move);
+                projectiles.forEach(a -> a.move(window.getWidth(), window.getHeight()));
 
-                // Handle collisions between shots and asteroids
-                for (Projectile projectile : projectiles) {
+                // Remove off-screen projectiles
+                Iterator<Projectile> projIt = projectiles.iterator();
+                while (projIt.hasNext()) {
+                    Projectile proj = projIt.next();
+
                     List<Asteroid> collisions = asteroids.stream()
-                            .filter(asteroid -> asteroid.collide(projectile))
+                            .filter(asteroid -> asteroid.collide(proj))
                             .toList();
 
-                    // Increase score with hits, play asteroid fade animation
+                    // Remove asteroids and projectiles when they hit each other
                     for (Asteroid collided : collisions) {
                         Polygon asteroidPolygon = collided.getCharacter();
-                        KeyValue scaleX = new KeyValue(asteroidPolygon.scaleXProperty(), asteroidPolygon.getScaleX() * 1.5);
-                        KeyValue scaleY = new KeyValue(asteroidPolygon.scaleYProperty(), asteroidPolygon.getScaleY() * 1.5);
-                        KeyValue opacity = new KeyValue(asteroidPolygon.opacityProperty(), 0);
 
-                        KeyFrame frame = new KeyFrame(Duration.millis(333), scaleX, scaleY, opacity);
+                        // Unbinding is necessary so that the scale can change for the animation
+                        asteroidPolygon.scaleXProperty().unbind();
+                        asteroidPolygon.scaleYProperty().unbind();
 
-                        Timeline timeline = new Timeline(frame);
+                        Timeline timeline = getScaleAnimation(asteroidPolygon, 1.5, 333);
                         timeline.setOnFinished(event -> {
                             mainLayout.getChildren().remove(asteroidPolygon);
                             // Sub asteroids spawn after the animation finishes
@@ -503,19 +505,23 @@ public class AsteroidsApplication extends Application {
                             txt_currentScoreText.setText("SCORE: " + points.addAndGet(100));
                         }
                     }
-                }
 
-                // Remove off-screen projectiles
-                Iterator<Projectile> projIt = projectiles.iterator();
-                while (projIt.hasNext()) {
-                    Projectile proj = projIt.next();
-
-                    if (proj.getCharacter().getTranslateX() < 0
+                    // Remove projectile if it hits something or flies out of bounds
+                    if (!collisions.isEmpty()) {
+                        proj.getCharacter().scaleXProperty().unbind();
+                        proj.getCharacter().scaleYProperty().unbind();
+                        Timeline timeline = getScaleAnimation(proj.getCharacter(), 1.375, 125);
+                        timeline.setOnFinished(event -> {
+                            mainLayout.getChildren().remove(proj.getCharacter());
+                        });
+                        timeline.play();
+                        projIt.remove();
+                    } else if (proj.getCharacter().getTranslateX() < 0
                             || proj.getCharacter().getTranslateX() > window.getWidth()
                             || proj.getCharacter().getTranslateY() < 0
                             || proj.getCharacter().getTranslateY() > window.getHeight()) {
-                        projIt.remove();
                         mainLayout.getChildren().remove(proj.getCharacter());
+                        projIt.remove();
                     }
                 }
 
@@ -533,9 +539,10 @@ public class AsteroidsApplication extends Application {
                         GAME_SFX.get(8).play();
 
                         // Fade away animation for ship
-                        FadeTransition deathFade = new FadeTransition(Duration.millis(1000), ship.getCharacter());
-                        deathFade.setFromValue(1.0);
-                        deathFade.setToValue(0.0);
+                        ship.getCharacter().scaleXProperty().unbind();
+                        ship.getCharacter().scaleYProperty().unbind();
+
+                        Timeline deathFade = getScaleAnimation(ship.getCharacter(), 1, 1000);
                         deathFade.setOnFinished(event -> {
                             txt_finalScoreText.setText("FINAL SCORE: " + points.get());
                             window.getScene().setRoot(insertNameLayout);
@@ -545,6 +552,10 @@ public class AsteroidsApplication extends Application {
                             PauseTransition tryAgainPause = new PauseTransition(Duration.millis(1000));
                             tryAgainPause.setOnFinished(event2 -> txt_tryAgainText.setVisible(true));
                             tryAgainPause.play();
+
+                            // Re-bind scale properties
+                            ship.getCharacter().scaleXProperty().bind(RES_SCALE);
+                            ship.getCharacter().scaleYProperty().bind(RES_SCALE);
                         });
                         deathFade.play();
                         break;
@@ -908,6 +919,24 @@ public class AsteroidsApplication extends Application {
     }
 
     /**
+     * Creates an animation where a {@link Polygon} changes size then disappears.
+     *
+     * @param polygon  the Polygon used in the animation.
+     * @param factor   the scale factor used in the animation.
+     * @param duration how long the duration will last, in milliseconds.
+     * @return         a {@link Timeline} with the animation.
+     */
+    private static Timeline getScaleAnimation(Polygon polygon, double factor, double duration) {
+        KeyValue scaleX = new KeyValue(polygon.scaleXProperty(), polygon.getScaleX() * factor);
+        KeyValue scaleY = new KeyValue(polygon.scaleYProperty(), polygon.getScaleY() * factor);
+        KeyValue opacity = new KeyValue(polygon.opacityProperty(), 0);
+
+        KeyFrame frame = new KeyFrame(Duration.millis(duration), scaleX, scaleY, opacity);
+
+        return new Timeline(frame);
+    }
+
+    /**
      * Creates an {@link Asteroid} with given x and y coordinates, level and scale binding.
      *
      * @param x     x coordinate for the Asteroid.
@@ -918,8 +947,8 @@ public class AsteroidsApplication extends Application {
      */
     private Asteroid makeAsteroid(double x, double y, int level, DoubleBinding scale) {
         Asteroid asteroid = new Asteroid(x, y, level);
-        asteroid.getCharacter().setScaleX(scale.get());
-        asteroid.getCharacter().setScaleY(scale.get());
+        asteroid.getCharacter().scaleXProperty().bind(scale);
+        asteroid.getCharacter().scaleYProperty().bind(scale);
         asteroid.setMovement(asteroid.getMovement().multiply(1 / sqrt(level)));
         return asteroid;
     }
