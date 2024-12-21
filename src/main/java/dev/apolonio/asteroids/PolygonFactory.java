@@ -16,7 +16,12 @@ public class PolygonFactory {
 
     /**
      * Creates a polygon to be used for asteroids of the specified level, using the {@link Polygon} class.
-     *
+     * <p>
+     * The asteroid level must be at least 1, and polygons are generated with the following logic:
+     * for an asteroid of size n, a polygon of {@code 2 * level + 1} sides will be generated.
+     * <p>
+     * The size of a polygon will be determined according to a normal distribution where the mean is given by
+     * {@code 25 * sqrt(level)} and the standard deviation by {@code level}.
      * @param level the level of the asteroid.
      * @return      the generated Polygon.
      */
@@ -44,8 +49,10 @@ public class PolygonFactory {
     }
 
     /**
-     * Creates a 4-point star to be used for stars using the {@link Polygon}.
-     *
+     * Creates a 4-point star to be used in the {@link dev.apolonio.asteroids.domain.Star Star} class.
+     * <p>
+     * The generated shape will be a star-shaped {@link Polygon}, with its size randomized according to a normal
+     * distribution and a proportion of {@code 1:3} for its inner size.
      * @return the generated Polygon.
      */
     public Polygon createStar() {
