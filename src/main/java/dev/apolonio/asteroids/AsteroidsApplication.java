@@ -69,8 +69,8 @@ import static java.lang.Math.sqrt;
 /**
  * The main game class.
  * <p>
- * Creates the game window, entities, menus and handles the game logic for spawning asteroids, deals with
- * user input, performs file IO operations among other things.
+ * Responsible for the main game window and all the elements contained within it. Also handles parts of the program
+ * logic, such as playing sounds, reading user input, handling file IO operations, among other things.
  */
 public class AsteroidsApplication extends Application {
 
@@ -941,12 +941,15 @@ public class AsteroidsApplication extends Application {
     }
 
     /**
-     * Creates an {@link Asteroid} with given x and y coordinates, level and scale binding.
+     * Creates an {@link Asteroid} of the specified level at the given X and Y coordinates.
+     * <p>
+     * Generated asteroids will have their X and Y scales bounded to the specified {@link DoubleBinding}. This allows
+     * for responsive design, since whenever the scale changes, so will the asteroid's size.
      *
      * @param x     x coordinate for the Asteroid.
      * @param y     y coordinate for the Asteroid.
      * @param level the Asteroid level.
-     * @param scale a {@link DoubleBinding} value, used for scaling the asteroid with the window.
+     * @param scale a DoubleBinding value, used for scaling the asteroid with the window.
      * @return      the created Asteroid;
      */
     private Asteroid makeAsteroid(double x, double y, int level, DoubleBinding scale) {
@@ -959,6 +962,13 @@ public class AsteroidsApplication extends Application {
 
     /**
      * Returns a list containing the resulting {@link Asteroid Asteroids} after splitting one main Asteroid.
+     * <p>
+     * L1 asteroids don't split, so in that case an empty list is returned. For any other level, the logic for generating
+     * asteroids is as follows: for an asteroid of level {@code n}, {@code n} asteroids will be generated. Of those,
+     * half will be L1 asteroids. The other half may also consist of L1s, however each asteroid will have a chance of
+     * {@code 1/n} of being an L(n-1) instead.
+     * <p>
+     * The asteroids will move in a random direction, and be slightly offset from their parent's original position.
      *
      * @param origin the Asteroid to split.
      * @param scale  a {@link DoubleBinding} value, used for scaling asteroids with the window.
@@ -966,25 +976,14 @@ public class AsteroidsApplication extends Application {
      */
     private List<Asteroid> splitAsteroid(Asteroid origin, DoubleBinding scale) {
         List<Asteroid> newAsteroids = new ArrayList<>();
-        switch (origin.getLevel()) {
-            case 3: {
-                for (int i = 0; i < 3; i++) {
-                    // 50% of one asteroid being a L2
-                    int asteroidLvl = (i == 0 && random() < 0.5) ? 2 : 1;
-                    Asteroid asteroid = makeAsteroid(origin.getCharacter().getTranslateX() + random() * 30 - 15,
-                            origin.getCharacter().getTranslateY() + random() * 30 - 15, asteroidLvl, scale);
-                    newAsteroids.add(asteroid);
-                }
-                break;
+        if (origin.getLevel() > 1) {
+            for (int i = 0; i < origin.getLevel(); i++) {
+                int asteroidLvl = (i < origin.getLevel() / 2 && random() < (double) 1 / origin.getLevel())
+                        ? origin.getLevel() - 1 : 1;
+                Asteroid asteroid = makeAsteroid(origin.getCharacter().getTranslateX() + random() * 30 - 15,
+                        origin.getCharacter().getTranslateY() + random() * 30 - 15, asteroidLvl, scale);
+                newAsteroids.add(asteroid);
             }
-            case 2: {
-                for (int i = 0; i < 2; i++) {
-                    Asteroid asteroid = makeAsteroid(origin.getCharacter().getTranslateX() + random() * 30 - 15,
-                            origin.getCharacter().getTranslateY() + random() * 30 - 15, 1, scale);
-                    newAsteroids.add(asteroid);
-                }
-            }
-            // There is no case 1, as L1 asteroids don't split when hit
         }
         return newAsteroids;
     }
