@@ -5,7 +5,7 @@ The game Asteroids recreated in Java.
 
 ![screenshot_16](https://github.com/user-attachments/assets/fb716666-91f2-41f2-b05b-3dde22503266)
 
-![screenshot_30](https://github.com/user-attachments/assets/f9b0bc9e-07af-48db-87bc-1e131815b0fa)
+![screenshot_32](https://github.com/user-attachments/assets/5c211ab4-0abd-4917-8c1d-b0948c7be5e1)
 
 ![screenshot_17](https://github.com/user-attachments/assets/f870e6c8-54ce-44f7-aebd-cf443ca92e40)
 
@@ -37,6 +37,7 @@ To build the game, you'll need a JDK updated to version 17 or higher that includ
 To create a Windows installer for the game (and a JAR file), just clone this repository and run maven with the package goal:
 
     git clone https://github.com/VitorApolonio/Asteroids
+
     cd Asteroids
     mvn package
 
