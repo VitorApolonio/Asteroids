@@ -60,3 +60,11 @@
     -fx-fill: #FF00FF;
     -fx-opacity: 0.7;
 }
+
+.ship-bullet {
+    -fx-fill: #F8F8FF;
+}
+
+.star {
+    -fx-fill: #D3D3D3;
+}

@@ -1,17 +1,5 @@
 package dev.apolonio.asteroids;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Objects;
-import java.util.Random;
-import java.util.concurrent.atomic.AtomicInteger;
-
 import dev.apolonio.asteroids.domain.Asteroid;
 import dev.apolonio.asteroids.domain.Entity;
 import dev.apolonio.asteroids.domain.Menu;
@@ -62,7 +50,29 @@ import javafx.stage.StageStyle;
 import javafx.util.Duration;
 
 import javax.imageio.ImageIO;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Objects;
+import java.util.Random;
+import java.util.concurrent.atomic.AtomicInteger;
 
+import static java.lang.Math.min;
+import static java.lang.Math.pow;
+import static java.lang.Math.random;
+import static java.lang.Math.sqrt;
+
+/**
+ * The main game class.
+ * <p>
+ * Responsible for the main game window and all the elements contained within it. Also handles parts of the program
+ * logic, such as playing sounds, reading user input, handling file IO operations, among other things.
+ */
 public class AsteroidsApplication extends Application {
 
     // Time before closing splash screen in ms
@@ -75,8 +85,9 @@ public class AsteroidsApplication extends Application {
     // Folder for storing game data files
     private static final String GAME_DATA_FOLDER_PATH = System.getProperty("user.home") + "/Documents/Asteroids/";
 
-    // List of user scores
+    // Score and SFX lists
     private final List<Score> SCORE_LIST = new ArrayList<>();
+    private final List<MediaPlayer> GAME_SFX = new ArrayList<>();
 
     // Whether the game is paused
     private boolean gameIsPaused = false;
@@ -87,18 +98,8 @@ public class AsteroidsApplication extends Application {
     // Whether the cheat code is active
     private boolean shotgun = false;
 
-    // User interface SFX
-    private MediaPlayer menuSelectSfx;
-    private MediaPlayer menuConfirmSfx;
-    private MediaPlayer pauseSfx;
-    private MediaPlayer unpauseSfx;
-
-    // Game SFX
-    private MediaPlayer fireSfx;
-    private MediaPlayer spreadFireSfx;
-    private MediaPlayer powerUpSfx;
-    private MediaPlayer asteroidSfx;
-    private MediaPlayer deathSfx;
+    // Base points awarded for kills
+    private final int SCR_MULT = 100;
 
     @Override
     public void start(Stage window) {
@@ -111,23 +112,23 @@ public class AsteroidsApplication extends Application {
         final DoubleBinding RES_SCALE = window.heightProperty().divide(INITIAL_HEIGHT);
 
         // Create title screen layout
-        VBox startLayout = new VBox();
-        startLayout.spacingProperty().bind(window.heightProperty().divide(10));
-        startLayout.setAlignment(Pos.CENTER);
+        final VBox LAYOUT_START = new VBox();
+        LAYOUT_START.spacingProperty().bind(window.heightProperty().divide(10));
+        LAYOUT_START.setAlignment(Pos.CENTER);
 
         // Create title text
         Text txt_titleText = new Text("ASTEROIDS");
         txt_titleText.styleProperty().bind(Bindings.concat("-fx-font-size: ", window.heightProperty().divide(7)));
         txt_titleText.getStyleClass().add("title");
-        startLayout.getChildren().add(txt_titleText);
+        LAYOUT_START.getChildren().add(txt_titleText);
 
         Text txt_pressToStart = new Text("PRESS SPACE TO START");
         txt_pressToStart.styleProperty().bind(Bindings.concat("-fx-font-size: ", window.heightProperty().divide(13)));
         txt_pressToStart.getStyleClass().add("note");
-        startLayout.getChildren().add(txt_pressToStart);
+        LAYOUT_START.getChildren().add(txt_pressToStart);
 
         // Create scene with layout
-        Scene view = new Scene(startLayout);
+        Scene view = new Scene(LAYOUT_START);
         view.setFill(Color.BLACK);
         window.setScene(view);
 
@@ -154,26 +155,34 @@ public class AsteroidsApplication extends Application {
                     System.err.println("[DEBUG] Failed to load scores: " + e.getMessage());
                 }
 
-                // Menu sounds
-                menuSelectSfx = new MediaPlayer(new Media(Objects.requireNonNull(getClass().getResource("/sounds/menu_select.mp3")).toExternalForm()));
-                menuConfirmSfx = new MediaPlayer(new Media(Objects.requireNonNull(getClass().getResource("/sounds/menu_confirm.mp3")).toExternalForm()));
-                pauseSfx = new MediaPlayer(new Media(Objects.requireNonNull(getClass().getResource("/sounds/pause.mp3")).toExternalForm()));
-                unpauseSfx = new MediaPlayer(new Media(Objects.requireNonNull(getClass().getResource("/sounds/unpause.mp3")).toExternalForm()));
+                /* All sounds are stored in the sounds folder, named snd<n>.mp3, where <n> is some number.
+                   Currently, these are all the sounds:
 
-                // Main game sfx
-                fireSfx = new MediaPlayer(new Media(Objects.requireNonNull(getClass().getResource("/sounds/fire.mp3")).toExternalForm()));
-                spreadFireSfx = new MediaPlayer(new Media(Objects.requireNonNull(getClass().getResource("/sounds/fire_spread.mp3")).toExternalForm()));
-                powerUpSfx = new MediaPlayer(new Media(Objects.requireNonNull(getClass().getResource("/sounds/power_up.mp3")).toExternalForm()));
-                asteroidSfx = new MediaPlayer(new Media(Objects.requireNonNull(getClass().getResource("/sounds/asteroid_break.mp3")).toExternalForm()));
-                deathSfx = new MediaPlayer(new Media(Objects.requireNonNull(getClass().getResource("/sounds/death.mp3")).toExternalForm()));
+                   SND0--------Menu Selection
+                   SND1--------Menu Confirmation
+                   SND2--------Pause
+                   SND3--------Unpause
+                   SND4--------Ship Fire
+                   SND5--------Spread Shot Fire
+                   SND6--------Power Up
+                   SND7--------Asteroid Break
+                   SND8--------Ship Destroyed
 
-                // Lower volume of loud sounds
-                fireSfx.setVolume(0.20);
-                spreadFireSfx.setVolume(0.20);
+                   If more are added, they are to be included in this table for reference.*/
+                for (int i = 0; i < 9; i++) {
+                    MediaPlayer sfxPlayer = new MediaPlayer(new Media(Objects.requireNonNull(getClass()
+                            .getResource("/sounds/snd" + i + ".mp3")).toExternalForm()));
+                    GAME_SFX.add(sfxPlayer);
+                }
+
+                // FIXME: Balance the volume of these, why are they louder?
+                // Lower volume of fire sounds
+                GAME_SFX.get(4).setVolume(0.20);
+                GAME_SFX.get(5).setVolume(0.20);
 
                 // Preload menu confirm sound. This is done so there isn't a delay when you first open the main menu.
-                menuConfirmSfx.play();
-                menuConfirmSfx.stop();
+                GAME_SFX.get(1).play();
+                GAME_SFX.get(1).stop();
 
                 // Wait some time
                 Thread.sleep(SPLASH_SCR_TIME);
@@ -199,12 +208,12 @@ public class AsteroidsApplication extends Application {
         MenuOption resChangeOption = new MenuOption("RESOLUTION", window);
         MenuOption quitOption = new MenuOption("QUIT", window);
 
-        Menu mainMenu = new Menu(startOption, leaderboardOption, resChangeOption, quitOption);
+        final Menu MENU_MAIN = new Menu(startOption, leaderboardOption, resChangeOption, quitOption);
 
-        VBox mainMenuLayout = new VBox();
-        mainMenuLayout.spacingProperty().bind(window.heightProperty().divide(50));
-        mainMenuLayout.getChildren().addAll(mainMenu.getOptions().stream().map(MenuOption::getTextElement).toList());
-        mainMenuLayout.setAlignment(Pos.CENTER);
+        final VBox LAYOUT_MAIN_MENU = new VBox();
+        LAYOUT_MAIN_MENU.spacingProperty().bind(window.heightProperty().divide(50));
+        LAYOUT_MAIN_MENU.getChildren().addAll(MENU_MAIN.getOptions().stream().map(MenuOption::getTextElement).toList());
+        LAYOUT_MAIN_MENU.setAlignment(Pos.CENTER);
 
         // Create menu title
         Text txt_resMenuTitle = new Text("RESOLUTION SELECT");
@@ -218,16 +227,16 @@ public class AsteroidsApplication extends Application {
         MenuOption res1920x1080 = new MenuOption("1920x1080", window);
         MenuOption resBackOption = new MenuOption("BACK", window);
 
-        Menu resMenu = new Menu(res640x480, res800x600, res1280x720, res1920x1080, resBackOption);
+        final Menu MENU_RESOLUTION = new Menu(res640x480, res800x600, res1280x720, res1920x1080, resBackOption);
 
-        VBox resMenuLayout = new VBox();
-        resMenuLayout.spacingProperty().bind(window.heightProperty().divide(50));
-        resMenuLayout.getChildren().add(txt_resMenuTitle);
-        resMenuLayout.getChildren().addAll(resMenu.getOptions().stream().map(MenuOption::getTextElement).toList());
-        resMenuLayout.setAlignment(Pos.CENTER);
+        final VBox LAYOUT_RESOLUTION_MENU = new VBox();
+        LAYOUT_RESOLUTION_MENU.spacingProperty().bind(window.heightProperty().divide(50));
+        LAYOUT_RESOLUTION_MENU.getChildren().add(txt_resMenuTitle);
+        LAYOUT_RESOLUTION_MENU.getChildren().addAll(MENU_RESOLUTION.getOptions().stream().map(MenuOption::getTextElement).toList());
+        LAYOUT_RESOLUTION_MENU.setAlignment(Pos.CENTER);
 
         // Create leaderboard layout
-        BorderPane leaderboardLayout = new BorderPane();
+        final BorderPane LAYOUT_SCORES = new BorderPane();
 
         Text txt_hiScoresTitle = new Text("HIGH SCORES");
         txt_hiScoresTitle.styleProperty().bind(Bindings.concat("-fx-font-size: ", window.heightProperty().divide(11)));
@@ -261,18 +270,18 @@ public class AsteroidsApplication extends Application {
 
         MenuOption scoresBackOption = new MenuOption("BACK", window);
 
-        leaderboardLayout.setTop(txt_hiScoresTitle);
-        leaderboardLayout.setCenter(scoreContainerHbox);
-        leaderboardLayout.setBottom(scoresBackOption.getTextElement());
+        LAYOUT_SCORES.setTop(txt_hiScoresTitle);
+        LAYOUT_SCORES.setCenter(scoreContainerHbox);
+        LAYOUT_SCORES.setBottom(scoresBackOption.getTextElement());
 
         BorderPane.setAlignment(txt_hiScoresTitle, Pos.CENTER);
         BorderPane.setAlignment(scoresBackOption.getTextElement(), Pos.CENTER);
         BorderPane.setAlignment(leaderboardLeftVbox, Pos.CENTER);
         BorderPane.setAlignment(leaderboardRightVbox, Pos.CENTER);
-        leaderboardLayout.setPadding(new Insets(20, 0, 20, 0));
+        LAYOUT_SCORES.setPadding(new Insets(20, 0, 20, 0));
 
         // Create main game layout, this is the space stage where asteroids pop up
-        Pane mainLayout = new Pane();
+        final Pane LAYOUT_SPACE = new Pane();
 
         // Create player ship
         Ship ship = new Ship(window.getWidth() / 2, window.getHeight() / 2, 1);
@@ -282,8 +291,8 @@ public class AsteroidsApplication extends Application {
         ship.getCharacter().scaleYProperty().bind(RES_SCALE);
         ship.getVelocityScale().bind(RES_SCALE);
 
-        mainLayout.getChildren().add(ship.getSafeZone());
-        mainLayout.getChildren().add(ship.getCharacter());
+        LAYOUT_SPACE.getChildren().add(ship.getSafeZone());
+        LAYOUT_SPACE.getChildren().add(ship.getCharacter());
 
         // Create entity lists (empty for now)
         List<Asteroid> asteroids = new ArrayList<>();
@@ -292,8 +301,8 @@ public class AsteroidsApplication extends Application {
 
         /* A separate layout is created for the asteroids so that spawning more of them won't mess with
            the element order of the main layout. */
-        Pane asteroidLayer = new Pane();
-        mainLayout.getChildren().add(asteroidLayer);
+        final Pane LAYOUT_ASTEROID = new Pane();
+        LAYOUT_SPACE.getChildren().add(LAYOUT_ASTEROID);
 
         // Create list for star animations (empty for now)
         List<ScaleTransition> starAnimations = new ArrayList<>();
@@ -304,48 +313,48 @@ public class AsteroidsApplication extends Application {
         txt_currentScoreText.getStyleClass().add("subtitle");
         txt_currentScoreText.translateXProperty().bind(window.widthProperty().divide(20));
         txt_currentScoreText.translateYProperty().bind(window.heightProperty().divide(9));
-        mainLayout.getChildren().add(txt_currentScoreText);
+        LAYOUT_SPACE.getChildren().add(txt_currentScoreText);
         AtomicInteger points = new AtomicInteger();
 
         // Create game over screen layout
-        VBox endScreenLayout = new VBox();
-        endScreenLayout.spacingProperty().bind(window.heightProperty().divide(12));
-        endScreenLayout.setAlignment(Pos.CENTER);
+        VBox LAYOUT_END_SCREEN = new VBox();
+        LAYOUT_END_SCREEN.spacingProperty().bind(window.heightProperty().divide(12));
+        LAYOUT_END_SCREEN.setAlignment(Pos.CENTER);
 
         // Create game over text
         Text txt_gameOverText = new Text("GAME OVER!");
         txt_gameOverText.styleProperty().bind(Bindings.concat("-fx-font-size: ", window.heightProperty().divide(7)));
         txt_gameOverText.getStyleClass().add("title");
-        endScreenLayout.getChildren().add(txt_gameOverText);
+        LAYOUT_END_SCREEN.getChildren().add(txt_gameOverText);
 
         Text txt_finalScoreText = new Text("FINAL SCORE: 0");
         txt_finalScoreText.styleProperty().bind(Bindings.concat("-fx-font-size: ", window.heightProperty().divide(11)));
         txt_finalScoreText.getStyleClass().add("subtitle");
-        endScreenLayout.getChildren().add(txt_finalScoreText);
+        LAYOUT_END_SCREEN.getChildren().add(txt_finalScoreText);
 
         Text txt_tryAgainText = new Text("PRESS SPACE TO CONTINUE");
         txt_tryAgainText.styleProperty().bind(Bindings.concat("-fx-font-size: ", window.heightProperty().divide(13)));
         txt_tryAgainText.getStyleClass().add("note");
         txt_tryAgainText.setVisible(false);
-        endScreenLayout.getChildren().add(txt_tryAgainText);
+        LAYOUT_END_SCREEN.getChildren().add(txt_tryAgainText);
 
         // Create insert name screen
-        VBox insertNameLayout = new VBox();
-        insertNameLayout.spacingProperty().bind(window.heightProperty().divide(12));
-        insertNameLayout.setAlignment(Pos.CENTER);
+        VBox LAYOUT_INITIALS = new VBox();
+        LAYOUT_INITIALS.spacingProperty().bind(window.heightProperty().divide(12));
+        LAYOUT_INITIALS.setAlignment(Pos.CENTER);
 
         // Create insert name text
         Text txt_enterYourNameText = new Text("ENTER YOUR NAME");
         txt_enterYourNameText.styleProperty().bind(Bindings.concat("-fx-font-size: ", window.heightProperty().divide(11)));
         txt_enterYourNameText.getStyleClass().add("subtitle");
-        insertNameLayout.getChildren().add(txt_enterYourNameText);
+        LAYOUT_INITIALS.getChildren().add(txt_enterYourNameText);
 
         StringBuilder initialsSB = new StringBuilder("___");
 
         Text txt_initialsText = new Text(initialsSB.toString().replace("", " ").strip());
         txt_initialsText.styleProperty().bind(Bindings.concat("-fx-font-size: ", window.heightProperty().divide(7)));
         txt_initialsText.getStyleClass().add("score");
-        insertNameLayout.getChildren().add(txt_initialsText);
+        LAYOUT_INITIALS.getChildren().add(txt_initialsText);
 
         // Pause text
         Text txt_pauseText = new Text("PAUSED");
@@ -359,7 +368,7 @@ public class AsteroidsApplication extends Application {
         StackPane pausePane = new StackPane(txt_pauseText);
         pausePane.minWidthProperty().bind(window.widthProperty());
         pausePane.minHeightProperty().bind(window.heightProperty());
-        mainLayout.getChildren().add(pausePane);
+        LAYOUT_SPACE.getChildren().add(pausePane);
 
         // Pause flashing text animation
         FadeTransition pauseFade = new FadeTransition(Duration.millis(666), txt_pauseText);
@@ -403,11 +412,11 @@ public class AsteroidsApplication extends Application {
                        additional projectiles, since they're the same thing with different starting angles. */
                     for (int i = -15; i <= 15; i+=15) {
                         if (shotgun) {
-                            spreadFireSfx.seek(Duration.ZERO);
-                            spreadFireSfx.play();
+                            GAME_SFX.get(5).seek(Duration.ZERO);
+                            GAME_SFX.get(5).play();
                         } else {
-                            fireSfx.seek(Duration.ZERO);
-                            fireSfx.play();
+                            GAME_SFX.get(4).seek(Duration.ZERO);
+                            GAME_SFX.get(4).play();
                         }
 
                         if (shotgun || i == 0) {
@@ -425,7 +434,7 @@ public class AsteroidsApplication extends Application {
                                     .multiply(3 * RES_SCALE.get())
                                     .add(ship.getMovement()));
 
-                            mainLayout.getChildren().add(proj.getCharacter());
+                            LAYOUT_SPACE.getChildren().add(proj.getCharacter());
                         }
                     }
 
@@ -437,69 +446,96 @@ public class AsteroidsApplication extends Application {
                     cooldown -= 1;
                 }
 
-                // Continuously spawn asteroids starting with a 0.5% chance, raising by 0.5% more every 2500 points
-                if (Math.random() < 0.005 * (1 + (double) points.get() / 2500)) {
-                    Asteroid asteroid = new Asteroid(Math.random() * window.getWidth() / 3, Math.random() * window.getHeight() / 2);
+                // Spawn asteroids with a chance of 50% each second, affected by score
+                if (random() < 0.5 / 60 * min(1 + (double) points.get() / (100 * SCR_MULT), 2)) {
+                    // Asteroid level depends on player score
+                    int asteroidLvl = 1;
+                    if (points.get() > 150 * SCR_MULT) {
+                        asteroidLvl += (int) (0.5 + random() * 2);
+                    } else if (points.get() > 50 * SCR_MULT) {
+                        asteroidLvl += (int) (random() * 2.5);
+                    } else if (points.get() > 10 * SCR_MULT) {
+                        asteroidLvl += (int) (random() * 2);
+                    }
+
+                    // Asteroid speed scales up with score, also increases with shotgun enabled
+                    Asteroid asteroid = makeAsteroid(
+                            random() * window.getWidth() / 3,
+                            random() * window.getWidth() / 2,
+                            asteroidLvl,
+                            RES_SCALE,
+                            // Speed increases with score, with a cap at 10x
+                            min(1 + (double) points.get() / (100 * SCR_MULT) * (shotgun ? 5 : 1), 10)
+                    );
+
+                    // Don't spawn if in safe zone
                     if (!ship.inSafeZone(asteroid)) {
-                        asteroid.getCharacter().setScaleX(RES_SCALE.get());
-                        asteroid.getCharacter().setScaleY(RES_SCALE.get());
-                        asteroid.setMovement(asteroid.getMovement().multiply(Math.min(3, 1 + points.get() / 8000))); // Increase velocity with player score up to a max of 3x speed
                         asteroids.add(asteroid);
-                        asteroidLayer.getChildren().add(asteroid.getCharacter());
+                        LAYOUT_ASTEROID.getChildren().add(asteroid.getCharacter());
                     }
                 }
 
                 // Ship and asteroid movement
                 ship.move(window.getWidth(), window.getHeight());
                 asteroids.forEach(a -> a.move(window.getWidth(), window.getHeight()));
-                projectiles.forEach(Projectile::move);
-
-                // Handle collisions between shots and asteroids
-                for (Projectile projectile : projectiles) {
-                    List<Asteroid> collisions = asteroids.stream()
-                            .filter(asteroid -> asteroid.collide(projectile))
-                            .toList();
-
-                    // Increase score with hits, play asteroid fade animation
-                    for (Asteroid collided : collisions) {
-                        Polygon asteroidPolygon = collided.getCharacter();
-                        KeyValue scaleX = new KeyValue(asteroidPolygon.scaleXProperty(), asteroidPolygon.getScaleX() * 1.5);
-                        KeyValue scaleY = new KeyValue(asteroidPolygon.scaleYProperty(), asteroidPolygon.getScaleY() * 1.5);
-                        KeyValue opacity = new KeyValue(asteroidPolygon.opacityProperty(), 0);
-
-                        KeyFrame frame = new KeyFrame(Duration.millis(333), scaleX, scaleY, opacity);
-
-                        Timeline timeline = new Timeline(frame);
-                        timeline.setOnFinished(event -> mainLayout.getChildren().remove(asteroidPolygon));
-                        timeline.play();
-
-                        // This isn't on the animation, since otherwise you could still hit the asteroid until it finishes
-                        asteroids.remove(collided);
-
-                        // Play sound
-                        asteroidSfx.seek(Duration.ZERO);
-                        asteroidSfx.play();
-
-                        // Fewer points are awarded for spread shot kills
-                        if (shotgun) {
-                            txt_currentScoreText.setText("SCORE: " + points.addAndGet(50));
-                        } else {
-                            txt_currentScoreText.setText("SCORE: " + points.addAndGet(100));
-                        }
-                    }
-                }
+                projectiles.forEach(a -> a.move(window.getWidth(), window.getHeight()));
 
                 // Remove off-screen projectiles
                 Iterator<Projectile> projIt = projectiles.iterator();
                 while (projIt.hasNext()) {
                     Projectile proj = projIt.next();
 
-                    if (proj.getCharacter().getTranslateX() < 0
+                    List<Asteroid> collisions = asteroids.stream()
+                            .filter(asteroid -> asteroid.collide(proj))
+                            .toList();
+
+                    // Remove asteroids and projectiles when they hit each other
+                    for (Asteroid collided : collisions) {
+                        Polygon asteroidPolygon = collided.getCharacter();
+
+                        // Unbinding is necessary so that the scale can change for the animation
+                        asteroidPolygon.scaleXProperty().unbind();
+                        asteroidPolygon.scaleYProperty().unbind();
+
+                        Timeline timeline = getScaleAnimation(asteroidPolygon, 1.5, 333);
+                        timeline.setOnFinished(event -> {
+                            LAYOUT_SPACE.getChildren().remove(asteroidPolygon);
+                            // Sub asteroids spawn after the animation finishes
+                            List<Asteroid> newAsteroids = splitAsteroid(collided, RES_SCALE);
+                            newAsteroids.forEach(a -> {
+                                asteroids.add(a);
+                                LAYOUT_ASTEROID.getChildren().add(a.getCharacter());
+                            });
+                        });
+                        timeline.play();
+
+                        // This isn't on the animation, since otherwise you could still hit the asteroid until it finishes
+                        asteroids.remove(collided);
+
+                        // Play sound
+                        GAME_SFX.get(7).seek(Duration.ZERO);
+                        GAME_SFX.get(7).play();
+
+                        // Points given decrease with the asteroid level, since higher levels split into lower ones anyway
+                        txt_currentScoreText.setText("SCORE: " + points.addAndGet(
+                                (int) (SCR_MULT / pow(2, collided.getLevel() - 1))
+                        ));
+                    }
+
+                    // Remove projectile if it hits something or flies out of bounds
+                    if (!collisions.isEmpty()) {
+                        proj.getCharacter().scaleXProperty().unbind();
+                        proj.getCharacter().scaleYProperty().unbind();
+                        Timeline timeline = getScaleAnimation(proj.getCharacter(), 1.375, 125);
+                        timeline.setOnFinished(event -> LAYOUT_SPACE.getChildren().remove(proj.getCharacter()));
+                        timeline.play();
+                        projIt.remove();
+                    } else if (proj.getCharacter().getTranslateX() < 0
                             || proj.getCharacter().getTranslateX() > window.getWidth()
                             || proj.getCharacter().getTranslateY() < 0
                             || proj.getCharacter().getTranslateY() > window.getHeight()) {
+                        LAYOUT_SPACE.getChildren().remove(proj.getCharacter());
                         projIt.remove();
-                        mainLayout.getChildren().remove(proj.getCharacter());
                     }
                 }
 
@@ -513,22 +549,27 @@ public class AsteroidsApplication extends Application {
                         ship.getSafeZone().setVisible(false);
 
                         // Play sound
-                        deathSfx.seek(Duration.ZERO);
-                        deathSfx.play();
+                        GAME_SFX.get(8).seek(Duration.ZERO);
+                        GAME_SFX.get(8).play();
 
                         // Fade away animation for ship
-                        FadeTransition deathFade = new FadeTransition(Duration.millis(1000), ship.getCharacter());
-                        deathFade.setFromValue(1.0);
-                        deathFade.setToValue(0.0);
+                        ship.getCharacter().scaleXProperty().unbind();
+                        ship.getCharacter().scaleYProperty().unbind();
+
+                        Timeline deathFade = getScaleAnimation(ship.getCharacter(), 1, 1000);
                         deathFade.setOnFinished(event -> {
                             txt_finalScoreText.setText("FINAL SCORE: " + points.get());
-                            window.getScene().setRoot(insertNameLayout);
+                            window.getScene().setRoot(LAYOUT_INITIALS);
                             shipIsDying = false;
 
                             // Delay before "PRESS SPACE" text pops up
                             PauseTransition tryAgainPause = new PauseTransition(Duration.millis(1000));
                             tryAgainPause.setOnFinished(event2 -> txt_tryAgainText.setVisible(true));
                             tryAgainPause.play();
+
+                            // Re-bind scale properties
+                            ship.getCharacter().scaleXProperty().bind(RES_SCALE);
+                            ship.getCharacter().scaleYProperty().bind(RES_SCALE);
                         });
                         deathFade.play();
                         break;
@@ -558,7 +599,7 @@ public class AsteroidsApplication extends Application {
             Parent windowRoot = window.getScene().getRoot();
 
             // Whether the current screen is a menu
-            boolean onMenuScreen = (windowRoot == mainMenuLayout || windowRoot == resMenuLayout);
+            boolean onMenuScreen = (windowRoot == LAYOUT_MAIN_MENU || windowRoot == LAYOUT_RESOLUTION_MENU);
 
             // Detects the sequence that toggles spread shot mode.
             if (gameIsPaused && !shotgun) {
@@ -569,8 +610,8 @@ public class AsteroidsApplication extends Application {
                 }
 
                 if (correctPresses.get() == correctSequence.length) {
-                    powerUpSfx.seek(Duration.ZERO);
-                    powerUpSfx.play();
+                    GAME_SFX.get(6).seek(Duration.ZERO);
+                    GAME_SFX.get(6).play();
 
                     correctPresses.set(0);
                     shotgun = true;
@@ -578,43 +619,43 @@ public class AsteroidsApplication extends Application {
             }
 
             // Open main menu with space bar
-            if (event.getCode() == KeyCode.SPACE && windowRoot == startLayout) {
-                menuConfirmSfx.seek(Duration.ZERO);
-                menuConfirmSfx.play();
+            if (event.getCode() == KeyCode.SPACE && windowRoot == LAYOUT_START) {
+                GAME_SFX.get(1).seek(Duration.ZERO);
+                GAME_SFX.get(1).play();
 
-                window.getScene().setRoot(mainMenuLayout);
+                window.getScene().setRoot(LAYOUT_MAIN_MENU);
             }
 
             // Select next menu option
             if ((event.getCode() == KeyCode.DOWN || event.getCode() == KeyCode.S) && onMenuScreen) {
-                menuSelectSfx.seek(Duration.ZERO);
-                menuSelectSfx.play();
+                GAME_SFX.get(0).seek(Duration.ZERO);
+                GAME_SFX.get(0).play();
 
-                if (windowRoot.equals(mainMenuLayout)) {
-                    mainMenu.selectNext();
-                } else if (windowRoot.equals(resMenuLayout)) {
-                    resMenu.selectNext();
+                if (windowRoot.equals(LAYOUT_MAIN_MENU)) {
+                    MENU_MAIN.selectNext();
+                } else if (windowRoot.equals(LAYOUT_RESOLUTION_MENU)) {
+                    MENU_RESOLUTION.selectNext();
                 }
             }
 
             // Select previous menu option
             if ((event.getCode() == KeyCode.UP || event.getCode() == KeyCode.W) && onMenuScreen) {
-                menuSelectSfx.seek(Duration.ZERO);
-                menuSelectSfx.play();
+                GAME_SFX.get(0).seek(Duration.ZERO);
+                GAME_SFX.get(0).play();
 
-                if (windowRoot.equals(mainMenuLayout)) {
-                    mainMenu.selectPrevious();
-                } else if (windowRoot.equals(resMenuLayout)) {
-                    resMenu.selectPrevious();
+                if (windowRoot.equals(LAYOUT_MAIN_MENU)) {
+                    MENU_MAIN.selectPrevious();
+                } else if (windowRoot.equals(LAYOUT_RESOLUTION_MENU)) {
+                    MENU_RESOLUTION.selectPrevious();
                 }
             }
 
             // Confirm selection on main menu
-            if (event.getCode() == KeyCode.SPACE && windowRoot == mainMenuLayout) {
-                menuConfirmSfx.seek(Duration.ZERO);
-                menuConfirmSfx.play();
+            if (event.getCode() == KeyCode.SPACE && windowRoot == LAYOUT_MAIN_MENU) {
+                GAME_SFX.get(1).seek(Duration.ZERO);
+                GAME_SFX.get(1).play();
 
-                switch (mainMenu.getSelectedIndex()) {
+                switch (MENU_MAIN.getSelectedIndex()) {
                     // Start
                     case 0: {
                         // Reset initials
@@ -628,9 +669,9 @@ public class AsteroidsApplication extends Application {
                         txt_finalScoreText.setText(("FINAL SCORE: 0"));
 
                         // Delete all entities
-                        mainLayout.getChildren().removeAll(stars.stream().map(Entity::getCharacter).toList());
-                        mainLayout.getChildren().removeAll(projectiles.stream().map(Entity::getCharacter).toList());
-                        asteroidLayer.getChildren().clear();
+                        LAYOUT_SPACE.getChildren().removeAll(stars.stream().map(Entity::getCharacter).toList());
+                        LAYOUT_SPACE.getChildren().removeAll(projectiles.stream().map(Entity::getCharacter).toList());
+                        LAYOUT_ASTEROID.getChildren().clear();
                         stars.clear();
                         asteroids.clear();
                         projectiles.clear();
@@ -645,7 +686,7 @@ public class AsteroidsApplication extends Application {
                         ship.setMovement(new Point2D(0, 0));
                         ship.getCharacter().setOpacity(1.0);
 
-                        window.getScene().setRoot(mainLayout);
+                        window.getScene().setRoot(LAYOUT_SPACE);
                         Random rand = new Random();
                         // Spawn stars at random positions
                         for (int i = 0; i < 49; i++) {
@@ -656,17 +697,21 @@ public class AsteroidsApplication extends Application {
                         }
                         // Spawn initial asteroids at random positions
                         for (int i = 0; i < 5; i++) {
-                            Asteroid asteroid = new Asteroid(rand.nextDouble(window.getWidth() / 3), rand.nextDouble(window.getHeight()));
-                            asteroid.getCharacter().setScaleX(RES_SCALE.get());
-                            asteroid.getCharacter().setScaleY(RES_SCALE.get());
+                            Asteroid asteroid = makeAsteroid(
+                                    rand.nextDouble(window.getWidth() / 3),
+                                    rand.nextDouble(window.getHeight()),
+                                    2,
+                                    RES_SCALE,
+                                    1
+                            );
                             asteroids.add(asteroid);
                         }
                         // Create star animations
                         starAnimations.addAll(getStarAnimations(stars));
 
                         // Add elements to screen
-                        asteroids.forEach(asteroid -> asteroidLayer.getChildren().add(0, asteroid.getCharacter()));
-                        stars.forEach(star -> mainLayout.getChildren().add(0, star.getCharacter()));
+                        asteroids.forEach(asteroid -> LAYOUT_ASTEROID.getChildren().add(0, asteroid.getCharacter()));
+                        stars.forEach(star -> LAYOUT_SPACE.getChildren().add(0, star.getCharacter()));
 
                         // Play star animations
                         starAnimations.forEach(Animation::play);
@@ -676,14 +721,14 @@ public class AsteroidsApplication extends Application {
                     }
                     // Hi-Scores
                     case 1: {
-                        window.getScene().setRoot(leaderboardLayout);
+                        window.getScene().setRoot(LAYOUT_SCORES);
                         scoresBackOption.select();
                         break;
                     }
                     // Resolution change menu
                     case 2: {
-                        window.getScene().setRoot(resMenuLayout);
-                        resMenu.selectLast();
+                        window.getScene().setRoot(LAYOUT_RESOLUTION_MENU);
+                        MENU_RESOLUTION.selectLast();
                         break;
                     }
                     // Exit
@@ -695,17 +740,17 @@ public class AsteroidsApplication extends Application {
             }
 
             // Confirm selection on resolution change menu
-            if (event.getCode() == KeyCode.SPACE && windowRoot == resMenuLayout) {
-                menuConfirmSfx.seek(Duration.ZERO);
-                menuConfirmSfx.play();
+            if (event.getCode() == KeyCode.SPACE && windowRoot == LAYOUT_RESOLUTION_MENU) {
+                GAME_SFX.get(1).seek(Duration.ZERO);
+                GAME_SFX.get(1).play();
 
                 // Back option
-                if (resMenu.getSelectedIndex() == resMenu.getOptions().size() - 1) {
-                    window.getScene().setRoot(mainMenuLayout);
-                    mainMenu.selectFirst();
+                if (MENU_RESOLUTION.getSelectedIndex() == MENU_RESOLUTION.getOptions().size() - 1) {
+                    window.getScene().setRoot(LAYOUT_MAIN_MENU);
+                    MENU_MAIN.selectFirst();
                 } else {
                     // Since resolutions are in the format <width>x<height> we can just split them by the x to get both
-                    String[] values = resMenu.getSelected().getOptionText().split("x");
+                    String[] values = MENU_RESOLUTION.getSelected().getOptionText().split("x");
 
                     window.setWidth(Integer.parseInt(values[0]));
                     window.setHeight(Integer.parseInt(values[1]));
@@ -713,9 +758,9 @@ public class AsteroidsApplication extends Application {
             }
 
             // Detect typed initials on insert name screen, up to 3 letters
-            if ((event.getCode().isLetterKey() || event.getCode().isDigitKey()) && windowRoot == insertNameLayout && initialsSB.toString().contains("_")) {
-                menuSelectSfx.seek(Duration.ZERO);
-                menuSelectSfx.play();
+            if ((event.getCode().isLetterKey() || event.getCode().isDigitKey()) && windowRoot == LAYOUT_INITIALS && initialsSB.toString().contains("_")) {
+                GAME_SFX.get(0).seek(Duration.ZERO);
+                GAME_SFX.get(0).play();
 
                 for (int i = 0; i < initialsSB.length(); i++) {
                     if (initialsSB.charAt(i) == '_') {
@@ -728,9 +773,9 @@ public class AsteroidsApplication extends Application {
             }
 
             // Remove characters with backspace
-            if ((event.getCode() == KeyCode.BACK_SPACE || event.getCode() == KeyCode.DELETE) && windowRoot == insertNameLayout && !"___".contentEquals(initialsSB)) {
-                menuSelectSfx.seek(Duration.ZERO);
-                menuSelectSfx.play();
+            if ((event.getCode() == KeyCode.BACK_SPACE || event.getCode() == KeyCode.DELETE) && windowRoot == LAYOUT_INITIALS && !"___".contentEquals(initialsSB)) {
+                GAME_SFX.get(0).seek(Duration.ZERO);
+                GAME_SFX.get(0).play();
 
                 for (int i = initialsSB.length() - 1; i >= 0; i--) {
                     if (initialsSB.charAt(i) != '_') {
@@ -742,9 +787,9 @@ public class AsteroidsApplication extends Application {
             }
 
             // Confirm initials
-            if (event.getCode() == KeyCode.SPACE && windowRoot == insertNameLayout && !"___".contentEquals(initialsSB)) {
-                menuSelectSfx.seek(Duration.ZERO);
-                menuSelectSfx.play();
+            if (event.getCode() == KeyCode.SPACE && windowRoot == LAYOUT_INITIALS && !"___".contentEquals(initialsSB)) {
+                GAME_SFX.get(0).seek(Duration.ZERO);
+                GAME_SFX.get(0).play();
 
                 // Add text to high scores
                 Score score = new Score(initialsSB.toString().replaceAll("_", " "), points.get()); // Replace underscores with spaces
@@ -774,29 +819,29 @@ public class AsteroidsApplication extends Application {
                 saveScores(GAME_DATA_FOLDER_PATH);
 
                 // Change to game over screen
-                window.getScene().setRoot(endScreenLayout);
+                window.getScene().setRoot(LAYOUT_END_SCREEN);
             }
 
             // Leave leaderboard
-            if (event.getCode() == KeyCode.SPACE && windowRoot == leaderboardLayout) {
-                menuConfirmSfx.seek(Duration.ZERO);
-                menuConfirmSfx.play();
+            if (event.getCode() == KeyCode.SPACE && windowRoot == LAYOUT_SCORES) {
+                GAME_SFX.get(1).seek(Duration.ZERO);
+                GAME_SFX.get(1).play();
 
-                window.getScene().setRoot(mainMenuLayout);
-                mainMenu.selectFirst();
+                window.getScene().setRoot(LAYOUT_MAIN_MENU);
+                MENU_MAIN.selectFirst();
             }
 
             /* Toggle fullscreen with ALT + ENTER. Only allowed on menu screens except for the resolution change menu.
                On the main layout the stars are distributed based on the resolution, so changing it mid-game would
                result in poorly distributed stars, and the resolution menu is disabled on fullscreen */
             KeyCombination fsKeyCombo = new KeyCodeCombination(KeyCode.ENTER, KeyCombination.ALT_DOWN);
-            if (fsKeyCombo.match(event) && windowRoot != mainLayout && windowRoot != resMenuLayout) {
+            if (fsKeyCombo.match(event) && windowRoot != LAYOUT_SPACE && windowRoot != LAYOUT_RESOLUTION_MENU) {
                 // Disable menu on fullscreen, re-enable if exiting
                 resChangeOption.setEnabled(window.isFullScreen());
 
                 // Select next option if resolution menu is disabled and selected
                 if (resChangeOption.isSelected() && !resChangeOption.getEnabled()) {
-                    mainMenu.selectNext();
+                    MENU_MAIN.selectNext();
                 }
 
                 // Toggle fullscreen
@@ -805,24 +850,24 @@ public class AsteroidsApplication extends Application {
 
             /* Save a screenshot of the current view with P key.
                Doesn't work on the insert initials screen since the P key is used to type a letter there. */
-            if (event.getCode() == KeyCode.P && windowRoot != insertNameLayout) {
+            if (event.getCode() == KeyCode.P && windowRoot != LAYOUT_INITIALS) {
                 String filePath = GAME_DATA_FOLDER_PATH + "/Screenshots";
                 saveScr(window.getScene(), filePath, (int) window.getWidth(), (int) window.getHeight());
             }
 
             // Pause game with ESC key, only allowed on main view since it doesn't work properly on other scenes
-            if ((event.getCode() == KeyCode.ESCAPE || event.getCode() == KeyCode.PAUSE) && windowRoot == mainLayout && !shipIsDying) {
+            if ((event.getCode() == KeyCode.ESCAPE || event.getCode() == KeyCode.PAUSE) && windowRoot == LAYOUT_SPACE && !shipIsDying) {
                 if (gameIsPaused) {
-                    unpauseSfx.seek(Duration.ZERO);
-                    unpauseSfx.play();
+                    GAME_SFX.get(3).seek(Duration.ZERO);
+                    GAME_SFX.get(3).play();
 
                     pauseFade.stop();
                     txt_pauseText.setVisible(false);
                     mainTimer.start();
                     gameIsPaused = false;
                 } else {
-                    pauseSfx.seek(Duration.ZERO);
-                    pauseSfx.play();
+                    GAME_SFX.get(2).seek(Duration.ZERO);
+                    GAME_SFX.get(2).play();
 
                     pauseFade.play();
                     txt_pauseText.setVisible(true);
@@ -832,24 +877,27 @@ public class AsteroidsApplication extends Application {
             }
 
             // Toggle safe zone visibility with F2, for debugging
-            // TODO: Use more complex key combination for activation
-            if (gameIsPaused && event.getCode() == KeyCode.F2) {
-                menuSelectSfx.seek(Duration.ZERO);
-                menuSelectSfx.play();
+            KeyCombination nlKeyCombo = new KeyCodeCombination(KeyCode.N,
+                    KeyCombination.CONTROL_DOWN,
+                    KeyCombination.SHIFT_DOWN,
+                    KeyCombination.ALT_DOWN);
+            if (nlKeyCombo.match(event) && gameIsPaused) {
+                GAME_SFX.get(0).seek(Duration.ZERO);
+                GAME_SFX.get(0).play();
 
                 ship.getSafeZone().setVisible(!ship.getSafeZone().isVisible());
             }
 
             // Leave game over screen and restart game
-            if (event.getCode() == KeyCode.SPACE && windowRoot == endScreenLayout && txt_tryAgainText.isVisible()) {
-                menuConfirmSfx.seek(Duration.ZERO);
-                menuConfirmSfx.play();
+            if (event.getCode() == KeyCode.SPACE && windowRoot == LAYOUT_END_SCREEN && txt_tryAgainText.isVisible()) {
+                GAME_SFX.get(1).seek(Duration.ZERO);
+                GAME_SFX.get(1).play();
 
                 // Reset selected menu option
-                mainMenu.selectFirst();
+                MENU_MAIN.selectFirst();
 
                 // Go back to title screen
-                window.getScene().setRoot(startLayout);
+                window.getScene().setRoot(LAYOUT_START);
             }
         });
     }
@@ -876,7 +924,7 @@ public class AsteroidsApplication extends Application {
 
         // Create animations
         for (Star s : stars) {
-            ScaleTransition starAnim = new ScaleTransition(Duration.millis(Math.random() * 200), s.getCharacter());
+            ScaleTransition starAnim = new ScaleTransition(Duration.millis(random() * 200), s.getCharacter());
             starAnim.setFromX(s.getCharacter().getScaleX());
             starAnim.setFromY(s.getCharacter().getScaleY());
             starAnim.setToX(s.getCharacter().getScaleX() * 0.9);
@@ -887,6 +935,78 @@ public class AsteroidsApplication extends Application {
         }
 
         return animations;
+    }
+
+    /**
+     * Creates an animation where a {@link Polygon} changes size then disappears.
+     *
+     * @param polygon  the Polygon used in the animation.
+     * @param factor   the scale factor used in the animation.
+     * @param duration how long the duration will last, in milliseconds.
+     * @return         a {@link Timeline} with the animation.
+     */
+    private static Timeline getScaleAnimation(Polygon polygon, double factor, double duration) {
+        KeyValue scaleX = new KeyValue(polygon.scaleXProperty(), polygon.getScaleX() * factor);
+        KeyValue scaleY = new KeyValue(polygon.scaleYProperty(), polygon.getScaleY() * factor);
+        KeyValue opacity = new KeyValue(polygon.opacityProperty(), 0);
+
+        KeyFrame frame = new KeyFrame(Duration.millis(duration), scaleX, scaleY, opacity);
+
+        return new Timeline(frame);
+    }
+
+    /**
+     * Creates an {@link Asteroid} of the specified level at the given X and Y coordinates.
+     * <p>
+     * Generated asteroids will have their X and Y scales bounded to the specified {@link DoubleBinding}. This allows
+     * for responsive design, since whenever the scale changes, so will the asteroid's size.
+     *
+     * @param x       x coordinate for the Asteroid.
+     * @param y       y coordinate for the Asteroid.
+     * @param level   the Asteroid level.
+     * @param scale   a DoubleBinding value, used for scaling the asteroid with the window.
+     * @param velMult multiplier for the asteroid velocity.
+     * @return        the created Asteroid;
+     */
+    private Asteroid makeAsteroid(double x, double y, int level, DoubleBinding scale, double velMult) {
+        Asteroid asteroid = new Asteroid(x, y, level);
+        asteroid.getCharacter().scaleXProperty().bind(scale);
+        asteroid.getCharacter().scaleYProperty().bind(scale);
+        asteroid.setMovement(asteroid.getMovement().multiply(velMult / sqrt(level)));
+        return asteroid;
+    }
+
+    /**
+     * Returns a list containing the resulting {@link Asteroid Asteroids} after splitting one main Asteroid.
+     * <p>
+     * L1 asteroids don't split, so in that case an empty list is returned. For any other level, the logic for generating
+     * asteroids is as follows: for an asteroid of level {@code n}, {@code n} asteroids will be generated. Of those,
+     * half will be L1 asteroids. The other half may also consist of L1s, however each asteroid will have a chance of
+     * {@code 1/n} of being an L(n-1) instead.
+     * <p>
+     * The asteroids will move in a random direction, and be slightly offset from their parent's original position.
+     *
+     * @param origin the Asteroid to split.
+     * @param scale  a {@link DoubleBinding} value, used for scaling asteroids with the window.
+     * @return       a list containing zero or more Asteroids.
+     */
+    private List<Asteroid> splitAsteroid(Asteroid origin, DoubleBinding scale) {
+        List<Asteroid> newAsteroids = new ArrayList<>();
+        if (origin.getLevel() > 1) {
+            for (int i = 0; i < origin.getLevel(); i++) {
+                int asteroidLvl = (i < origin.getLevel() / 2 && random() < (double) 1 / origin.getLevel())
+                        ? origin.getLevel() - 1 : 1;
+                Asteroid asteroid = makeAsteroid(
+                        origin.getCharacter().getTranslateX() + random() * 30 - 15,
+                        origin.getCharacter().getTranslateY() + random() * 30 - 15,
+                        asteroidLvl,
+                        scale,
+                        1
+                );
+                newAsteroids.add(asteroid);
+            }
+        }
+        return newAsteroids;
     }
 
     /**

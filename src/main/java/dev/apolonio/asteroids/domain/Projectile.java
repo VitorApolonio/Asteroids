@@ -1,6 +1,5 @@
 package dev.apolonio.asteroids.domain;
 
-import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
 
 /**
@@ -23,7 +22,8 @@ public class Projectile extends Entity {
                 10, 4,
                 -10, 4,
                 -10, -4), x, y);
-        getCharacter().setFill(Color.GHOSTWHITE);
+
+        getCharacter().getStyleClass().add("ship-bullet");
     }
 
     /**

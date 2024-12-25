@@ -1,7 +1,5 @@
 package dev.apolonio.asteroids.domain;
 
-import dev.apolonio.asteroids.AsteroidsApplication;
-import javafx.beans.binding.DoubleBinding;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.geometry.Point2D;
@@ -13,7 +11,7 @@ import javafx.scene.shape.Shape;
  * the screen and detecting collisions with other entities.
  */
 public abstract class Entity {
-    private final Polygon character;
+    private final Polygon CHARACTER;
     private Point2D movement;
     private DoubleProperty velScale;
 
@@ -21,13 +19,13 @@ public abstract class Entity {
      * Creates a new Entity at the specified X and Y coordinates.
      *
      * @param polygon the {@link Polygon} that will visually represent the class.
-     * @param x       the X coordinate for the Entity's inicial position.
-     * @param y       the Y coordinate for the Entity's inicial position.
+     * @param x       the X coordinate for the Entity's initial position.
+     * @param y       the Y coordinate for the Entity's initial position.
      */
     public Entity(Polygon polygon, double x, double y) {
-        character = polygon;
-        character.setTranslateX(x);
-        character.setTranslateY(y);
+        CHARACTER = polygon;
+        CHARACTER.setTranslateX(x);
+        CHARACTER.setTranslateY(y);
         
         movement = new Point2D(0, 0);
 
@@ -40,21 +38,21 @@ public abstract class Entity {
      * @return a {@link Polygon} representing the Entity visually.
      */
     public Polygon getCharacter() {
-        return character;
+        return CHARACTER;
     }
 
     /**
      * Rotates the Entity by 5 degrees counterclockwise.
      */
     public void turnLeft() {
-        character.setRotate(character.getRotate() - 5);
+        CHARACTER.setRotate(CHARACTER.getRotate() - 5);
     }
 
     /**
      * Rotates the Entity by 5 degrees clockwise.
      */
     public void turnRight() {
-        character.setRotate(character.getRotate() + 5);
+        CHARACTER.setRotate(CHARACTER.getRotate() + 5);
     }
 
     /**
@@ -67,28 +65,28 @@ public abstract class Entity {
      * @param scrHeight the height of the screen in pixels
      */
     public void move(double scrWidth, double scrHeight) {
-        character.setTranslateX(character.getTranslateX() + movement.getX());
-        character.setTranslateY(character.getTranslateY() + movement.getY());
+        CHARACTER.setTranslateX(CHARACTER.getTranslateX() + movement.getX());
+        CHARACTER.setTranslateY(CHARACTER.getTranslateY() + movement.getY());
 
         /* This code checks if the entity is outside the screen bounds. If it is, the entity is moved into the screen
            on the opposite side. However, the entity is only moved if it is moving in the direction of the bound it has
            left (i.e. if it's outside the left side of the screen, the entity must also be moving towards the left to be
            teleported). This is done because when the entity is moved, it is actually slightly outside the screen, and so
            would be teleported again and again, from one side to the other, if there wasn't also a check for direction. */
-        if (character.getBoundsInParent().getMaxX() < 0 && movement.getX() < 0) {
-            character.setTranslateX(character.getLayoutBounds().getMaxX() + scrWidth);
+        if (CHARACTER.getBoundsInParent().getMaxX() < 0 && movement.getX() < 0) {
+            CHARACTER.setTranslateX(CHARACTER.getLayoutBounds().getMaxX() + scrWidth);
         }
         
-        if (character.getBoundsInParent().getMinX() > scrWidth && movement.getX() > 0) {
-            character.setTranslateX(character.getLayoutBounds().getMinX() % scrWidth);
+        if (CHARACTER.getBoundsInParent().getMinX() > scrWidth && movement.getX() > 0) {
+            CHARACTER.setTranslateX(CHARACTER.getLayoutBounds().getMinX() % scrWidth);
         }
 
-        if (character.getBoundsInParent().getMaxY() < 0 && movement.getY() < 0) {
-            character.setTranslateY(character.getLayoutBounds().getMaxY() + scrHeight);
+        if (CHARACTER.getBoundsInParent().getMaxY() < 0 && movement.getY() < 0) {
+            CHARACTER.setTranslateY(CHARACTER.getLayoutBounds().getMaxY() + scrHeight);
         }
 
-        if (character.getBoundsInParent().getMinY() > scrHeight && movement.getY() > 0) {
-            character.setTranslateY(character.getLayoutBounds().getMinY() % scrHeight);
+        if (CHARACTER.getBoundsInParent().getMinY() > scrHeight && movement.getY() > 0) {
+            CHARACTER.setTranslateY(CHARACTER.getLayoutBounds().getMinY() % scrHeight);
         }
     }
 
@@ -115,7 +113,7 @@ public abstract class Entity {
      */
     public void accelerate() {
         // Convert angle from degree to radians, to be used with Math.sin() and Math.cos()
-        double angleInRadians = Math.toRadians(character.getRotate());
+        double angleInRadians = Math.toRadians(CHARACTER.getRotate());
 
         // Calculate the change in X and Y velocity using the cosine and sine of the angles
         double dx = Math.cos(angleInRadians);
@@ -154,7 +152,7 @@ public abstract class Entity {
      * @return      {@code true} if the entities have collided, {@code false} otherwise.
      */
     public boolean collide(Entity other) {
-        Shape collisionArea = Shape.intersect(character, other.getCharacter());
+        Shape collisionArea = Shape.intersect(CHARACTER, other.getCharacter());
         return collisionArea.getBoundsInLocal().getWidth() != -1;
     }
 }

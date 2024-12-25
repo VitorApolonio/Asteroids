@@ -8,7 +8,7 @@ import java.util.List;
  * Contains methods for selecting between the options, and checking which is currently selected.
  */
 public class Menu {
-    private final List<MenuOption> options;
+    private final List<MenuOption> OPTIONS;
     private MenuOption selected;
 
     /**
@@ -17,7 +17,7 @@ public class Menu {
      * @param options The {@code MenuOptions} to include in the menu.
      */
     public Menu(MenuOption... options) {
-        this.options = List.of(options);
+        this.OPTIONS = List.of(options);
         selectFirst();
     }
 
@@ -27,7 +27,7 @@ public class Menu {
      * @return a {@code List} containing all the menu's options.
      */
     public List<MenuOption> getOptions() {
-        return options;
+        return OPTIONS;
     }
 
     /**
@@ -45,7 +45,7 @@ public class Menu {
      * @return an {@code int} value representing the index of the selected option.
      */
     public int getSelectedIndex() {
-        return options.indexOf(selected);
+        return OPTIONS.indexOf(selected);
     }
 
     /**
@@ -56,7 +56,7 @@ public class Menu {
         if (selected != null) {
             selected.deselect();
         }
-        selected = options.get(0);
+        selected = OPTIONS.get(0);
         selected.select();
     }
 
@@ -68,7 +68,7 @@ public class Menu {
         if (selected != null) {
             selected.deselect();
         }
-        selected = options.get(options.size() - 1);
+        selected = OPTIONS.get(OPTIONS.size() - 1);
         selected.select();
     }
 
@@ -80,13 +80,13 @@ public class Menu {
     public void selectNext() {
         selected.deselect();
 
-        int newIndex = (options.indexOf(selected) + 1) % options.size();
-        while (!options.get(newIndex).getEnabled()) {
+        int newIndex = (OPTIONS.indexOf(selected) + 1) % OPTIONS.size();
+        while (!OPTIONS.get(newIndex).getEnabled()) {
             newIndex++;
-            newIndex %= options.size();
+            newIndex %= OPTIONS.size();
         }
 
-        selected = options.get(newIndex);
+        selected = OPTIONS.get(newIndex);
         selected.select();
 
     }
@@ -99,13 +99,13 @@ public class Menu {
     public void selectPrevious() {
         selected.deselect();
 
-        int newIndex = (options.indexOf(selected) - 1 + options.size()) % options.size();
-        while (!options.get(newIndex).getEnabled()) {
-            newIndex += options.size() - 1;
-            newIndex %= options.size();
+        int newIndex = (OPTIONS.indexOf(selected) - 1 + OPTIONS.size()) % OPTIONS.size();
+        while (!OPTIONS.get(newIndex).getEnabled()) {
+            newIndex += OPTIONS.size() - 1;
+            newIndex %= OPTIONS.size();
         }
 
-        selected = options.get(newIndex);
+        selected = OPTIONS.get(newIndex);
         selected.select();
     }
 }
