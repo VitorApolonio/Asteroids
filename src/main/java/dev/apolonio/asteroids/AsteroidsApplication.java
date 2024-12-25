@@ -447,10 +447,10 @@ public class AsteroidsApplication extends Application {
                 }
 
                 // Spawn asteroids with a chance of 50% each second, affected by score
-                if (random() < 0.5 / 60 * min(1 + (double) points.get() / 90 * SCR_MULT, 1.75)) {
+                if (random() < 0.5 / 60 * min(1 + (double) points.get() / (100 * SCR_MULT), 2)) {
                     // Asteroid level depends on player score
                     int asteroidLvl = 1;
-                    if (points.get() > 200 * SCR_MULT) {
+                    if (points.get() > 150 * SCR_MULT) {
                         asteroidLvl += (int) (0.5 + random() * 2);
                     } else if (points.get() > 50 * SCR_MULT) {
                         asteroidLvl += (int) (random() * 2.5);
@@ -458,8 +458,16 @@ public class AsteroidsApplication extends Application {
                         asteroidLvl += (int) (random() * 2);
                     }
 
-                    Asteroid asteroid = makeAsteroid(random() * window.getWidth() / 3,
-                            random() * window.getWidth() / 2, asteroidLvl, RES_SCALE);
+                    // Asteroid speed scales up with score, also increases with shotgun enabled
+                    Asteroid asteroid = makeAsteroid(
+                            random() * window.getWidth() / 3,
+                            random() * window.getWidth() / 2,
+                            asteroidLvl,
+                            RES_SCALE,
+                            // Speed increases with score, with a cap at 10x
+                            min(1 + (double) points.get() / (100 * SCR_MULT) * (shotgun ? 5 : 1), 10)
+                    );
+
                     // Don't spawn if in safe zone
                     if (!ship.inSafeZone(asteroid)) {
                         asteroids.add(asteroid);
@@ -508,9 +516,9 @@ public class AsteroidsApplication extends Application {
                         GAME_SFX.get(7).seek(Duration.ZERO);
                         GAME_SFX.get(7).play();
 
-                        // Fewer points are awarded for spread shot kills
+                        // Points given decrease with the asteroid level, since higher levels split into lower ones anyway
                         txt_currentScoreText.setText("SCORE: " + points.addAndGet(
-                                (int) (SCR_MULT / pow(2, collided.getLevel() - 1)) / (shotgun ? 2 : 1)
+                                (int) (SCR_MULT / pow(2, collided.getLevel() - 1))
                         ));
                     }
 
@@ -689,8 +697,13 @@ public class AsteroidsApplication extends Application {
                         }
                         // Spawn initial asteroids at random positions
                         for (int i = 0; i < 5; i++) {
-                            Asteroid asteroid = makeAsteroid(rand.nextDouble(window.getWidth() / 3),
-                                    rand.nextDouble(window.getHeight()), 2, RES_SCALE);
+                            Asteroid asteroid = makeAsteroid(
+                                    rand.nextDouble(window.getWidth() / 3),
+                                    rand.nextDouble(window.getHeight()),
+                                    2,
+                                    RES_SCALE,
+                                    1
+                            );
                             asteroids.add(asteroid);
                         }
                         // Create star animations
@@ -948,17 +961,18 @@ public class AsteroidsApplication extends Application {
      * Generated asteroids will have their X and Y scales bounded to the specified {@link DoubleBinding}. This allows
      * for responsive design, since whenever the scale changes, so will the asteroid's size.
      *
-     * @param x     x coordinate for the Asteroid.
-     * @param y     y coordinate for the Asteroid.
-     * @param level the Asteroid level.
-     * @param scale a DoubleBinding value, used for scaling the asteroid with the window.
-     * @return      the created Asteroid;
+     * @param x       x coordinate for the Asteroid.
+     * @param y       y coordinate for the Asteroid.
+     * @param level   the Asteroid level.
+     * @param scale   a DoubleBinding value, used for scaling the asteroid with the window.
+     * @param velMult multiplier for the asteroid velocity.
+     * @return        the created Asteroid;
      */
-    private Asteroid makeAsteroid(double x, double y, int level, DoubleBinding scale) {
+    private Asteroid makeAsteroid(double x, double y, int level, DoubleBinding scale, double velMult) {
         Asteroid asteroid = new Asteroid(x, y, level);
         asteroid.getCharacter().scaleXProperty().bind(scale);
         asteroid.getCharacter().scaleYProperty().bind(scale);
-        asteroid.setMovement(asteroid.getMovement().multiply(1 / sqrt(level)));
+        asteroid.setMovement(asteroid.getMovement().multiply(velMult / sqrt(level)));
         return asteroid;
     }
 
@@ -982,8 +996,13 @@ public class AsteroidsApplication extends Application {
             for (int i = 0; i < origin.getLevel(); i++) {
                 int asteroidLvl = (i < origin.getLevel() / 2 && random() < (double) 1 / origin.getLevel())
                         ? origin.getLevel() - 1 : 1;
-                Asteroid asteroid = makeAsteroid(origin.getCharacter().getTranslateX() + random() * 30 - 15,
-                        origin.getCharacter().getTranslateY() + random() * 30 - 15, asteroidLvl, scale);
+                Asteroid asteroid = makeAsteroid(
+                        origin.getCharacter().getTranslateX() + random() * 30 - 15,
+                        origin.getCharacter().getTranslateY() + random() * 30 - 15,
+                        asteroidLvl,
+                        scale,
+                        1
+                );
                 newAsteroids.add(asteroid);
             }
         }
