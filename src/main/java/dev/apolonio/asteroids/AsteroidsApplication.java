@@ -63,6 +63,7 @@ import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static java.lang.Math.min;
+import static java.lang.Math.pow;
 import static java.lang.Math.random;
 import static java.lang.Math.sqrt;
 
@@ -96,6 +97,9 @@ public class AsteroidsApplication extends Application {
 
     // Whether the cheat code is active
     private boolean shotgun = false;
+
+    // Base points awarded for kills
+    private final int SCR_MULT = 100;
 
     @Override
     public void start(Stage window) {
@@ -443,14 +447,14 @@ public class AsteroidsApplication extends Application {
                 }
 
                 // Spawn asteroids with a chance of 50% each second, affected by score
-                if (random() < 0.5 / 60 * min(1 + (double) points.get() / 8000, 1.75)) {
+                if (random() < 0.5 / 60 * min(1 + (double) points.get() / 90 * SCR_MULT, 1.75)) {
                     // Asteroid level depends on player score
                     int asteroidLvl = 1;
-                    if (points.get() > 12000) {
+                    if (points.get() > 200 * SCR_MULT) {
                         asteroidLvl += (int) (0.5 + random() * 2);
-                    } else if (points.get() > 9000) {
+                    } else if (points.get() > 50 * SCR_MULT) {
                         asteroidLvl += (int) (random() * 2.5);
-                    } else if (points.get() > 2000) {
+                    } else if (points.get() > 10 * SCR_MULT) {
                         asteroidLvl += (int) (random() * 2);
                     }
 
@@ -505,11 +509,9 @@ public class AsteroidsApplication extends Application {
                         GAME_SFX.get(7).play();
 
                         // Fewer points are awarded for spread shot kills
-                        if (shotgun) {
-                            txt_currentScoreText.setText("SCORE: " + points.addAndGet(50));
-                        } else {
-                            txt_currentScoreText.setText("SCORE: " + points.addAndGet(100));
-                        }
+                        txt_currentScoreText.setText("SCORE: " + points.addAndGet(
+                                (int) (SCR_MULT / pow(2, collided.getLevel() - 1)) / (shotgun ? 2 : 1)
+                        ));
                     }
 
                     // Remove projectile if it hits something or flies out of bounds
