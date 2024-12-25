@@ -6,7 +6,7 @@ Uma réplica do jogo Asteroids feita em Java.
 
 ![screenshot_16](https://github.com/user-attachments/assets/fb716666-91f2-41f2-b05b-3dde22503266)
 
-![screenshot_15](https://github.com/user-attachments/assets/ab6f4ce2-9f25-4082-ab81-6764786fa5c7)
+![screenshot_30](https://github.com/user-attachments/assets/f9b0bc9e-07af-48db-87bc-1e131815b0fa)
 
 ![screenshot_17](https://github.com/user-attachments/assets/f870e6c8-54ce-44f7-aebd-cf443ca92e40)
 
