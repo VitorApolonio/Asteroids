@@ -103,6 +103,22 @@ public class AsteroidsApplication extends Application {
 
     @Override
     public void start(Stage window) {
+        /* ABOUT FONT SIZES
+
+           This game uses CSS for most of the styles, with the exception of font sizes.
+
+           Since there's no way to make font sizes responsive in JavaFX CSS, I used instead
+           the bind() function to tie font sizes to a fraction of the screen height (not width, to avoid problems
+           with different aspect ratios).
+
+           This is a bit of a hack, but I couldn't figure out a better way to do this. Here are the fractions used
+           for the different text sizes:
+
+           LARGE--------1/7  Window Height
+           MEDIUM-------1/11 Window Height
+           SMALL--------1/13 Window Height
+
+           This reference table shall be updated in case any of these values change. */
 
         // Set game window size
         window.setWidth(INITIAL_WIDTH);
