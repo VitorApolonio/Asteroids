@@ -494,64 +494,67 @@ public class AsteroidsApplication extends Application {
                 // Ship and asteroid movement
                 ship.move(window.getWidth(), window.getHeight());
                 asteroids.forEach(a -> a.move(window.getWidth(), window.getHeight()));
-                projectiles.forEach(a -> a.move(window.getWidth(), window.getHeight()));
+                projectiles.forEach(Projectile::move);
 
-                // Remove off-screen projectiles
-                Iterator<Projectile> projIt = projectiles.iterator();
-                while (projIt.hasNext()) {
-                    Projectile proj = projIt.next();
+                /* Remove off-screen projectiles
+                   Runs once every 4 frames, for better performance */
+                if (((System.currentTimeMillis() * 1000) / 60) % 4 == 0) {
+                    Iterator<Projectile> projIt = projectiles.iterator();
+                    while (projIt.hasNext()) {
+                        Projectile proj = projIt.next();
 
-                    List<Asteroid> collisions = asteroids.stream()
-                            .filter(asteroid -> asteroid.collide(proj))
-                            .toList();
+                        List<Asteroid> collisions = asteroids.stream()
+                                .filter(asteroid -> asteroid.collide(proj))
+                                .toList();
 
-                    // Remove asteroids and projectiles when they hit each other
-                    for (Asteroid collided : collisions) {
-                        Polygon asteroidPolygon = collided.getCharacter();
+                        // Remove asteroids and projectiles when they hit each other
+                        for (Asteroid collided : collisions) {
+                            Polygon asteroidPolygon = collided.getCharacter();
 
-                        // Unbinding is necessary so that the scale can change for the animation
-                        asteroidPolygon.scaleXProperty().unbind();
-                        asteroidPolygon.scaleYProperty().unbind();
+                            // Unbinding is necessary so that the scale can change for the animation
+                            asteroidPolygon.scaleXProperty().unbind();
+                            asteroidPolygon.scaleYProperty().unbind();
 
-                        Timeline timeline = getScaleAnimation(asteroidPolygon, 1.5, 333);
-                        timeline.setOnFinished(event -> {
-                            LAYOUT_SPACE.getChildren().remove(asteroidPolygon);
-                            // Sub asteroids spawn after the animation finishes
-                            List<Asteroid> newAsteroids = splitAsteroid(collided, RES_SCALE);
-                            newAsteroids.forEach(a -> {
-                                asteroids.add(a);
-                                LAYOUT_ASTEROID.getChildren().add(a.getCharacter());
+                            Timeline timeline = getScaleAnimation(asteroidPolygon, 1.5, 333);
+                            timeline.setOnFinished(event -> {
+                                LAYOUT_SPACE.getChildren().remove(asteroidPolygon);
+                                // Sub asteroids spawn after the animation finishes
+                                List<Asteroid> newAsteroids = splitAsteroid(collided, RES_SCALE);
+                                newAsteroids.forEach(a -> {
+                                    asteroids.add(a);
+                                    LAYOUT_ASTEROID.getChildren().add(a.getCharacter());
+                                });
                             });
-                        });
-                        timeline.play();
+                            timeline.play();
 
-                        // This isn't on the animation, since otherwise you could still hit the asteroid until it finishes
-                        asteroids.remove(collided);
+                            // This isn't on the animation, since otherwise you could still hit the asteroid until it finishes
+                            asteroids.remove(collided);
 
-                        // Play sound
-                        GAME_SFX.get(7).seek(Duration.ZERO);
-                        GAME_SFX.get(7).play();
+                            // Play sound
+                            GAME_SFX.get(7).seek(Duration.ZERO);
+                            GAME_SFX.get(7).play();
 
-                        // Points given decrease with the asteroid level, since higher levels split into lower ones anyway
-                        txt_currentScoreText.setText("SCORE: " + points.addAndGet(
-                                (int) (SCR_MULT / pow(2, collided.getLevel() - 1))
-                        ));
-                    }
+                            // Points given decrease with the asteroid level, since higher levels split into lower ones anyway
+                            txt_currentScoreText.setText("SCORE: " + points.addAndGet(
+                                    (int) (SCR_MULT / pow(2, collided.getLevel() - 1))
+                            ));
+                        }
 
-                    // Remove projectile if it hits something or flies out of bounds
-                    if (!collisions.isEmpty()) {
-                        proj.getCharacter().scaleXProperty().unbind();
-                        proj.getCharacter().scaleYProperty().unbind();
-                        Timeline timeline = getScaleAnimation(proj.getCharacter(), 1.375, 125);
-                        timeline.setOnFinished(event -> LAYOUT_SPACE.getChildren().remove(proj.getCharacter()));
-                        timeline.play();
-                        projIt.remove();
-                    } else if (proj.getCharacter().getTranslateX() < 0
-                            || proj.getCharacter().getTranslateX() > window.getWidth()
-                            || proj.getCharacter().getTranslateY() < 0
-                            || proj.getCharacter().getTranslateY() > window.getHeight()) {
-                        LAYOUT_SPACE.getChildren().remove(proj.getCharacter());
-                        projIt.remove();
+                        // Remove projectile if it hits something or flies out of bounds
+                        if (!collisions.isEmpty()) {
+                            proj.getCharacter().scaleXProperty().unbind();
+                            proj.getCharacter().scaleYProperty().unbind();
+                            Timeline timeline = getScaleAnimation(proj.getCharacter(), 1.375, 125);
+                            timeline.setOnFinished(event -> LAYOUT_SPACE.getChildren().remove(proj.getCharacter()));
+                            timeline.play();
+                            projIt.remove();
+                        } else if (proj.getCharacter().getTranslateX() < 0
+                                || proj.getCharacter().getTranslateX() > window.getWidth()
+                                || proj.getCharacter().getTranslateY() < 0
+                                || proj.getCharacter().getTranslateY() > window.getHeight()) {
+                            LAYOUT_SPACE.getChildren().remove(proj.getCharacter());
+                            projIt.remove();
+                        }
                     }
                 }
 
