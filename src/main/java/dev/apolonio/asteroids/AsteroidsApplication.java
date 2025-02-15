@@ -497,9 +497,9 @@ public class AsteroidsApplication extends Application {
                 projectiles.forEach(Projectile::move);
 
                 // Deal with collisions involving asteroids
-                var asteroidIt = asteroids.iterator();
+                Iterator<Asteroid> asteroidIt = asteroids.iterator();
                 while (asteroidIt.hasNext()) {
-                    var asteroid = asteroidIt.next();
+                    Asteroid asteroid = asteroidIt.next();
                     boolean removed = false; // Used to avoid multiple remove() calls
 
                     // End game if ship hits an asteroid
@@ -538,9 +538,9 @@ public class AsteroidsApplication extends Application {
                     }
 
                     // Check for collisions with projectiles
-                    var projIt = projectiles.iterator();
+                    Iterator<Projectile> projIt = projectiles.iterator();
                     while (projIt.hasNext()) {
-                        var proj = projIt.next();
+                        Projectile proj = projIt.next();
                         if (proj.collide(asteroid)) {
                             Polygon asteroidPolygon = asteroid.getCharacter();
 
@@ -581,7 +581,7 @@ public class AsteroidsApplication extends Application {
                             projTl.setOnFinished(event -> LAYOUT_SPACE.getChildren().remove(proj.getCharacter()));
                             projTl.play();
                             projIt.remove();
-                        // Remove offscreen projectilest ls
+                        // Remove off-screen projectiles
                         } else if (proj.getCharacter().getTranslateX() < 0
                                 || proj.getCharacter().getTranslateX() > window.getWidth()
                                 || proj.getCharacter().getTranslateY() < 0
